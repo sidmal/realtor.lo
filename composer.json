@@ -26,6 +26,7 @@
         "sonata-project/intl-bundle": "2.*",
         "sonata-project/user-bundle": "~2.2@dev",
         "sonata-project/seo-bundle": "~1.1",
+        "sonata-project/page-bundle": "2.*",
 
         "guzzle/guzzle": "@stable",
 
