@@ -1,0 +1,7 @@
+parameters:
+#    call.example.class: Realtor\CallBundle\Example
+
+services:
+#    call.example:
+#        class: %call.example.class%
+#        arguments: [@service_id, "plain_value", %parameter%]

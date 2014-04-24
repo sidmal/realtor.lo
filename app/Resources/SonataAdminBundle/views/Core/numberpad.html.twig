@@ -1,0 +1,200 @@
+{% extends sonata_block.templates.block_base %}
+
+{% block block %}
+    <style type="text/css">
+        .sonata-numberpad-container .btn{
+            border: 1px solid #000000;
+            width: 83px;
+        }
+
+        .sonata-numberpad-container p{
+            padding-top: 10px;
+        }
+
+        .sonata-numberpad-container span.digital{
+            font-weight: bold;
+            font-size: 22px;
+        }
+
+        .sonata-numberpad-container span.action{
+            font-weight: bold;
+            font-size: 22px;
+        }
+
+        .sonata-numberpad-container span.literal{
+            color: #808080;
+        }
+
+        .top-margin{
+            margin-top: 5px;
+        }
+
+        .call{
+            color: #00FF7F;
+        }
+
+        .sonata-numberpad-container .controls.sonata-ba-field.sonata-ba-field-standard-natural{
+            margin-bottom: 10px;
+        }
+
+        .sonata-numberpad-container .controls.sonata-ba-field.sonata-ba-field-standard-natural input{
+            border: 1px solid #000000;
+            font-weight: bold;
+            font-size: 22px;
+        }
+    </style>
+
+    <script type="text/javascript">
+        $(document).ready(function(){
+            $('body').on('click', 'div.btn-group-lg a', function(){
+                if($(this).find('.digital').length){
+                    return $('#numberpad-phone').val($('#numberpad-phone').val() + $(this).find('.digital').text());
+                }
+
+                if($(this).find('.action').length){
+                    switch($(this).find('.action').text()){
+                        case 'CLEAR':
+                            return $('#numberpad-phone').val('');
+                            break;
+                        case 'CALL':
+                            call();
+                            break;
+                        case 'DELETE':
+                            return $('#numberpad-phone').val($('#numberpad-phone').val().slice(0, -1));
+                            break;
+                    }
+                }
+            });
+        });
+
+        function call(){
+            if(!$('#numberpad-phone').val()){
+                return alert('number is empty.');
+            }
+
+            $.ajax(
+                {
+                    type: 'post',
+                    url: '{{ path('call_ajax') }}',
+                    data: {to_phone: $('#numberpad-phone').val()},
+                    success: function(response){
+                        if(response.call_state){
+                            alert(response.call_comment);
+                        }
+                        else{
+                            alert(response.call_comment);
+                        }
+                    },
+                    dataType: 'json'
+                }
+            );
+        }
+    </script>
+
+    <div class="sonata-numberpad-container" style="text-align: center; margin-bottom: 20px;">
+        <div class="controls sonata-ba-field sonata-ba-field-standard-natural">
+            <input id="numberpad-phone" type="text" maxlength="255" class="span7" />
+        </div>
+
+        <div class="btn-group-lg">
+            <a class="btn sonata-action-element">
+                <p>
+                    <span class="digital">1</span>
+                </p>
+            </a>
+            <a class="btn sonata-action-element">
+                <p>
+                    <span class="digital">2</span>
+                    <span class="literal">ABC</span>
+                </p>
+            </a>
+            <a class="btn sonata-action-element">
+                <p>
+                    <span class="digital">3</span>
+                    <span class="literal">DEF</span>
+                </p>
+            </a>
+        </div>
+
+        <div class="btn-group-lg top-margin">
+            <a class="btn sonata-action-element">
+                <p>
+                    <span class="digital">4</span>
+                    <span class="literal">ABC</span>
+                </p>
+            </a>
+            <a class="btn sonata-action-element">
+                <p>
+                    <span class="digital">5</span>
+                    <span class="literal">ABC</span>
+                </p>
+            </a>
+            <a class="btn sonata-action-element">
+                <p>
+                    <span class="digital">6</span>
+                    <span class="literal">ABC</span>
+                </p>
+            </a>
+        </div>
+
+        <div class="btn-group-lg top-margin">
+            <a class="btn sonata-action-element">
+                <p>
+                    <span class="digital">7</span>
+                    <span class="literal">ABC</span>
+                </p>
+            </a>
+            <a class="btn sonata-action-element">
+                <p>
+                    <span class="digital">8</span>
+                    <span class="literal">ABC</span>
+                </p>
+            </a>
+            <a class="btn sonata-action-element">
+                <p>
+                    <span class="digital">9</span>
+                    <span class="literal">ABC</span>
+                </p>
+            </a>
+        </div>
+
+        <div class="btn-group-lg top-margin">
+            <a class="btn sonata-action-element">
+                <p>
+                    <span class="digital">*</span>
+                    <span class="literal">ABC</span>
+                </p>
+            </a>
+            <a class="btn sonata-action-element">
+                <p>
+                    <span class="digital">0</span>
+                    <span class="literal">ABC</span>
+                </p>
+            </a>
+            <a class="btn sonata-action-element">
+                <p>
+                    <span class="digital">#</span>
+                    <span class="literal">ABC</span>
+                </p>
+            </a>
+        </div>
+
+        <div class="btn-group-lg top-margin">
+            <a class="btn sonata-action-element">
+                <p>
+                    <span class="action">CLEAR</span>
+                </p>
+            </a>
+            <a class="btn sonata-action-element">
+                <p>
+                    <span class="action call">CALL</span>
+                </p>
+            </a>
+            <a class="btn sonata-action-element">
+                <p>
+                    <span class="action">DELETE</span>
+                </p>
+            </a>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,50 @@
+parameters:
+#    admin.example.class: Realtor\AdminBundle\Example
+
+services:
+#    admin.example:
+#        class: %admin.example.class%
+#        arguments: [@service_id, "plain_value", %parameter%]
+    admin.admin.advertising_source:
+        class: Realtor\AdminBundle\Admin\AdvertisingSourceAdmin
+        arguments:
+            - ~
+            - Realtor\DictionaryBundle\Entity\AdvertisingSource
+            - SonataAdminBundle:CRUD
+        tags:
+            - {name: sonata.admin, manager_type: orm, group: "Справочники", label: "Источники рекламы"}
+
+    admin.admin.branches:
+        class: Realtor\AdminBundle\Admin\BranchesAdmin
+        arguments:
+            - ~
+            - Realtor\DictionaryBundle\Entity\Branches
+            - SonataAdminBundle:CRUD
+        tags:
+            - {name: sonata.admin, manager_type: orm, group: "Справочники", label: "Филиалы"}
+
+    admin.admin.reason:
+        class: Realtor\AdminBundle\Admin\ReasonAdmin
+        arguments:
+            - ~
+            - Realtor\DictionaryBundle\Entity\Reason
+            - SonataAdminBundle:CRUD
+        tags:
+            - {name: sonata.admin, manager_type: orm, group: "Справочники", label: "Причина обращения"}
+
+    admin.admin.call_result:
+        class: Realtor\AdminBundle\Admin\CallResultAdmin
+        arguments:
+            - ~
+            - Realtor\DictionaryBundle\Entity\CallResult
+            - SonataAdminBundle:CRUD
+        tags:
+            - {name: sonata.admin, manager_type: orm, group: "Справочники", label: "Результат разговора"}
+
+    admin.sonata.block.numberpad:
+        class: Realtor\AdminBundle\Block\NumberPad
+        arguments:
+            - @sonata.block.service.rss
+            - @templating
+        tags:
+            - {name: sonata.block}

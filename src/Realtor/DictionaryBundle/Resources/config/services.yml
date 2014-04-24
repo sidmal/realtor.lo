@@ -1,0 +1,7 @@
+parameters:
+#    dictionary.example.class: Realtor\DictionaryBundle\Example
+
+services:
+#    dictionary.example:
+#        class: %dictionary.example.class%
+#        arguments: [@service_id, "plain_value", %parameter%]
