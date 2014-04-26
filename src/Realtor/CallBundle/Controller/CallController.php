@@ -47,4 +47,16 @@ class CallController extends Controller
 
         return new Response(json_encode($response));
     }
+
+    /**
+     * @param Request $request
+     * @return Response
+     *
+     * @Route("/call/event/income", name="call_event_income")
+     * @Method({"POST"})
+     */
+    public function eventIncomeCallController(Request $request)
+    {
+        return new Response();
+    }
 } 
