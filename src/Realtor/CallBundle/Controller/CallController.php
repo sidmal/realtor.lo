@@ -8,8 +8,9 @@
 
 namespace Realtor\CallBundle\Controller;
 
-use Guzzle\Http\Client;
 use Guzzle\Http\Exception\RequestException;
+use Realtor\CallBundle\Entity\Call;
+use Realtor\DictionaryBundle\Model\HttpClient;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -22,30 +23,54 @@ class CallController extends Controller
      * @param Request $request
      * @return Response
      *
-     * @Route("/call/ajax", name="call_ajax")
+     * @Route("/call/outcome/ajax", name="call_outcome_ajax")
      * @Method({"POST"})
      */
     public function ajaxCallAction(Request $request)
     {
-        $to = $request->request->get('to_phone');
 
-        $httpClient = new Client();
-        try{
-            $response = $httpClient->post('http://188.227.101.17:8080', [], ['cid' => '201', 'did' => $to])->send();
-
-            $response = [
-                'call_state' => true,
-                'call_comment' => print_r($response->getStatusCode(), true)
-            ];
-        }
-        catch(RequestException $e){
-            $response = [
-                'call_state' => false,
-                'call_comment' => $e->getMessage()
-            ];
+        if(!$request->isXmlHttpRequest()){
+            return new Response(403);
         }
 
-        return new Response(json_encode($response));
+        $request = $request->request;
+        $responseInstance = new Response();
+
+        if($request->has('to_phone') && $request->has('from_phone')){
+            $em = $this->getDoctrine()->getManager();
+
+            $to = $request->get('to_phone');
+
+            $httpClient = (new HttpClient())->getClient();
+            try{
+                $response = $httpClient->post(
+                    'http://188.227.101.17:8080',
+                    [],
+                    ['action' => 'dial', 'cid' => '201', 'did' => $to]
+                )->send();
+
+                $response = [
+                    'call_state' => true,
+                    'call_comment' => print_r($response->getStatusCode(), true)
+                ];
+
+                $call = new Call();
+                $call->setFromPhone($request->get('from_phone'))->setToPhone($to)->setType(0);
+
+                $em->persist($call);
+                $em->flush();
+            }
+            catch(RequestException $e){
+                $response = [
+                    'call_state' => false,
+                    'call_comment' => $e->getMessage()
+                ];
+            }
+
+            $responseInstance->setContent(json_encode($response));
+        }
+
+        return $responseInstance;
     }
 
     /**

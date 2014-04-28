@@ -1,0 +1,197 @@
+<?php
+
+namespace Realtor\CallBundle\Entity;
+
+use Doctrine\ORM\Mapping as ORM;
+
+/**
+ * Call
+ *
+ * @ORM\Table(name="call")
+ * @ORM\Entity(repositoryClass="Realtor\CallBundle\Entity\Repository\CallRepository")
+ *
+ * @ORM\HasLifecycleCallbacks()
+ */
+class Call
+{
+    /**
+     * @var integer
+     *
+     * @ORM\Column(name="id", type="bigint")
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="AUTO")
+     */
+    private $id;
+
+    /**
+     * @var integer
+     *
+     * @ORM\Column(name="ats_call_id", type="string", length=255, nullable=true)
+     */
+    private $atsCallId;
+
+    /**
+     * 0 - исходящий вызов
+     * 1 - входящий вызов
+     *
+     * @var integer
+     *
+     * @ORM\Column(name="type", type="integer")
+     */
+    private $type;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="from_phone", type="string", length=128)
+     */
+    private $fromPhone;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="to_phone", type="string", length=128)
+     */
+    private $toPhone;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="created_at", type="datetime")
+     */
+    private $createdAt;
+
+
+    /**
+     * Get id
+     *
+     * @return integer 
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * Set atsCallId
+     *
+     * @param string $atsCallId
+     * @return Call
+     */
+    public function setAtsCallId($atsCallId)
+    {
+        $this->atsCallId = $atsCallId;
+
+        return $this;
+    }
+
+    /**
+     * Get atsCallId
+     *
+     * @return string
+     */
+    public function getAtsCallId()
+    {
+        return $this->atsCallId;
+    }
+
+    /**
+     * Set type
+     *
+     * @param integer $type
+     * @return Call
+     */
+    public function setType($type)
+    {
+        $this->type = $type;
+
+        return $this;
+    }
+
+    /**
+     * Get type
+     *
+     * @return integer 
+     */
+    public function getType()
+    {
+        return $this->type;
+    }
+
+    /**
+     * Set fromPhone
+     *
+     * @param string $fromPhone
+     * @return Call
+     */
+    public function setFromPhone($fromPhone)
+    {
+        $this->fromPhone = $fromPhone;
+
+        return $this;
+    }
+
+    /**
+     * Get fromPhone
+     *
+     * @return string 
+     */
+    public function getFromPhone()
+    {
+        return $this->fromPhone;
+    }
+
+    /**
+     * Set toPhone
+     *
+     * @param string $toPhone
+     * @return Call
+     */
+    public function setToPhone($toPhone)
+    {
+        $this->toPhone = $toPhone;
+
+        return $this;
+    }
+
+    /**
+     * Get toPhone
+     *
+     * @return string 
+     */
+    public function getToPhone()
+    {
+        return $this->toPhone;
+    }
+
+    /**
+     * Set createdAt
+     *
+     * @param \DateTime $createdAt
+     * @return Call
+     */
+    public function setCreatedAt($createdAt)
+    {
+        $this->createdAt = $createdAt;
+
+        return $this;
+    }
+
+    /**
+     * Get createdAt
+     *
+     * @return \DateTime 
+     */
+    public function getCreatedAt()
+    {
+        return $this->createdAt;
+    }
+
+    /**
+     * @ORM\PrePersist
+     */
+    public function setDateValue()
+    {
+        $this->createdAt = new \DateTime();
+    }
+}

@@ -48,3 +48,11 @@ services:
             - @templating
         tags:
             - {name: sonata.block}
+
+    admin.sonata.block.call_card:
+        class: Realtor\AdminBundle\Block\CallCard
+        arguments:
+            - admin.sonata.block.call_card
+            - @templating
+        tags:
+            - {name: sonata.block}
