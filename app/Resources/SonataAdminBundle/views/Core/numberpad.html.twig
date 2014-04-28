@@ -75,8 +75,8 @@
             $.ajax(
                 {
                     type: 'post',
-                    url: '{{ path('call_ajax') }}',
-                    data: {to_phone: $('#numberpad-phone').val()},
+                    url: '{{ path('call_outcome_ajax') }}',
+                    data: { to_phone: $('#numberpad-phone').val(), from_phone: {{ app.user.getOfficePhone }} },
                     success: function(response){
                         if(response.call_state){
                             alert(response.call_comment);
