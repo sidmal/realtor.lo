@@ -107,6 +107,7 @@ class UserLoadCommand extends ContainerAwareCommand
             $userEntity->setInOffice(((integer)$employee['in_office'] == 1) ? true : false);
 
             $userEntity->setIsFired(((integer)$employee['user_dismiss'] == 1) ? true : false);
+            $userEntity->setEnabled(((integer)$employee['user_dismiss'] == 1) ? true : false);
 
             if(!empty($employee['user_dismiss_date'])){
                 $userEntity->setFiredAt(new \DateTime($employee['user_dismiss_date']));
