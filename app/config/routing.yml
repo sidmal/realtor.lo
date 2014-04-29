@@ -31,10 +31,6 @@ fos_user_change_password:
    resource: "@FOSUserBundle/Resources/config/routing/change_password.xml"
    prefix: /change-password
 
-fos_user_profile:
-   resource: "@FOSUserBundle/Resources/config/routing/profile.xml"
-   prefix: /profile
-
 ###sonata-user routes
 soanata_user:
    resource: '@SonataUserBundle/Resources/config/routing/admin_security.xml'

@@ -24,7 +24,14 @@ class Call
     private $id;
 
     /**
-     * @var integer
+     * @var string
+     *
+     * @ORM\Column(name="internal_id", type="string", length=255, nullable=true)
+     */
+    private $internalId;
+
+    /**
+     * @var string
      *
      * @ORM\Column(name="ats_call_id", type="string", length=255, nullable=true)
      */
@@ -53,6 +60,20 @@ class Call
      * @ORM\Column(name="to_phone", type="string", length=128)
      */
     private $toPhone;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="call_action", type="string", length=128)
+     */
+    private $callAction;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="event_at", type="datetime")
+     */
+    private $eventAt;
 
     /**
      * @var \DateTime
@@ -193,5 +214,74 @@ class Call
     public function setDateValue()
     {
         $this->createdAt = new \DateTime();
+    }
+
+    /**
+     * Set callAction
+     *
+     * @param string $callAction
+     * @return Call
+     */
+    public function setCallAction($callAction)
+    {
+        $this->callAction = $callAction;
+
+        return $this;
+    }
+
+    /**
+     * Get callAction
+     *
+     * @return string 
+     */
+    public function getCallAction()
+    {
+        return $this->callAction;
+    }
+
+    /**
+     * Set internalId
+     *
+     * @param string $internalId
+     * @return Call
+     */
+    public function setInternalId($internalId)
+    {
+        $this->internalId = $internalId;
+
+        return $this;
+    }
+
+    /**
+     * Get internalId
+     *
+     * @return string 
+     */
+    public function getInternalId()
+    {
+        return $this->internalId;
+    }
+
+    /**
+     * Set eventAt
+     *
+     * @param \DateTime $eventAt
+     * @return Call
+     */
+    public function setEventAt($eventAt)
+    {
+        $this->eventAt = $eventAt;
+
+        return $this;
+    }
+
+    /**
+     * Get eventAt
+     *
+     * @return \DateTime 
+     */
+    public function getEventAt()
+    {
+        return $this->eventAt;
     }
 }

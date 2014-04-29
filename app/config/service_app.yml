@@ -7,3 +7,4 @@ services:
         arguments:
             - http://disp.emls.ru/api/employee
             - @doctrine.orm.entity_manager
+            - @validator

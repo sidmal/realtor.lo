@@ -1,15 +1,27 @@
 <?php
 namespace Application\Sonata\UserBundle\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Sonata\UserBundle\Entity\BaseUser as BaseUser;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 /**
  * Class User
  * @package Application\Sonata\UserBundle\Entity
  *
- * @ORM\Table(name="fos_user_user")
+ * @ORM\Table(
+ *      name="fos_user_user",
+ *      indexes={
+ *          @ORM\Index(columns={"outer_id"})
+ *      }
+ * )
  * @ORM\Entity()
+ *
+ * @UniqueEntity("usernameCanonical")
+ * @UniqueEntity("username")
+ * @UniqueEntity("email")
+ * @UniqueEntity("emailCanonical")
  */
 class User extends BaseUser
 {
@@ -134,6 +146,7 @@ class User extends BaseUser
         $this->isFired = false;
         $this->mayRedirectCall = false;
         $this->inOffice = false;
+        $this->groups = new ArrayCollection();
     }
 
     /**

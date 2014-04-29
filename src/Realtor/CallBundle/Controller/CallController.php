@@ -43,10 +43,12 @@ class CallController extends Controller
 
             $httpClient = (new HttpClient())->getClient();
             try{
+                $uniqueId = md5(uniqid(rand(),1));
+
                 $response = $httpClient->post(
                     'http://188.227.101.17:8080',
                     [],
-                    ['action' => 'dial', 'cid' => '201', 'did' => $to]
+                    ['action' => 'dial', 'cid' => $request->get('from_phone'), 'did' => $to, 'uuid' => $uniqueId]
                 )->send();
 
                 $response = [
@@ -55,7 +57,13 @@ class CallController extends Controller
                 ];
 
                 $call = new Call();
-                $call->setFromPhone($request->get('from_phone'))->setToPhone($to)->setType(0);
+                $call
+                    ->setFromPhone($request->get('from_phone'))
+                    ->setToPhone($to)
+                    ->setType(0)
+                    ->setCallAction('dial')
+                    ->setInternalId($uniqueId)
+                    ->setEventAt(new \DateTime());
 
                 $em->persist($call);
                 $em->flush();
@@ -82,6 +90,32 @@ class CallController extends Controller
      */
     public function eventIncomeCallController(Request $request)
     {
+        $request = $request->request;
+        $em = $this->getDoctrine()->getManager();
+
+        $call = new Call();
+
+        if($request->has('uuid') && !empty($request->get('uuid'))){
+            $call->setInternalId($request->get('uuid'));
+        }
+
+        if($request->has('id') && !empty($request->get('id'))){
+            $call->setAtsCallId($request->get('id'));
+        }
+
+        if($request->has('time') && !empty($request->get('time'))){
+            $call->setEventAt(new \DateTime($request->get('time')));
+        }
+
+        $call
+            ->setType(1)
+            ->setCallAction($request->get('event'))
+            ->setFromPhone($request->get('cid'))
+            ->setToPhone($request->get('did'));
+
+        $em->persist($call);
+        $em->flush();
+
         return new Response();
     }
 } 
