@@ -95,16 +95,16 @@ class CallController extends Controller
 
         $call = new Call();
 
-        if($request->has('uuid') && !empty($request->get('uuid'))){
-            $call->setInternalId($request->get('uuid'));
+        if($request->has('uuid') && $uuid = $request->get('uuid')){
+            $call->setInternalId($uuid);
         }
 
-        if($request->has('id') && !empty($request->get('id'))){
-            $call->setAtsCallId($request->get('id'));
+        if($request->has('id') && $id = $request->get('id')){
+            $call->setAtsCallId($id);
         }
 
-        if($request->has('time') && !empty($request->get('time'))){
-            $call->setEventAt(new \DateTime($request->get('time')));
+        if($request->has('time') && $time = $request->get('time')){
+            $call->setEventAt(new \DateTime($time));
         }
 
         $call
