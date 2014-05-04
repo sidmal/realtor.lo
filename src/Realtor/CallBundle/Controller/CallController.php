@@ -30,7 +30,7 @@ class CallController extends Controller
     {
 
         if(!$request->isXmlHttpRequest()){
-            return new Response(403);
+            return new Response(null, 403);
         }
 
         $request = $request->request;
@@ -85,6 +85,30 @@ class CallController extends Controller
      * @param Request $request
      * @return Response
      *
+     * @Route("/call/get_income_event/ajax", name="call_get_income_event_ajax")
+     * @Method({"POST"})
+     */
+    public function getIncomeEventAction(Request $request)
+    {
+        if(!$request->isXmlHttpRequest()){
+            return new Response(null, 403);
+        }
+
+        if(!$request->request->has('to_phone') || !$forPhone = $request->request->get('to_phone')){
+            return new Response(null, 403);
+        }
+
+        if(!$call = $this->getDoctrine()->getManager()->getRepository('CallBundle:Call')->getIncomeCall($forPhone)){
+            return new Response(null, 403);
+        }
+
+        return new Response(json_encode($call[0]));
+    }
+
+    /**
+     * @param Request $request
+     * @return Response
+     *
      * @Route("/call/event/income", name="call_event_income")
      * @Method({"POST"})
      */
@@ -97,6 +121,10 @@ class CallController extends Controller
 
         if($request->has('uuid') && $uuid = $request->get('uuid')){
             $call->setInternalId($uuid);
+        }
+
+        if($request->has('linkedid') && $linkedId = $request->get('linkedid')){
+            $call->setLinkedId($linkedId);
         }
 
         if($request->has('id') && $id = $request->get('id')){

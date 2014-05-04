@@ -26,6 +26,13 @@ class Call
     /**
      * @var string
      *
+     * @ORM\Column(name="linked_id", type="string", length=255, nullable=true)
+     */
+    private $linkedId;
+
+    /**
+     * @var string
+     *
      * @ORM\Column(name="internal_id", type="string", length=255, nullable=true)
      */
     private $internalId;
@@ -283,5 +290,28 @@ class Call
     public function getEventAt()
     {
         return $this->eventAt;
+    }
+
+    /**
+     * Set linkedId
+     *
+     * @param string $linkedId
+     * @return Call
+     */
+    public function setLinkedId($linkedId)
+    {
+        $this->linkedId = $linkedId;
+
+        return $this;
+    }
+
+    /**
+     * Get linkedId
+     *
+     * @return string 
+     */
+    public function getLinkedId()
+    {
+        return $this->linkedId;
     }
 }

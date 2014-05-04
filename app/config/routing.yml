@@ -44,3 +44,7 @@ soanata_user:
 call:
     resource: '@CallBundle/Controller/CallController.php'
     type: annotation
+
+property:
+    resource: '@DictionaryBundle/Controller/PropertyController.php'
+    type: annotation

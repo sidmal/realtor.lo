@@ -1,22 +1,99 @@
 {% extends sonata_block.templates.block_base %}
 
 {% block block %}
-    <script type="text/javascript">
+    <link rel="stylesheet" href="{{ asset('bundles/applicationsonatauser/css/jquery-ui-1.10.4.custom.css') }}" />
 
+    <style type="text/css">
+        #phone-type{
+            margin-top: 20px;
+            font-weight: bold;
+        }
+
+        .modal-body label{
+            font-weight: bold;
+        }
+
+        .ui-autocomplete{
+            max-height: 100px;
+            overflow-y: auto;
+            position: absolute;
+            cursor: default;
+            z-index: 1500 !important;
+        }
+    </style>
+
+    <script type="text/javascript">
+        $( document ).ready(function() {
+            worker();
+        });
+
+        function worker(){
+            {% if app.user.getOfficePhone is not empty %}
+                $.ajax({
+                    type: "post",
+                    url: "{{ path('call_get_income_event_ajax') }}",
+                    data: { to_phone: {{ app.user.getOfficePhone }} },
+                    success: function(data) {
+                        $("#caller-phone").html(data.fromPhone);
+                        $("#linked-id").val(data.linkedId);
+
+                        $('#call-card').modal({
+                            keyboard: false
+                        });
+                    },
+                    complete: function() {
+                        var timer = setTimeout(worker, {{ settings.period * 1000 }});
+
+                        $('#call-card').on('hide', function() {
+                            timer = setTimeout(worker, {{ settings.period * 1000 }});
+                        });
+                        $('#call-card').on('shown', function() {
+                            clearTimeout(timer);
+                        });
+                    },
+                    dataType: 'json'
+                });
+            {% endif %}
+        };
     </script>
 
-    <a href="#myModal" role="button" class="btn" data-toggle="modal">Launch demo modal</a>
+    <!--<a href="#call-card" role="button" class="btn" data-toggle="modal">Launch demo modal</a>-->
 
-    <!-- Modal -->
-    <div id="myModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="width: 900px; margin-left: -450px;">
+    <div id="call-card" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="width: 900px; margin-left: -450px;">
         <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-            <h3 id="myModalLabel">Modal header 9999jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm</h3>
+            <h3 id="call-card-label">
+                <strong>
+                    Номер телефона звонящего: <span id="caller-phone"></span>
+                </strong>
+            </h3>
+            <div id="phone-type">
+                    Выбирите тип звонка:
+                <select>
+                    <option></option>
+                    <option>Звонок от продавца</option>
+                    <option>Звонок от агентства</option>
+                    <option>Звонок от сотрудника</option>
+                    <option>Клиент знает объект</option>
+                    <option>Клиент не знает чего хочет</option>
+                </select>
+            </div>
         </div>
+
+        <input type="hidden" name="linked-id" id="linked-id" value="" />
+
         <div class="modal-body">
-            <p>One fine body…</p>
+            <div id="call-card-type-1">
+                {% include '@Call/Default/call_card_type_1.html.twig' %}
+            </div>
+
+            <div id="call-card-type-2" style="display: none;">
+                {% include '@Call/Default/call_card_type_2.html.twig' %}
+            </div>
+
         </div>
-        <div class="modal-footer">
+
+        <div class="modal-footer" id="call-card-buttons">
             <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
             <button class="btn btn-primary">Save changes</button>
         </div>

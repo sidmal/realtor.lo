@@ -1,8 +1,13 @@
 <?php
 
-namespace Realtor\CallBundle\Entity;
+namespace Realtor\CallBundle\Entity\Repository;
 
 use Doctrine\ORM\EntityRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\DBAL\Types\Type;
+use Doctrine\ORM\AbstractQuery;
+use Doctrine\ORM\NoResultException;
+use Doctrine\ORM\Query\Parameter;
 
 /**
  * CallRepository
@@ -12,4 +17,43 @@ use Doctrine\ORM\EntityRepository;
  */
 class CallRepository extends EntityRepository
 {
+    public function getIncomeCall($forPhone)
+    {
+        $qb = $this->getEntityManager()->createQueryBuilder()
+            ->select(
+                [
+                    'call.id',
+                    'call.linkedId',
+                    'call.fromPhone'
+                ]
+            )
+            ->from('CallBundle:Call', 'call')
+            ->where('call.type = 1')
+            ->andWhere('call.toPhone = :forPhone')
+            ->andWhere('call.callAction = :event')
+            ->setMaxResults(1)
+            ->orderBy('call.eventAt', 'desc');
+
+        $qb->andWhere($qb->expr()->between('call.createdAt', ':dateFrom', ':dateTo'));
+
+        $qb->setParameters(
+            new ArrayCollection(
+                [
+                    new Parameter('forPhone', $forPhone),
+                    new Parameter('event', 'ingress'),
+                    new Parameter('dateFrom', (new \DateTime())->sub(new \DateInterval('PT8S')), Type::DATETIME),
+                    new Parameter('dateTo', (new \DateTime())->add(new \DateInterval('PT8S')), Type::DATETIME),
+                ]
+            )
+        );
+
+        try{
+            $result = $qb->getQuery()->getResult(AbstractQuery::HYDRATE_ARRAY);
+        }
+        catch(NoResultException $e){
+            $result = null;
+        }
+
+        return $result;
+    }
 }

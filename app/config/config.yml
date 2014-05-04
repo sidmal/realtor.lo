@@ -96,8 +96,8 @@ sonata_admin:
             -
                 position: left
                 type: admin.sonata.block.call_card
-            #    settings:
-            #        period: 2
+                settings:
+                    period: %call.worker.period%
             -
                 position: right
                 type: admin.sonata.block.numberpad

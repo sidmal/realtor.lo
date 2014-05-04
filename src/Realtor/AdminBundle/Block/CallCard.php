@@ -8,6 +8,7 @@
 
 namespace Realtor\AdminBundle\Block;
 
+use Doctrine\ORM\EntityManager;
 use Sonata\AdminBundle\Form\FormMapper;
 use Sonata\AdminBundle\Validator\ErrorElement;
 use Sonata\BlockBundle\Block\BaseBlockService;
@@ -15,9 +16,19 @@ use Sonata\BlockBundle\Block\BlockContextInterface;
 use Sonata\BlockBundle\Model\BlockInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
+use Symfony\Bundle\FrameworkBundle\Templating\EngineInterface;
 
 class CallCard extends BaseBlockService
 {
+    protected $em;
+
+    public function __construct($name, EngineInterface $templating, EntityManager $em)
+    {
+        parent::__construct($name, $templating);
+
+        $this->em = $em;
+    }
+
     public function setDefaultSettings(OptionsResolverInterface $resolver)
     {
         $resolver->setDefaults(
@@ -58,7 +69,9 @@ class CallCard extends BaseBlockService
             $blockContext->getTemplate(),
             [
                 'block'     => $blockContext->getBlock(),
-                'settings'  => $settings
+                'settings'  => $settings,
+                'advertising_source' => $this->em->getRepository('DictionaryBundle:AdvertisingSource')->findBy(['isActive' => true]),
+                'reason' => $this->em->getRepository('DictionaryBundle:Reason')->findBy(['isActive' => true]),
             ],
             $response
         );

@@ -1,0 +1,82 @@
+<script type="text/javascript">
+    $(function() {
+        $("#property").autocomplete({
+            delay: 0,
+            minLength: 2,
+            source: function(request, response){
+                var object = [];
+
+                $.getJSON("{{ path('search_property_ajax') }}", request, function(data, status, xhr){
+                    $.each(data, function(i, item){
+                        object.push(
+                            {
+                                value: item.object_street,
+                                label: item.object_district + ', ' + item.object_street + ' (' + item.object_amount_rooms + ') ' + item.object_status,
+                                href: 'http://emls.ru/spb/term/fullinfo.php?b='+ item.id_base + '&o=' + item.id_object }
+                        );
+                    });
+
+                    response(object);
+                });
+            },
+            focus: function(event, ui){
+                event.preventDefault();
+                $(this).val(ui.item.label);
+            },
+            select: function(event, ui){
+                event.preventDefault();
+                $(this).val(ui.item.label);
+
+                $("#object-href").attr("href", ui.item.href);
+            }
+        });
+    });
+</script>
+
+<div>
+    <div class="span6">
+        <div class="control-group">
+            <label class="control-label required" for="caller-name">Имя звонящего:</label>
+            <div class="input-append">
+                <input type="text" id="caller-name" name="CallCard[caller-name]" required="required" class="span11" placeholder="Имя звонящего" autocomplete="off" />
+                <span class="add-on"><i class="icon-user"></i></span>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label class="control-label required" for="advertising-source">Источник рекламы:</label>
+            <select name="CallCard[advertising-source]" id="advertising-source" required="required" class="span12" style="margin-bottom: 15px;">
+                <option></option>
+                {% for item in advertising_source %}
+                    <option value="{{ item.id }}">{{ item.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="control-group">
+            <label class="control-label required" for="property">Объект недвижимости:</label>
+            <div class="input-append">
+                <input type="text" id="property" name="CallCard[property]" required="required" class="span10" placeholder="Объект недвижимости" autocomplete="off" />
+                <span class="add-on"><i class="icon-search"></i></span>
+                <a href="" target="_blank" id="object-href" class="btn view_link btn" title="Показать">
+                    <i class="icon-eye-open"></i>
+                </a>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label class="control-label required" for="reason">Причина обращения:</label>
+            <select name="CallCard[reason]" id="reason" required="required" class="span12" style="margin-bottom: 15px;">
+                <option></option>
+                {% for item in reason %}
+                    <option value="{{ item.id }}">{{ item.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+
+    <div class="span6">
+        <label class="control-label required" for="message">Сообщение:</label>
+        <textarea class="input-xlarge span14" id="message" name="CallCard[message]" rows="11"></textarea>
+    </div>
+</div>

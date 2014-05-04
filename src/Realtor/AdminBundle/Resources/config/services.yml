@@ -54,5 +54,6 @@ services:
         arguments:
             - admin.sonata.block.call_card
             - @templating
+            - @doctrine.orm.entity_manager
         tags:
             - {name: sonata.block}
