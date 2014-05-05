@@ -48,3 +48,11 @@ call:
 property:
     resource: '@DictionaryBundle/Controller/PropertyController.php'
     type: annotation
+
+user:
+    resource: '@DictionaryBundle/Controller/UserController.php'
+    type: annotation
+
+branch:
+    resource: '@DictionaryBundle/Controller/BranchController.php'
+    type: annotation

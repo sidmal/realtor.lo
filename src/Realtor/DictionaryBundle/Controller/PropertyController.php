@@ -39,14 +39,6 @@ class PropertyController extends Controller
                 ['Accept' => 'application/json']
             )->send();
 
-            /*$object = [];
-            foreach($response->json() as $item){
-                $object[] = [
-                    'object' => $item['object_street'].' ('.$item['object_amount_rooms'].')',
-                    'href' => 'http://emls.ru/spb/term/fullinfo.php?b='.$item['id_base'].'&o='.$item['id_object']
-                ];
-            }*/
-
             return new Response(json_encode($response->json()));
         }
         catch(RequestException $e){

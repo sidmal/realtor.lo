@@ -24,10 +24,20 @@ class CallRepository extends EntityRepository
                 [
                     'call.id',
                     'call.linkedId',
-                    'call.fromPhone'
+                    'call.fromPhone',
+                    'call_params.callerName',
+                    'IDENTITY(call_params.advertisingSource) advertisingSource',
+                    'call_params.propertyId',
+                    'call_params.propertyAddress',
+                    'call_params.propertyAgentId',
+                    'call_params.propertyBaseId',
+                    'IDENTITY(call_params.reason) reason',
+                    'call_params.message',
+                    'call_params.callType',
                 ]
             )
             ->from('CallBundle:Call', 'call')
+            ->leftJoin('call.params', 'call_params')
             ->where('call.type = 1')
             ->andWhere('call.toPhone = :forPhone')
             ->andWhere('call.callAction = :event')

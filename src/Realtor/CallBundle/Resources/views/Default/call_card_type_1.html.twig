@@ -12,7 +12,11 @@
                             {
                                 value: item.object_street,
                                 label: item.object_district + ', ' + item.object_street + ' (' + item.object_amount_rooms + ') ' + item.object_status,
-                                href: 'http://emls.ru/spb/term/fullinfo.php?b='+ item.id_base + '&o=' + item.id_object }
+                                href: 'http://emls.ru/spb/term/fullinfo.php?b='+ item.id_base + '&o=' + item.id_object,
+                                property_id: item.id_object,
+                                property_base_id: item.id_base,
+                                property_agent_id: item.id_agent
+                            }
                         );
                     });
 
@@ -28,6 +32,40 @@
                 $(this).val(ui.item.label);
 
                 $("#object-href").attr("href", ui.item.href);
+
+                $("#property-id").val(ui.item.property_id);
+                $("#property-base-id").val(ui.item.property_base_id);
+                $("#property-agent-id").val(ui.item.property_agent_id);
+
+                $.ajax({
+                    type: "post",
+                    url: "{{ path('user_get_ajax') }}",
+                    data: { user_id: ui.item.property_agent_id },
+                    success: function(data) {
+                        if(data.maytrans == 1 && data.user_phone){
+                            $("#call-card-buttons").append("<input type=\"submit\" class=\"btn btn-success\" id=\"agent-cell-forward\" name=\"CallCard[agent-cell-forward]\" value=\"Перевести на сотовый агента\" onclick=\"$('#action').val($(this).attr('id'));\" />");
+                            $("#call-card-form").append("<input type=\"hidden\" name=\"CallCard[agent-cell-phone]\" id=\"agent-cell-phone\" value=\"" + data.user_phone +"\" />");
+                        }
+
+                        if(data.officephone){
+                            $("#call-card-form").append("<input type=\"hidden\" name=\"CallCard[agent-phone]\" id=\"agent-phone\" value=\"" + data.officephone +"\" />");
+                            $("#agent-office-forward").removeAttr("disabled");
+                        }
+                        else{
+                            $.ajax({
+                                type: "post",
+                                url: "{{ path('branch_get_ajax') }}",
+                                data: { branch_id: data.id_office },
+                                success: function(data) {
+                                    $("#call-card-form").append("<input type=\"hidden\" name=\"CallCard[agent-office-phone]\" id=\"agent-office-phone\" value=\"" + data.branch_phone +"\" />");
+                                    $("#call-card-buttons").append("<input type=\"submit\" class=\"btn btn-success\" id=\"agent-office-forward\" name=\"CallCard[agent-office-forward]\" value=\"Перевести звонок в офис агента\" onclick=\"$('#action').val($(this).attr('id'));\" />");
+                                },
+                                dataType: 'json'
+                            });
+                        }
+                    },
+                    dataType: 'json'
+                });
             }
         });
     });
@@ -61,6 +99,10 @@
                 <a href="" target="_blank" id="object-href" class="btn view_link btn" title="Показать">
                     <i class="icon-eye-open"></i>
                 </a>
+
+                <input type="hidden" name="CallCard[property-id]" id="property-id" value="" />
+                <input type="hidden" name="CallCard[property-base-id]" id="property-base-id" value="" />
+                <input type="hidden" name="CallCard[property-agent-id]" id="property-agent-id" value="" />
             </div>
         </div>
 
@@ -77,6 +119,6 @@
 
     <div class="span6">
         <label class="control-label required" for="message">Сообщение:</label>
-        <textarea class="input-xlarge span14" id="message" name="CallCard[message]" rows="11"></textarea>
+        <textarea class="input-xlarge span14" id="message" name="CallCard[message]" rows="11" required="required"></textarea>
     </div>
 </div>

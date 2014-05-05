@@ -89,6 +89,13 @@ class Call
      */
     private $createdAt;
 
+    /**
+     * @var \Realtor\CallBundle\Entity\CallParams
+     *
+     * @ORM\OneToOne(targetEntity="Realtor\CallBundle\Entity\CallParams", mappedBy="callId", cascade={"persist"}, orphanRemoval=true)
+     **/
+    private $params = null;
+
 
     /**
      * Get id
@@ -313,5 +320,28 @@ class Call
     public function getLinkedId()
     {
         return $this->linkedId;
+    }
+
+    /**
+     * Set params
+     *
+     * @param \Realtor\CallBundle\Entity\CallParams $params
+     * @return Call
+     */
+    public function setParams(\Realtor\CallBundle\Entity\CallParams $params = null)
+    {
+        $this->params = $params;
+
+        return $this;
+    }
+
+    /**
+     * Get params
+     *
+     * @return \Realtor\CallBundle\Entity\CallParams 
+     */
+    public function getParams()
+    {
+        return $this->params;
     }
 }

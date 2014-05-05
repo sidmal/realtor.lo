@@ -10,6 +10,7 @@ namespace Realtor\CallBundle\Controller;
 
 use Guzzle\Http\Exception\RequestException;
 use Realtor\CallBundle\Entity\Call;
+use Realtor\CallBundle\Entity\CallParams;
 use Realtor\DictionaryBundle\Model\HttpClient;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
@@ -36,6 +37,8 @@ class CallController extends Controller
         $request = $request->request;
         $responseInstance = new Response();
 
+        $uniqueId = md5(uniqid(rand(),1));
+
         if($request->has('to_phone') && $request->has('from_phone')){
             $em = $this->getDoctrine()->getManager();
 
@@ -43,8 +46,6 @@ class CallController extends Controller
 
             $httpClient = (new HttpClient())->getClient();
             try{
-                $uniqueId = md5(uniqid(rand(),1));
-
                 $response = $httpClient->post(
                     'http://188.227.101.17:8080',
                     [],
@@ -76,6 +77,82 @@ class CallController extends Controller
             }
 
             $responseInstance->setContent(json_encode($response));
+        }
+        elseif($request->has('CallCard') && $request->has('CallCard')){
+            $callCard = $request->get('CallCard');
+
+            if(!$callCard['linked-id'] || !$callCard['call-id']){
+                return new Response(null, 403);
+            }
+
+            $em = $this->getDoctrine()->getManager();
+
+            $call = new Call();
+            $callParams = new CallParams();
+
+            if($callCard['action'] == 'agent-office-forward'){
+                $to = $callCard['agent-office-phone'];
+            }
+            elseif($callCard['action'] == 'agent-cell-forward'){
+                $to = $callCard['agent-cell-phone'];
+            }
+            else{
+                $to = $callCard['agent-phone'];
+            }
+
+            $initCall = $em->getRepository('CallBundle:Call')->find($callCard['call-id']);
+
+            $callParams
+                ->setAdvertisingSource($em->getRepository('DictionaryBundle:AdvertisingSource')->find($callCard['advertising-source']))
+                ->setCallerName($callCard['caller-name'])
+                ->setCallType($callCard['call-type'])
+                ->setMessage($callCard['message'])
+                ->setPropertyAddress($callCard['property'])
+                ->setPropertyAgentId($em->getRepository('ApplicationSonataUserBundle:User')->findOneBy(['outerId' => $callCard['property-agent-id']]))
+                ->setPropertyId($callCard['property-id'])
+                ->setPropertyBaseId($callCard['property-base-id'])
+                ->setReason($em->getRepository('DictionaryBundle:Reason')->find($callCard['reason']));
+            $call
+                ->setFromPhone($callCard['caller-phone'])
+                ->setToPhone($to)
+                ->setType(0)
+                ->setCallAction('bxfer')
+                ->setInternalId($uniqueId)
+                ->setEventAt(new \DateTime())
+                ->setLinkedId($callCard['linked-id']);
+
+            if($initCall){
+                $callParams->setCallId($initCall);
+                $initCall->setParams($callParams);
+
+                $em->persist($initCall);
+            }
+            else{
+                $callParams->setCallId($call);
+                $call->setParams($callParams);
+            }
+
+            $em->persist($call);
+            $em->persist($callParams);
+            $em->flush();
+
+            $httpClient = (new HttpClient())->getClient();
+
+            try{
+                $r = $httpClient->post(
+                    'http://188.227.101.17:8080',
+                    [],
+                    [
+                        'action' => 'bxfer',
+                        'linkedid' => $callCard['linked-id'],
+                        'leg' => 'A',
+                        'did' => $to
+                    ]
+                )->send();
+            }
+            catch(RequestException $e){
+                $responseInstance->setStatusCode(403);
+            }
         }
 
         return $responseInstance;
