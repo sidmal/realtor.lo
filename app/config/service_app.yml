@@ -1,5 +1,6 @@
 parameters:
     manager.user.class: Realtor\DictionaryBundle\Model\UserManager
+    app.password.encoder.class: Application\Sonata\UserBundle\Service\MessageDigestPasswordEncoder
 
 services:
     manager.user:
@@ -8,3 +9,6 @@ services:
             - http://disp.emls.ru/api/employee
             - @doctrine.orm.entity_manager
             - @validator
+
+    app.password.encoder:
+        class: %app.password.encoder.class%

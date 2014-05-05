@@ -75,6 +75,24 @@
                             }).attr('selected', true);
 
                             $("#phone-type").hide();
+
+                            $("#caller-name").val(data.callerName);
+
+                            $("#advertising-source").filter(function(){
+                                return $(this).val() == data.advertisingSource;
+                            }).attr('selected', true);
+
+                            $("#reason").filter(function(){
+                                return $(this).val() == data.reason;
+                            }).attr('selected', true);
+
+
+                            $("#property").val(data.propertyAddress);
+                            $("#object-href").attr("href", 'http://emls.ru/spb/term/fullinfo.php?b='+ data.propertyBaseId + '&o=' + data.propertyId);
+                            $("#property-id").val(data.propertyId);
+                            $("#property-base-id").val(data.propertyBaseId);
+                            $("#property-agent-id").val(data.propertyAgentId);
+                            $("#message").val(data.message);
                         }
 
                         $('#call-card').modal({
@@ -112,11 +130,11 @@
                         Выбирите тип звонка:
                     <select name="CallCard[call-type]">
                         <option></option>
-                        <option value="0">Звонок от продавца</option>
-                        <option value="1">Звонок от агентства</option>
-                        <option value="2">Звонок от сотрудника</option>
+                        <!--<option value="0">Звонок от продавца</option>-->
+                        <!--<option value="1">Звонок от агентства</option>-->
+                        <!--<option value="2">Звонок от сотрудника</option>-->
                         <option value="3">Клиент знает объект</option>
-                        <option value="4">Клиент не знает чего хочет</option>
+                        <!--<option value="4">Клиент не знает чего хочет</option>-->
                     </select>
                 </div>
             </div>

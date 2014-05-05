@@ -175,7 +175,8 @@ class CallController extends Controller
             return new Response(null, 403);
         }
 
-        if(!$call = $this->getDoctrine()->getManager()->getRepository('CallBundle:Call')->getIncomeCall($forPhone)){
+        if(!$call = $this->getDoctrine()->getManager()->getRepository('CallBundle:Call')
+            ->getIncomeCall($forPhone, $this->container->getParameter('call.income.event'))){
             return new Response(null, 403);
         }
 

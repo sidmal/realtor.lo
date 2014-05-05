@@ -151,6 +151,7 @@ class UserManager
 
             if($group){
                 $user->addGroup($group);
+                $user->setRoles($group->getRoles());
             }
         }
 

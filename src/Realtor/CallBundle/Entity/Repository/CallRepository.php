@@ -17,7 +17,7 @@ use Doctrine\ORM\Query\Parameter;
  */
 class CallRepository extends EntityRepository
 {
-    public function getIncomeCall($forPhone)
+    public function getIncomeCall($forPhone, array $events)
     {
         $qb = $this->getEntityManager()->createQueryBuilder()
             ->select(
@@ -40,17 +40,17 @@ class CallRepository extends EntityRepository
             ->leftJoin('call.params', 'call_params')
             ->where('call.type = 1')
             ->andWhere('call.toPhone = :forPhone')
-            ->andWhere('call.callAction = :event')
             ->setMaxResults(1)
             ->orderBy('call.eventAt', 'desc');
 
+        $qb->andWhere($qb->expr()->in('call.callAction', ':events'));
         $qb->andWhere($qb->expr()->between('call.createdAt', ':dateFrom', ':dateTo'));
 
         $qb->setParameters(
             new ArrayCollection(
                 [
                     new Parameter('forPhone', $forPhone),
-                    new Parameter('event', 'ingress'),
+                    new Parameter('events', $events),
                     new Parameter('dateFrom', (new \DateTime())->sub(new \DateInterval('PT8S')), Type::DATETIME),
                     new Parameter('dateTo', (new \DateTime())->add(new \DateInterval('PT8S')), Type::DATETIME),
                 ]
