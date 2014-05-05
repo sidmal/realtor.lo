@@ -29,7 +29,7 @@ class CallRepository extends EntityRepository
                     'IDENTITY(call_params.advertisingSource) advertisingSource',
                     'call_params.propertyId',
                     'call_params.propertyAddress',
-                    'call_params.propertyAgentId',
+                    'IDENTITY(call_params.propertyAgentId) propertyAgentId',
                     'call_params.propertyBaseId',
                     'IDENTITY(call_params.reason) reason',
                     'call_params.message',
