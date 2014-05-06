@@ -1,3 +1,18 @@
+<style type="text/css">
+    .active{
+        pointer-events: none;
+        cursor: default;
+    }
+
+    #map-container{
+        margin: 0;
+    }
+</style>
+
+<script type="text/javascript">
+    var branch_show_url = "{{ path("admin_realtor_dictionary_branches_show", {"id":"branch_id"}) }}";
+</script>
+
 <div class="span12">
     <div class="control-group">
         <label class="control-label required" for="caller-name">Имя звонящего:</label>
@@ -12,26 +27,13 @@
         <div class="input-append">
             <input type="text" id="property" name="CallCard[branch]" required="required" class="span10" placeholder="Филиал" autocomplete="off" />
             <span class="add-on"><i class="icon-search"></i></span>
-            <a href="/app_dev.php/admin/realtor/dictionary/advertisingsource/481/show" class="btn view_link btn" title="Показать">
+            <a href="" class="btn view_link btn active" title="Показать">
                 <i class="icon-eye-open"></i>
             </a>
         </div>
     </div>
 
-    <div class="span8">
-        <iframe width="100%" height="350" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="https://maps.google.co.uk/maps?f=q&source=s_q&hl=en&geocode=&q=15+Springfield+Way,+Hythe,+CT21+5SH&aq=t&sll=52.8382,-2.327815&sspn=8.047465,13.666992&ie=UTF8&hq=&hnear=15+Springfield+Way,+Hythe+CT21+5SH,+United+Kingdom&t=m&z=14&ll=51.077429,1.121722&output=embed"></iframe>
-    </div>
-
-    <div class="span4">
-        <h2>Snail mail</h2>
-        <address>
-            <strong>Hythe Window Cleaning</strong><br>
-            15 Springfield Way<br>
-            Hythe<br>
-            Kent<br>
-            United Kingdon<br>
-            CT21 5SH<br>
-            <abbr title="Phone">P:</abbr> 01234 567 890
-        </address>
+    <div class="span6" id="map-container">
+        <iframe width="100%" height="200" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="https://maps.google.co.uk/maps?f=q&source=s_q&hl=en&geocode=&q=15+Springfield+Way,+Hythe,+CT21+5SH&aq=t&sll=52.8382,-2.327815&sspn=8.047465,13.666992&ie=UTF8&hq=&hnear=15+Springfield+Way,+Hythe+CT21+5SH,+United+Kingdom&t=m&z=14&ll=51.077429,1.121722&output=embed"></iframe>
     </div>
 </div>

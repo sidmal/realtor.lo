@@ -96,6 +96,9 @@ class CallController extends Controller
             elseif($callCard['action'] == 'agent-cell-forward'){
                 $to = $callCard['agent-cell-phone'];
             }
+            elseif($callCard['action'] == 'agent-head-forward'){
+                $to = $callCard['agent-head-phone'];
+            }
             else{
                 $to = $callCard['agent-phone'];
             }

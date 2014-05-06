@@ -13,6 +13,12 @@
             font-weight: bold;
         }
 
+        #income-call-info .modal-body{
+            font-weight: bold;
+            font-size: 18px;
+            color: red;
+        }
+
         .ui-autocomplete{
             max-height: 100px;
             overflow-y: auto;
@@ -23,11 +29,16 @@
     </style>
 
     <script type="text/javascript">
-        $(document).ready(function() {
-            worker();
+        $(document).ready(function(){
+            {% if app.user.getOfficePhone is not empty %}
+                worker();
+            {% endif %}
 
             $('body').on('change', '#phone-type select', function(){
                 switch(parseInt($(this).val())){
+                    case -1:
+                        $("#call-card-content").html("");
+                        break;
                     case 0:
                         break;
                     case 1:
@@ -58,8 +69,8 @@
             });
         });
 
-        function worker(){
-            {% if app.user.getOfficePhone is not empty %}
+        {% if app.user.getOfficePhone is not empty %}
+            function worker(){
                 $.ajax({
                     type: "post",
                     url: "{{ path('call_get_income_event_ajax') }}",
@@ -69,53 +80,79 @@
                         $("#linked-id").val(data.linkedId);
                         $("#call-id").val(data.id);
 
-                        if(data.callerName){
-                            $("#phone-type select option").filter(function(){
-                                return $(this).val() == data.callType;
-                            }).attr('selected', true);
-
-                            $("#phone-type").hide();
-
-                            $("#caller-name").val(data.callerName);
-
-                            $("#advertising-source").filter(function(){
-                                return $(this).val() == data.advertisingSource;
-                            }).attr('selected', true);
-
-                            $("#reason").filter(function(){
-                                return $(this).val() == data.reason;
-                            }).attr('selected', true);
-
-
-                            $("#property").val(data.propertyAddress);
-                            $("#object-href").attr("href", 'http://emls.ru/spb/term/fullinfo.php?b='+ data.propertyBaseId + '&o=' + data.propertyId);
-                            $("#property-id").val(data.propertyId);
-                            $("#property-base-id").val(data.propertyBaseId);
-                            $("#property-agent-id").val(data.propertyAgentId);
-                            $("#message").val(data.message);
+                        if(data.callAction == "{{ call_dial_up_event }}"){
+                            $("#call-card").modal("hide");
+                            $("#income-call-info-caller-phone").html(data.fromPhone);
+                            $("#income-call-info").modal({keyboard: false});
                         }
+                        else if(data.callAction == "{{ call_dial_down_event }}"){
+                            $("#call-card").modal("hide");
+                            $("#income-call-info").modal("hide");
+                        }
+                        else{ //событие для отображения карточки звонка
+                            $("#income-call-info").modal('hide');
 
-                        $('#call-card').modal({
-                            keyboard: false
-                        });
+                            if(data.callerName){
+                                $("#phone-type select option").filter(function(){
+                                    return $(this).val() == data.callType;
+                                }).attr('selected', true);
+
+                                $("#phone-type").hide();
+
+                                $("#caller-name").val(data.callerName);
+
+                                $("#advertising-source").filter(function(){
+                                    return $(this).val() == data.advertisingSource;
+                                }).attr('selected', true);
+
+                                $("#reason").filter(function(){
+                                    return $(this).val() == data.reason;
+                                }).attr('selected', true);
+
+
+                                $("#property").val(data.propertyAddress);
+                                $("#object-href").attr("href", 'http://emls.ru/spb/term/fullinfo.php?b='+ data.propertyBaseId + '&o=' + data.propertyId);
+                                $("#property-id").val(data.propertyId);
+                                $("#property-base-id").val(data.propertyBaseId);
+                                $("#property-agent-id").val(data.propertyAgentId);
+                                $("#message").val(data.message);
+                            }
+
+                            $("#call-card").modal({keyboard: false});
+                        }
                     },
                     complete: function() {
-                        var timer = setTimeout(worker, {{ settings.period * 1000 }});
+                        var income_event = setTimeout(worker, {{ settings.period * 1000 }});
 
                         $('#call-card').on('hide', function() {
-                            timer = setTimeout(worker, {{ settings.period * 1000 }});
+                            $("#call-card-form")[0].reset();
+
+                            $("#phone-type select :first").val(-1).change();
+
+                            income_event = setTimeout(worker, {{ settings.period * 1000 }});
                         });
-                        $('#call-card').on('shown', function() {
-                            clearTimeout(timer);
+
+                        $('#call-card').on('show', function() {
+                            clearTimeout(income_event);
                         });
                     },
                     dataType: 'json'
                 });
-            {% endif %}
-        };
+            };
+        {% endif %}
     </script>
 
     <a href="#call-card" role="button" class="btn" data-toggle="modal">Launch demo modal</a>
+    <a href="#income-call-info" role="button" class="btn" data-toggle="modal">Info</a>
+
+    <div id="income-call-info" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="income-call-info" aria-hidden="true">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button><br />
+        </div>
+        <div class="modal-body">
+            <p>У вас входящий звонок от абонента: <span id="income-call-info-caller-phone"></span></p>
+        </div>
+    </div>
 
     <form id="call-card-form">
         <div id="call-card" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="call_card" aria-hidden="true" style="width: 900px; margin-left: -450px;">
@@ -129,12 +166,12 @@
                 <div id="phone-type">
                         Выбирите тип звонка:
                     <select name="CallCard[call-type]">
-                        <option></option>
+                        <option value="-1"></option>
                         <!--<option value="0">Звонок от продавца</option>-->
                         <!--<option value="1">Звонок от агентства</option>-->
                         <!--<option value="2">Звонок от сотрудника</option>-->
                         <option value="3">Клиент знает объект</option>
-                        <!--<option value="4">Клиент не знает чего хочет</option>-->
+                        <option value="4">Клиент не знает чего хочет</option>
                     </select>
                 </div>
             </div>

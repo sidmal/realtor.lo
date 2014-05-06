@@ -33,10 +33,25 @@ class UserController extends Controller
             return new Response(null, 403);
         }
 
-        $user = $this->container->get('manager.user')->loadUserById($userId);
+        $userManager = $this->container->get('manager.user');
+
+        $user = $userManager->loadUserById($userId);
 
         if(!$user){
             return new Response(null, 403);
+        }
+
+        $user[0]['app_id'] = $userManager->save($user[0]);
+
+
+        $user[0]['head_phone'] = '';
+        if($user[0]['id_manager'] > 0){
+            $head = $this->getDoctrine()->getManager()->getRepository('ApplicationSonataUserBundle:User')
+                ->findOneBy(['outerId' => $user[0]['id_manager']]);
+
+            if($head){
+                $user[0]['head_phone'] = $head->getOfficePhone();
+            }
         }
 
         return new Response(json_encode($user[0]));

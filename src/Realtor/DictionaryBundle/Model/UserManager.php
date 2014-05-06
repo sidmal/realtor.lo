@@ -170,6 +170,6 @@ class UserManager
         $this->em->persist($user);
         $this->em->flush($user);
 
-        return true;
+        return $user->getId();
     }
 } 

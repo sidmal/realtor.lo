@@ -25,6 +25,7 @@ class CallRepository extends EntityRepository
                     'call.id',
                     'call.linkedId',
                     'call.fromPhone',
+                    'call.callAction',
                     'call_params.callerName',
                     'IDENTITY(call_params.advertisingSource) advertisingSource',
                     'call_params.propertyId',

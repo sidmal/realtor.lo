@@ -55,5 +55,8 @@ services:
             - admin.sonata.block.call_card
             - @templating
             - @doctrine.orm.entity_manager
+        calls:
+            - ["setCallDialUpEvent", [%call.dial_up.event%]]
+            - ["setCallDialDownEvent", [%call.dial_down.event%]]
         tags:
             - {name: sonata.block}

@@ -22,11 +22,47 @@ class CallCard extends BaseBlockService
 {
     protected $em;
 
+    protected $callDialUpEvent;
+
+    protected $callDialDownEvent;
+
     public function __construct($name, EngineInterface $templating, EntityManager $em)
     {
         parent::__construct($name, $templating);
 
         $this->em = $em;
+    }
+
+    public function setCallDialUpEvent($callDialUpEvent)
+    {
+        $this->callDialUpEvent = $callDialUpEvent;
+
+        return $this;
+    }
+
+    public function getCallDialUpEvent()
+    {
+        if(!$this->callDialUpEvent){
+            throw new \Exception('"call.dial_up.event" parameter not set.');
+        }
+
+        return $this->callDialUpEvent;
+    }
+
+    public function setCallDialDownEvent($callDialDownEvent)
+    {
+        $this->callDialDownEvent = $callDialDownEvent;
+
+        return $this;
+    }
+
+    public function getCallDialDownEvent()
+    {
+        if(!$this->callDialDownEvent){
+            throw new \Exception('"call.dial_down.event" parameter not set.');
+        }
+
+        return $this->callDialDownEvent;
     }
 
     public function setDefaultSettings(OptionsResolverInterface $resolver)
@@ -72,6 +108,8 @@ class CallCard extends BaseBlockService
                 'settings'  => $settings,
                 'advertising_source' => $this->em->getRepository('DictionaryBundle:AdvertisingSource')->findBy(['isActive' => true]),
                 'reason' => $this->em->getRepository('DictionaryBundle:Reason')->findBy(['isActive' => true]),
+                'call_dial_up_event' => $this->getCallDialUpEvent(),
+                'call_dial_down_event' => $this->getCallDialDownEvent()
             ],
             $response
         );
