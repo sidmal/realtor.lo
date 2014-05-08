@@ -51,11 +51,8 @@ class ReasonAdmin extends Admin
     protected function configureFormFields(FormMapper $formMapper)
     {
         $formMapper
-            ->add('id')
-            ->add('outerId')
             ->add('name')
             ->add('isActive')
-            ->add('createdAt')
         ;
     }
 

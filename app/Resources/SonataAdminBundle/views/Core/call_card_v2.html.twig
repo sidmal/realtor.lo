@@ -1,0 +1,58 @@
+{% extends sonata_block.templates.block_base %}
+
+{% block block %}
+    <link rel="stylesheet" href="{{ asset('bundles/applicationsonatauser/css/call-card-v2.css') }}" media="all" />
+    <script src="http://api-maps.yandex.ru/2.1/?lang=ru_RU" type="text/javascript"></script>
+
+    <script type="text/javascript">
+        $("body").on("click", "#phone-type .btn-group button", function(){
+            switch(parseInt($(this).val())){
+                case 0:
+                    $("#call-card-content").html("").append("{% filter escape('js') %}{% include '@Call/Default/call_card_type_1.html.twig' %}{% endfilter %}").show("slow");
+                    break;
+                case 1:
+                    $("#call-card-content").html("").append("{% filter escape('js') %}{% include '@Call/Default/call_card_type_2.html.twig' %}{% endfilter %}").show("slow");
+                    break;
+                default:
+                    $("#call-card-content").html("");
+                    break;
+            }
+        });
+    </script>
+
+    <a href="#call-card" role="button" class="btn" data-toggle="modal">Launch demo modal</a>
+
+    <form id="call-card-form">
+
+        <div id="call-card" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="call_card" aria-hidden="true" style="width: 900px; margin-left: -450px;">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h3 id="call-card-label">
+                    <strong>
+                        Номер телефона звонящего: <span id="caller-phone"></span>
+                    </strong>
+                </h3>
+                <div id="phone-type">
+                    Выбирите тип звонка:
+                    <div class="btn-group">
+                        <button class="btn btn-small btn-success" type="button" value="0">Клиент знает объект</button>
+                        <button class="btn btn-small btn-success" type="button" value="1">Клиент не знает чего хочет</button>
+                    </div>
+                </div>
+            </div>
+
+            <input type="hidden" name="CallCard[call-type]" id="call-type" value="" />
+            <input type="hidden" name="CallCard[caller-phone]" id="caller-phone" value="{{ app.user.getOfficePhone }}" />
+            <input type="hidden" name="CallCard[linked-id]" id="linked-id" value="" />
+            <input type="hidden" name="CallCard[call-id]" id="call-id" value="" />
+            <input type="hidden" name="CallCard[action]" id="action" value="" />
+
+            <div class="modal-body" id="call-card-content" style="display: none;"></div>
+
+            <div class="modal-footer" id="call-card-buttons">
+                <input type="submit" class="btn btn-success" id="agent-forward" name="CallCard[agent-forward]" value="Перевести на рабочий телефон агента" disabled="disabled" onclick="$('#action').val($(this).attr('id'));" />
+            </div>
+        </div>
+
+    </form>
+{% endblock %}

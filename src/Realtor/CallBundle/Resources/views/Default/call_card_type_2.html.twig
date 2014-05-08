@@ -11,29 +11,49 @@
 
 <script type="text/javascript">
     var branch_show_url = "{{ path("admin_realtor_dictionary_branches_show", {"id":"branch_id"}) }}";
+
+    ymaps.ready(init);
+
+    function init(){
+        var map = new ymaps.Map('map', {center: [59.93772, 30.313622], zoom: 8, controls: ["zoomControl", "searchControl"]});
+        {% for branch in branches %}
+            {% if branch.address is not empty and branch.outerId != 4962 %}
+                ymaps.geocode("{{ branch.address }}", {
+                    results: 1
+                }).then(function(res){
+                    var firstGeoObject = res.geoObjects.get(0);
+
+                    map.geoObjects.add(
+                        new ymaps.Placemark(
+                            firstGeoObject.geometry.getCoordinates(),
+                            {
+                                hintContent: "{{ branch.name }}",
+                                balloonContent: "{{ branch.address }}{% if branch.cityPhone is not empty %}<br />городской телефон: {{ branch.cityPhone }}{% endif %}{% if branch.onDutyAgentPhone is not empty %}<br />телефон дежурного оператора: {{ branch.onDutyAgentPhone }}{% endif %}"
+                            }
+                        )
+                    );
+                });
+            {% endif %}
+        {% endfor %}
+    }
 </script>
 
-<div class="span12">
-    <div class="control-group">
-        <label class="control-label required" for="caller-name">Имя звонящего:</label>
-        <div class="input-append">
-            <input type="text" id="caller-name" name="CallCard[caller-name]" required="required" class="span11" placeholder="Имя звонящего" autocomplete="off" />
-            <span class="add-on"><i class="icon-user"></i></span>
+<div>
+    <div class="span6">
+        <div class="control-group">
+            <label class="control-label required" for="caller-name">Имя звонящего:</label>
+            <div class="input-append">
+                <input type="text" id="caller-name" name="CallCard[caller-name]" required="required" class="span11" placeholder="Имя звонящего" autocomplete="off" />
+                <span class="add-on"><i class="icon-user"></i></span>
+            </div>
         </div>
+
+        <div id="map" style="width: 430px; height: 250px"></div>
+
     </div>
 
-    <div class="control-group">
-        <label class="control-label required" for="property">Филиал:</label>
-        <div class="input-append">
-            <input type="text" id="property" name="CallCard[branch]" required="required" class="span10" placeholder="Филиал" autocomplete="off" />
-            <span class="add-on"><i class="icon-search"></i></span>
-            <a href="" class="btn view_link btn active" title="Показать">
-                <i class="icon-eye-open"></i>
-            </a>
-        </div>
-    </div>
-
-    <div class="span6" id="map-container">
-        <iframe width="100%" height="200" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="https://maps.google.co.uk/maps?f=q&source=s_q&hl=en&geocode=&q=15+Springfield+Way,+Hythe,+CT21+5SH&aq=t&sll=52.8382,-2.327815&sspn=8.047465,13.666992&ie=UTF8&hq=&hnear=15+Springfield+Way,+Hythe+CT21+5SH,+United+Kingdom&t=m&z=14&ll=51.077429,1.121722&output=embed"></iframe>
+    <div class="span6">
+        <label class="control-label required" for="message">Сообщение:</label>
+        <textarea class="input-xlarge span14" id="message" name="CallCard[message]" rows="14" required="required"></textarea>
     </div>
 </div>

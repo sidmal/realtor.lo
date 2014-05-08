@@ -1,0 +1,26 @@
+#phone-type{
+    margin-top: 20px;
+    font-weight: bold;
+}
+
+.modal-body label{
+    font-weight: bold;
+}
+
+#income-call-info .modal-body{
+    font-weight: bold;
+    font-size: 18px;
+    color: red;
+}
+
+.ui-autocomplete{
+    max-height: 100px;
+    overflow-y: auto;
+    position: absolute;
+    cursor: default;
+    z-index: 1500 !important;
+}
+
+#phone-type div.btn-group{
+    margin-top: 10px;
+}

@@ -70,7 +70,7 @@ class CallCard extends BaseBlockService
         $resolver->setDefaults(
             [
                 'period' => false,
-                'template' => 'SonataAdminBundle:Core:call_card.html.twig',
+                'template' => 'SonataAdminBundle:Core:call_card_v2.html.twig',
             ]
         );
     }
@@ -108,6 +108,7 @@ class CallCard extends BaseBlockService
                 'settings'  => $settings,
                 'advertising_source' => $this->em->getRepository('DictionaryBundle:AdvertisingSource')->findBy(['isActive' => true]),
                 'reason' => $this->em->getRepository('DictionaryBundle:Reason')->findBy(['isActive' => true]),
+                'branches' => $this->em->getRepository('DictionaryBundle:Branches')->findBy(['isActive' => true]),
                 'call_dial_up_event' => $this->getCallDialUpEvent(),
                 'call_dial_down_event' => $this->getCallDialDownEvent()
             ],
