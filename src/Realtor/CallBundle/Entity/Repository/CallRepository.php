@@ -47,6 +47,7 @@ class CallRepository extends EntityRepository
 
         $qb->andWhere($qb->expr()->in('call.callAction', ':events'));
         $qb->andWhere($qb->expr()->between('call.createdAt', ':dateFrom', ':dateTo'));
+        $qb->andWhere($qb->expr()->notLike('call.fromPhone', ':fromPhone'));
 
         $qb->setParameters(
             new ArrayCollection(
@@ -55,6 +56,7 @@ class CallRepository extends EntityRepository
                     new Parameter('events', $events),
                     new Parameter('dateFrom', (new \DateTime())->sub(new \DateInterval('PT8S')), Type::DATETIME),
                     new Parameter('dateTo', (new \DateTime())->add(new \DateInterval('PT8S')), Type::DATETIME),
+                    new Parameter('fromPhone', '*%*'),
                 ]
             )
         );
