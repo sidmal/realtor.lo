@@ -34,16 +34,7 @@ class CallManager
         $request->set('did', $receiver);
         $request->set('uuid', $uniqueId);
 
-        try{
-            $this->httpClient->send();
-
-            $result = true;
-        }
-        catch(RequestException $e){
-            $result = false;
-        }
-
-        return $result;
+        return $this->sendCall();
     }
 
     public function bxfer($linkedId, $leg, $receiver)
@@ -55,16 +46,7 @@ class CallManager
         $request->set('leg', $leg);
         $request->set('did', $receiver);
 
-        try{
-            $this->httpClient->send();
-
-            $result = true;
-        }
-        catch(RequestException $e){
-            $result = false;
-        }
-
-        return $result;
+        return $this->sendCall();
     }
 
     public function blackList($uniqueId, $enable)
@@ -75,12 +57,22 @@ class CallManager
         $request->set('uniqueid', $uniqueId);
         $request->set('enable', $enable);
 
-        try{
+        return $this->sendCall();
+    }
+
+    /**
+     * @return bool
+     */
+    protected function sendCall()
+    {
+        try {
             $this->httpClient->send();
 
             $result = true;
         }
         catch(RequestException $e){
+            echo $e->getMessage();
+
             $result = false;
         }
 
