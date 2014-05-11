@@ -14,6 +14,9 @@ use Realtor\DictionaryBundle\Model\HttpClient;
 
 class CallManager
 {
+    /**
+     * @var \Guzzle\Http\Message\RequestInterface
+     */
     private $httpClient;
 
     public function __construct($url)
@@ -27,35 +30,29 @@ class CallManager
 
     public function dial($sender, $receiver, $uniqueId)
     {
-        $request = $this->httpClient->getQuery();
-
-        $request->set('action', 'dial');
-        $request->set('cid', $sender);
-        $request->set('did', $receiver);
-        $request->set('uuid', $uniqueId);
+        $this->httpClient->setPostField('action', 'dial');
+        $this->httpClient->setPostField('cid', $sender);
+        $this->httpClient->setPostField('did', $receiver);
+        $this->httpClient->setPostField('uuid', $uniqueId);
 
         return $this->sendCall();
     }
 
     public function bxfer($linkedId, $leg, $receiver)
     {
-        $request = $this->httpClient->getQuery();
-
-        $request->set('action', 'bxfer');
-        $request->set('linkedid', $linkedId);
-        $request->set('leg', $leg);
-        $request->set('did', $receiver);
+        $this->httpClient->setPostField('action', 'bxfer');
+        $this->httpClient->setPostField('linkedid', $linkedId);
+        $this->httpClient->setPostField('leg', $leg);
+        $this->httpClient->setPostField('did', $receiver);
 
         return $this->sendCall();
     }
 
     public function blackList($uniqueId, $enable)
     {
-        $request = $this->httpClient->getQuery();
-
-        $request->set('action', 'bl');
-        $request->set('uniqueid', $uniqueId);
-        $request->set('enable', $enable);
+        $this->httpClient->setPostField('action', 'bl');
+        $this->httpClient->setPostField('uniqueid', $uniqueId);
+        $this->httpClient->setPostField('enable', $enable);
 
         return $this->sendCall();
     }
