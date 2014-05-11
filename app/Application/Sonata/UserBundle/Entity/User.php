@@ -134,6 +134,20 @@ class User extends BaseUser
     protected $mayRedirectCall;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="second_name", type="string", length=128, nullable=true)
+     */
+    protected $secondName;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="fio", type="string", length=128, nullable=true)
+     */
+    protected $fio;
+
+    /**
      * @var \Doctrine\Common\Collections\Collection
      */
     protected $groups;
@@ -374,5 +388,51 @@ class User extends BaseUser
     public function getGroups()
     {
         return $this->groups;
+    }
+
+    /**
+     * Set secondName
+     *
+     * @param string $secondName
+     * @return User
+     */
+    public function setSecondName($secondName)
+    {
+        $this->secondName = $secondName;
+
+        return $this;
+    }
+
+    /**
+     * Get secondName
+     *
+     * @return string 
+     */
+    public function getSecondName()
+    {
+        return $this->secondName;
+    }
+
+    /**
+     * Set fio
+     *
+     * @param string $fio
+     * @return User
+     */
+    public function setFio($fio)
+    {
+        $this->fio = $fio;
+
+        return $this;
+    }
+
+    /**
+     * Get fio
+     *
+     * @return string 
+     */
+    public function getFio()
+    {
+        return $this->fio;
     }
 }

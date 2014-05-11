@@ -42,7 +42,7 @@ class BranchesAdmin extends Admin
             ->add('isActive')
             ->add('_action', 'actions', array(
                 'actions' => array(
-                    'show' => array(),
+                    'show' => ['template' => 'AdminBundle:Default:show.html.twig'],
                     'edit' => ['template' => 'AdminBundle:Default:edit.html.twig'],
                     'Позвонить' => ['template' => 'AdminBundle:Default:call_ajax.html.twig']
                 )

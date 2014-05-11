@@ -17,10 +17,8 @@ class CallResultAdmin extends Admin
     {
         $datagridMapper
             ->add('id')
-            ->add('outerId')
             ->add('name')
             ->add('isActive')
-            ->add('createdAt')
         ;
     }
 
@@ -31,15 +29,14 @@ class CallResultAdmin extends Admin
     {
         $listMapper
             ->add('id')
-            ->add('outerId')
             ->add('name')
             ->add('isActive')
             ->add('createdAt')
             ->add('_action', 'actions', array(
                 'actions' => array(
-                    'show' => array(),
-                    'edit' => array(),
-                    'delete' => array(),
+                    'show' => ['template' => 'AdminBundle:Default:show.html.twig'],
+                    'edit' => ['template' => 'AdminBundle:Default:edit.html.twig'],
+                    'delete' => ['template' => 'AdminBundle:Default:delete.html.twig'],
                 )
             ))
         ;
@@ -63,7 +60,6 @@ class CallResultAdmin extends Admin
     {
         $showMapper
             ->add('id')
-            ->add('outerId')
             ->add('name')
             ->add('isActive')
             ->add('createdAt')

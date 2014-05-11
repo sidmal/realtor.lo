@@ -78,6 +78,13 @@ class Branches
     private $isActive;
 
     /**
+     * @var boolean
+     *
+     * @ORM\Column(name="may_trans", type="boolean", options={"default"=true})
+     */
+    private $mayTrans;
+
+    /**
      * @var \DateTime
      *
      * @ORM\Column(name="created_at", type="datetime")
@@ -289,5 +296,33 @@ class Branches
         $this->createdAt = $createdAt;
 
         return $this;
+    }
+
+    /**
+     * Set mayTrans
+     *
+     * @param boolean $mayTrans
+     * @return Branches
+     */
+    public function setMayTrans($mayTrans)
+    {
+        $this->mayTrans = $mayTrans;
+
+        return $this;
+    }
+
+    /**
+     * Get mayTrans
+     *
+     * @return boolean 
+     */
+    public function getMayTrans()
+    {
+        return $this->mayTrans;
+    }
+
+    public function __toString()
+    {
+        return (string)$this->name.' ('.$this->address.')';
     }
 }

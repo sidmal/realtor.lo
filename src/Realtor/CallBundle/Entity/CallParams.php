@@ -109,6 +109,14 @@ class CallParams
     private $message;
 
     /**
+     * @var \Realtor\DictionaryBundle\Entity\Branches
+     *
+     * @ORM\ManyToOne(targetEntity="Realtor\DictionaryBundle\Entity\Branches")
+     * @ORM\JoinColumn(name="branch_id", referencedColumnName="id", nullable=true)
+     */
+    private $branch;
+
+    /**
      * Get id
      *
      * @return integer 
@@ -208,6 +216,29 @@ class CallParams
     public function getPropertyAddress()
     {
         return $this->propertyAddress;
+    }
+
+    /**
+     * Set propertyBaseId
+     *
+     * @param integer $propertyBaseId
+     * @return CallParams
+     */
+    public function setPropertyBaseId($propertyBaseId)
+    {
+        $this->propertyBaseId = $propertyBaseId;
+
+        return $this;
+    }
+
+    /**
+     * Get propertyBaseId
+     *
+     * @return integer 
+     */
+    public function getPropertyBaseId()
+    {
+        return $this->propertyBaseId;
     }
 
     /**
@@ -326,25 +357,25 @@ class CallParams
     }
 
     /**
-     * Set propertyBaseId
+     * Set branch
      *
-     * @param integer $propertyBaseId
+     * @param \Realtor\DictionaryBundle\Entity\Branches $branch
      * @return CallParams
      */
-    public function setPropertyBaseId($propertyBaseId)
+    public function setBranch(\Realtor\DictionaryBundle\Entity\Branches $branch = null)
     {
-        $this->propertyBaseId = $propertyBaseId;
+        $this->branch = $branch;
 
         return $this;
     }
 
     /**
-     * Get propertyBaseId
+     * Get branch
      *
-     * @return integer 
+     * @return \Realtor\DictionaryBundle\Entity\Branches 
      */
-    public function getPropertyBaseId()
+    public function getBranch()
     {
-        return $this->propertyBaseId;
+        return $this->branch;
     }
 }

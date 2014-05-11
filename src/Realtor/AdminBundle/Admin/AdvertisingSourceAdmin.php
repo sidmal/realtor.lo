@@ -31,7 +31,17 @@ class AdvertisingSourceAdmin extends Admin
             ->add('id', 'integer', ['label' => 'Идентификатор'])
             ->add('name', 'string', ['label' => 'Наименование'])
             ->add('isActive', 'boolean', ['label' => 'Активен'])
-            ->add('_action', 'actions', ['actions' => ['show' => [], 'edit' => []]])
+            ->add(
+                '_action',
+                'actions',
+                [
+                    'actions' =>
+                        [
+                            'show' => ['template' => 'AdminBundle:Default:show.html.twig'],
+                            'edit' => ['template' => 'AdminBundle:Default:edit.html.twig']
+                        ]
+                ]
+            )
         ;
     }
 

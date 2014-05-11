@@ -6,8 +6,6 @@
             source: function(request, response){
                 var object = [];
 
-                $("#call-card-buttons").html("").append("<input type=\"submit\" class=\"btn btn-success\" id=\"agent-forward\" name=\"CallCard[agent-forward]\" value=\"Перевести на рабочий телефон агента\" disabled=\"disabled\" onclick=\"$('#action').val($(this).attr('id'));\" />");
-
                 $.getJSON("{{ path('search_property_ajax') }}", request, function(data, status, xhr){
                     $.each(data, function(i, item){
                         object.push(
@@ -47,25 +45,30 @@
                         var agent_show_url = "{{ path('admin_sonata_user_user_show', {'id':'app_id'}) }}";
                         agent_show_url = agent_show_url.replace("app_id", data.app_id);
 
-                        $("#call-card-buttons").append("<a class=\"btn btn-success\" target=\"_blank\" href=\"" + agent_show_url +"\">Данные агента</a>");
+                        var button_block = "";
+
+                        button_block += "<a class=\"btn btn-small btn-success\" target=\"_blank\" href=\"" + agent_show_url +"\">Данные агента</a>";
+                        button_block += "<input type=\"submit\" class=\"btn btn-small btn-success\" id=\"black-list-forward\" name=\"CallCard[black-list-forward]\" value=\"Занести в черный список\" onclick=\"$('#action').val($(this).attr('id'));\" />";
 
                         if(data.maytrans == 1 && data.user_phone){
-                            $("#call-card-buttons").append("<input type=\"submit\" class=\"btn btn-success\" id=\"agent-cell-forward\" name=\"CallCard[agent-cell-forward]\" value=\"Перевести на сотовый агента\" onclick=\"$('#action').val($(this).attr('id'));\" />");
-                            $("#call-card-form").append("<input type=\"hidden\" name=\"CallCard[agent-cell-phone]\" id=\"agent-cell-phone\" value=\"" + data.user_phone +"\" />");
+                            button_block += "<input type=\"submit\" class=\"btn btn-small btn-success\" id=\"agent-cell-forward\" name=\"CallCard[agent-cell-forward]\" value=\"Перевести на сотовый агента\" onclick=\"$('#action').val($(this).attr('id')); $('#call-to-phone').val(" + data.user_phone + ");\" />";
+                        }
+
+                        if(data.in_office == 1){
+                            button_block += "<input type=\"submit\" class=\"btn btn-small btn-success\" id=\"agent-loud-call-forward\" name=\"CallCard[agent-loud-call-forward]\" value=\"Громкий вызов агента\" onclick=\"$('#action').val($(this).attr('id'));\" />";
                         }
 
                         if(data.officephone){
-                            $("#call-card-form").append("<input type=\"hidden\" name=\"CallCard[agent-phone]\" id=\"agent-phone\" value=\"" + data.officephone +"\" />");
-                            $("#agent-office-forward").removeAttr("disabled");
+                            button_block += "<input type=\"submit\" class=\"btn btn-small btn-success\" id=\"agent-office-forward\" name=\"CallCard[agent-office-forward]\" value=\"Перевести на рабочий телефон агента\" onclick=\"$('#action').val($(this).attr('id')); $('#call-to-phone').val(" + data.officephone + ");\" />";
                         }
                         else{
                             $.ajax({
                                 type: "post",
                                 url: "{{ path('branch_get_ajax') }}",
+                                async: false,
                                 data: { branch_id: data.id_office },
-                                success: function(data) {
-                                    $("#call-card-form").append("<input type=\"hidden\" name=\"CallCard[agent-office-phone]\" id=\"agent-office-phone\" value=\"" + data.branch_phone +"\" />");
-                                    $("#call-card-buttons").append("<input type=\"submit\" class=\"btn btn-success\" id=\"agent-office-forward\" name=\"CallCard[agent-office-forward]\" value=\"Перевести звонок в офис агента\" onclick=\"$('#action').val($(this).attr('id'));\" />");
+                                success: function(data){
+                                    button_block += "<input type=\"submit\" class=\"btn btn-small btn-success\" id=\"agent-office-forward\" name=\"CallCard[agent-office-forward]\" value=\"Перевести звонок в офис агента\" onclick=\"$('#action').val($(this).attr('id')); $('#call-to-phone').val(" + data.branch_phone + ");\" />";
                                 },
                                 dataType: 'json'
                             });
@@ -73,9 +76,12 @@
 
                         if(!data.officephone && (data.maytrans == 0 && !data.user_phone)){
                             if(data.head_phone){
-                                $("#call-card-buttons").append("<input type=\"submit\" class=\"btn btn-success\" id=\"agent-head-forward\" name=\"CallCard[agent-head-forward]\" value=\"Перевести на менеджера агента\" onclick=\"$('#action').val($(this).attr('id'));\" />");
-                                $("#call-card-form").append("<input type=\"hidden\" name=\"CallCard[agent-head-phone]\" id=\"agent-head-phone\" value=\"" + data.head_phone +"\" />");
+                                button_block += "<input type=\"submit\" class=\"btn btn-small btn-success\" id=\"agent-head-forward\" name=\"CallCard[agent-head-forward]\" value=\"Перевести на менеджера агента\" onclick=\"$('#action').val($(this).attr('id')); $('#call-to-phone').val(" + data.head_phone + ");\" />";
                             }
+                        }
+
+                        if(button_block){
+                            $("#call-card-buttons").html("").append("<div class=\"btn-group\">" + button_block + "</div>");
                         }
                     },
                     dataType: 'json'
@@ -83,6 +89,10 @@
             }
         });
     });
+
+    $("#advertising-source").change(function(){ $("#property").focus(); });
+
+    $("#reason").change(function(){ $("#message").focus(); });
 </script>
 
 <div>

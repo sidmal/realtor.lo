@@ -35,54 +35,47 @@ class CallController extends Controller
         }
 
         $request = $request->request;
-        $responseInstance = new Response();
+        $response = new Response();
+
+        $callManager = $this->container->get('manager.call.action');
 
         $uniqueId = md5(uniqid(rand(),1));
 
         if($request->has('to_phone') && $request->has('from_phone')){
-            $em = $this->getDoctrine()->getManager();
-
-            $to = $request->get('to_phone');
-
-            $httpClient = (new HttpClient())->getClient();
-            try{
-                $response = $httpClient->post(
-                    'http://188.227.101.17:8080',
-                    [],
-                    ['action' => 'dial', 'cid' => $request->get('from_phone'), 'did' => $to, 'uuid' => $uniqueId]
-                )->send();
-
-                $response = [
-                    'call_state' => true,
-                    'call_comment' => print_r($response->getStatusCode(), true)
-                ];
-
-                $call = new Call();
-                $call
-                    ->setFromPhone($request->get('from_phone'))
-                    ->setToPhone($to)
-                    ->setType(0)
-                    ->setCallAction('dial')
-                    ->setInternalId($uniqueId)
-                    ->setEventAt(new \DateTime());
-
-                $em->persist($call);
-                $em->flush();
+            if(!$callManager->dial($request->get('from_phone'), $request->get('to_phone'), $uniqueId)){
+                $response->setStatusCode(403);
             }
-            catch(RequestException $e){
-                $response = [
-                    'call_state' => false,
-                    'call_comment' => $e->getMessage()
-                ];
-            }
-
-            $responseInstance->setContent(json_encode($response));
         }
-        elseif($request->has('CallCard') && $request->has('CallCard')){
-            $callCard = $request->get('CallCard');
+        elseif($request->has('action') && $request->has('receiver')){
+            if($request->get('action') == 'info_call_cancel' || $request->get('action') == 'call_cancel'){
+                $action = $this->container->getParameter('call.action.'.$request->get('receiver'));
 
-            if(!$callCard['linked-id'] || !$callCard['call-id']){
-                return new Response(null, 403);
+                if(!$callManager->bxfer($request->get('linked_id'), 'A', $action)){
+                    $response->setStatusCode(403);
+                }
+            }
+        }
+        elseif($request->has('CallCard')){
+            $params = $request->get('CallCard');
+
+            switch($params['action']){
+                case 'black-list-forward': //занести в черный список
+                    if(!$callManager->blackList($uniqueId, 1)){
+                        $response->setStatusCode(403);
+                    }
+                    break;
+                case 'office-random-phone-forward': //Случайный вызов
+                    $action = $this->container->getParameter('call.action.random');
+
+                    if(!$callManager->bxfer($params['linked-id'], 'A', $action)){
+                        $response->setStatusCode(403);
+                    }
+                    break;
+                default:
+                    if(!$callManager->bxfer($params['linked-id'], 'A', $params['call-to-phone'])){
+                        $response->setStatusCode(403);
+                    }
+                    break;
             }
 
             $em = $this->getDoctrine()->getManager();
@@ -90,39 +83,43 @@ class CallController extends Controller
             $call = new Call();
             $callParams = new CallParams();
 
-            if($callCard['action'] == 'agent-office-forward'){
-                $to = $callCard['agent-office-phone'];
-            }
-            elseif($callCard['action'] == 'agent-cell-forward'){
-                $to = $callCard['agent-cell-phone'];
-            }
-            elseif($callCard['action'] == 'agent-head-forward'){
-                $to = $callCard['agent-head-phone'];
-            }
-            else{
-                $to = $callCard['agent-phone'];
+            if(isset($params['advertising-source'])){
+                $callParams->setAdvertisingSource($em->getRepository('DictionaryBundle:AdvertisingSource')->find($params['advertising-source']));
             }
 
-            $initCall = $em->getRepository('CallBundle:Call')->find($callCard['call-id']);
+            $callParams->setCallerName($params['caller-name']);
+            $callParams->setCallType($params['call-type']);
+            $callParams->setMessage($params['message']);
 
-            $callParams
-                ->setAdvertisingSource($em->getRepository('DictionaryBundle:AdvertisingSource')->find($callCard['advertising-source']))
-                ->setCallerName($callCard['caller-name'])
-                ->setCallType($callCard['call-type'])
-                ->setMessage($callCard['message'])
-                ->setPropertyAddress($callCard['property'])
-                ->setPropertyAgentId($em->getRepository('ApplicationSonataUserBundle:User')->findOneBy(['outerId' => $callCard['property-agent-id']]))
-                ->setPropertyId($callCard['property-id'])
-                ->setPropertyBaseId($callCard['property-base-id'])
-                ->setReason($em->getRepository('DictionaryBundle:Reason')->find($callCard['reason']));
+            if(isset($params['property'])){
+                $callParams
+                    ->setPropertyAddress($params['property'])
+                    ->setPropertyAgentId($em->getRepository('ApplicationSonataUserBundle:User')->findOneBy(['outerId' => $params['property-agent-id']]))
+                    ->setPropertyId($params['property-id'])
+                    ->setPropertyBaseId($params['property-base-id']);
+            }
+
+            if(isset($params['reason'])){
+                $callParams->setReason($em->getRepository('DictionaryBundle:Reason')->find($params['reason']));
+            }
+
+            if(isset($params['branch-to-call'])){
+                $callParams->setBranch($em->getRepository('DictionaryBundle:Branches')->find($params['branch-to-call']));
+            }
+
+            $initCall = null;
+            if(!empty($params['call-id'])){
+                $initCall = $em->getRepository('CallBundle:Call')->find($params['call-id']);
+            }
+
             $call
-                ->setFromPhone($callCard['caller-phone'])
-                ->setToPhone($to)
+                ->setFromPhone($params['caller-phone'])
+                ->setToPhone($params['call-to-phone'])
                 ->setType(0)
                 ->setCallAction('bxfer')
                 ->setInternalId($uniqueId)
                 ->setEventAt(new \DateTime())
-                ->setLinkedId($callCard['linked-id']);
+                ->setLinkedId($params['linked-id']);
 
             if($initCall){
                 $callParams->setCallId($initCall);
@@ -138,27 +135,9 @@ class CallController extends Controller
             $em->persist($call);
             $em->persist($callParams);
             $em->flush();
-
-            $httpClient = (new HttpClient())->getClient();
-
-            try{
-                $r = $httpClient->post(
-                    'http://188.227.101.17:8080',
-                    [],
-                    [
-                        'action' => 'bxfer',
-                        'linkedid' => $callCard['linked-id'],
-                        'leg' => 'A',
-                        'did' => $to
-                    ]
-                )->send();
-            }
-            catch(RequestException $e){
-                $responseInstance->setStatusCode(403);
-            }
         }
 
-        return $responseInstance;
+        return $response;
     }
 
     /**

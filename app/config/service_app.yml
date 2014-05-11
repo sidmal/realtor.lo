@@ -1,6 +1,8 @@
 parameters:
     manager.user.class: Realtor\DictionaryBundle\Model\UserManager
     app.password.encoder.class: Application\Sonata\UserBundle\Service\MessageDigestPasswordEncoder
+    manager.dictionary.branch.class: Realtor\DictionaryBundle\Model\BranchManager
+    manager.call.action.class: Realtor\CallBundle\Model\CallManager
 
 services:
     manager.user:
@@ -9,6 +11,16 @@ services:
             - http://disp.emls.ru/api/employee
             - @doctrine.orm.entity_manager
             - @validator
+    manager.dictionary.branch:
+        class: %manager.dictionary.branch.class%
+        arguments:
+            - http://disp.emls.ru/api/branches
+            - @doctrine.orm.entity_manager
+
+    manager.call.action:
+        class: %manager.call.action.class%
+        arguments:
+            - http://188.227.101.17:8080
 
     app.password.encoder:
         class: %app.password.encoder.class%

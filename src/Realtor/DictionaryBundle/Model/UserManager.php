@@ -125,6 +125,10 @@ class UserManager
         $user->setEmailCanonical($employee['sys_user_email']);
         $user->setPhone($employee['user_phone']);
         $user->setBranch($branch);
+        $user->setFirstname($employee['user_name']);
+        $user->setLastname($employee['user_last_name']);
+        $user->setSecondName(empty($employee['user_second_name']) ? null : $employee['user_second_name']);
+        $user->setFio(empty($employee['user_fio']) ? null : $employee['user_fio']);
         $user->setMayRedirectCall(((integer)$employee['maytrans'] == 1) ? true : false);
         $user->setInOffice(((integer)$employee['in_office'] == 1) ? true : false);
         $user->setIsFired(((integer)$employee['user_dismiss'] == 1) ? true : false);
@@ -155,8 +159,10 @@ class UserManager
             }
         }
 
+        $user->setHead(null);
         if(!empty($employee['id_manager'])){
-            $head = $this->em->getRepository('Application\\Sonata\\UserBundle\\Entity\\User')->findOneBy(['outerId' => $employee['id_manager']]);
+            $head = $this->em->getRepository('Application\\Sonata\\UserBundle\\Entity\\User')
+                ->findOneBy(['outerId' => $employee['id_manager']]);
 
             if($head){
                 $user->setHead($head);

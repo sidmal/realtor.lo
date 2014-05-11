@@ -6,6 +6,9 @@
 
     <script type="text/javascript">
         $("body").on("click", "#phone-type .btn-group button", function(){
+            $("#call-card-buttons").html("");
+            $('#call-type').val($(this).val())
+
             switch(parseInt($(this).val())){
                 case 0:
                     $("#call-card-content").html("").append("{% filter escape('js') %}{% include '@Call/Default/call_card_type_1.html.twig' %}{% endfilter %}").show("slow");
@@ -18,9 +21,80 @@
                     break;
             }
         });
+
+        $(document).ready(function(){
+            $("#call-card-form").submit(function(event){
+                event.preventDefault();
+
+                $.ajax({
+                    type: "post",
+                    url: "{{ path('call_outcome_ajax') }}",
+                    data: $("#call-card-form").serialize(),
+                    success: function(data) {
+                        $('#call-card').modal('hide');
+                    },
+                    dataType: 'json'
+                });
+            });
+
+            $("#call-card").on("hidden", function(event){
+                event.preventDefault();
+
+                $("#call-card-form")[0].reset();
+                $("#call-card-content").html("");
+
+                var linked_id = $("#linked-id").val();
+
+                if(linked_id){
+                    $.ajax({
+                        type: "post",
+                        url: "{{ path('call_outcome_ajax') }}",
+                        data: { action: "call_cancel", receiver: "hang", linked_id: linked_id }
+                    });
+                }
+            });
+
+            {% if app.user.getOfficePhone is not empty %}
+                call_event_listener();
+
+                function call_event_listener(){
+                    $.ajax({
+                        type: "post",
+                        url: "{{ path('call_get_income_event_ajax') }}",
+                        data: { to_phone: {{ app.user.getOfficePhone }} },
+                        success: function(data){
+                            $("#caller-phone").html(data.fromPhone);
+                            $("#linked-id").val(data.linkedId);
+                            $("#call-id").val(data.id);
+                            $("#ats-call-id").val(data.atsCallId);
+
+                            $("#call-card, #income-call-info").modal("hide");
+
+                            if(data.callAction == "{{ call_dial_up_event }}"){
+                                $("#income-call-info-caller-phone").html(data.fromPhone);
+                                $("#income-call-info").modal({keyboard: false});
+                            }
+                            else if(data.callAction == "{{ call_dial_down_event }}"){
+
+                            }
+                            else{
+
+                            }
+                        },
+                        complete: function(){
+                            //var event_listener = setTimeout(call_event_listener, {{ settings.period * 1000 }});
+                        },
+                        dataType: 'json'
+                    });
+                }
+            {% endif %}
+        });
     </script>
 
     <a href="#call-card" role="button" class="btn" data-toggle="modal">Launch demo modal</a>
+    <a href="#income-call-info" role="button" class="btn" data-toggle="modal">Info modal</a>
+
+    {% include '@SonataAdmin/Core/income_call_info.html.twig' %}
 
     <form id="call-card-form">
 
@@ -45,12 +119,17 @@
             <input type="hidden" name="CallCard[caller-phone]" id="caller-phone" value="{{ app.user.getOfficePhone }}" />
             <input type="hidden" name="CallCard[linked-id]" id="linked-id" value="" />
             <input type="hidden" name="CallCard[call-id]" id="call-id" value="" />
+            <input type="hidden" name="CallCard[ats-call-id]" id="ats-call-id" value="" />
+
             <input type="hidden" name="CallCard[action]" id="action" value="" />
+            <input type="hidden" name="CallCard[call-to-phone]" id="call-to-phone" value="" />
+
+            <input type="hidden" name="CallCard[branch-to-call]" id="branch-to-call" value="" />
 
             <div class="modal-body" id="call-card-content" style="display: none;"></div>
 
             <div class="modal-footer" id="call-card-buttons">
-                <input type="submit" class="btn btn-success" id="agent-forward" name="CallCard[agent-forward]" value="Перевести на рабочий телефон агента" disabled="disabled" onclick="$('#action').val($(this).attr('id'));" />
+
             </div>
         </div>
 

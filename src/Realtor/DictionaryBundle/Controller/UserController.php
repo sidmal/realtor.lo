@@ -43,7 +43,6 @@ class UserController extends Controller
 
         $user[0]['app_id'] = $userManager->save($user[0]);
 
-
         $user[0]['head_phone'] = '';
         if($user[0]['id_manager'] > 0){
             $head = $this->getDoctrine()->getManager()->getRepository('ApplicationSonataUserBundle:User')
