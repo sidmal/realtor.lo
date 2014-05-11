@@ -78,6 +78,10 @@
                                 $("#call-card, #income-call-info").modal("hide");
                             }
                             else{
+                                if(data.fromPhone.match('/\*\d+\*$/')){
+                                    return;
+                                }
+
                                 $("#income-call-info").modal('hide');
 
                                 if(data.callerName){
