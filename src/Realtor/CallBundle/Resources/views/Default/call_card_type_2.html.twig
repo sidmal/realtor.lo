@@ -43,22 +43,20 @@
 
                         $("#branch-to-call").val({{ branch.Id }});
 
-                        button_block += "<input type=\"submit\" class=\"btn btn-small btn-success\" id=\"black-list-forward\" name=\"CallCard[black-list-forward]\" value=\"Занести в черный список\" onclick=\"$('#action').val($(this).attr('id'));\" />";
+                        //button_block += "<input type=\"submit\" class=\"btn btn-small btn-success\" id=\"black-list-forward\" name=\"CallCard[black-list-forward]\" value=\"Занести в черный список\" onclick=\"$('#action').val($(this).attr('id'));\" />";
 
                         if(city_phone){
-                            button_block += "<input type=\"submit\" class=\"btn btn-small btn-success\" id=\"office-city-phone-forward\" name=\"CallCard[office-city-phone-forward]\" value=\"Перевести на городской телефон\" onclick=\"$('#action').val($(this).attr('id')); $('#call-to-phone').val(" + city_phone + ");\" />";
+                            //button_block += "<input type=\"submit\" class=\"btn btn-small btn-success\" id=\"office-city-phone-forward\" name=\"CallCard[office-city-phone-forward]\" value=\"Перевести на городской телефон\" onclick=\"$('#action').val($(this).attr('id')); $('#call-to-phone').val(" + city_phone + ");\" />";
                         }
 
                         if(interoffice_phone){
-                            button_block += "<input type=\"submit\" class=\"btn btn-small btn-success\" id=\"office-interoffice-phone-forward\" name=\"CallCard[office-interoffice-phone-forward]\" value=\"Перевести на внутренний телефон\" onclick=\"$('#action').val($(this).attr('id')); $('#call-to-phone').val(" + interoffice_phone + ");\" />";
+                            //button_block += "<input type=\"submit\" class=\"btn btn-small btn-success\" id=\"office-interoffice-phone-forward\" name=\"CallCard[office-interoffice-phone-forward]\" value=\"Перевести на внутренний телефон\" onclick=\"$('#action').val($(this).attr('id')); $('#call-to-phone').val(" + interoffice_phone + ");\" />";
                             button_block += "<input type=\"submit\" class=\"btn btn-small btn-success\" id=\"office-loud-call-forward\" name=\"CallCard[office-loud-call-forward]\" value=\"Громкая связь\" onclick=\"$('#action').val($(this).attr('id')); $('#call-to-phone').val(" + interoffice_phone + ");\" />";
                         }
 
                         if(duty_agent){
                             button_block += "<input type=\"submit\" class=\"btn btn-small btn-success\" id=\"office-duty-agent-phone-forward\" name=\"CallCard[office-duty-agent-phone-forward]\" value=\"Перевести на дежурного агента\" onclick=\"$('#action').val($(this).attr('id')); $('#call-to-phone').val(" + duty_agent + ");\" />";
                         }
-
-                        button_block += "<input type=\"submit\" class=\"btn btn-small btn-success\" id=\"office-random-phone-forward\" name=\"CallCard[office-random-phone-forward]\" value=\"Случайный вызов\" onclick=\"$('#action').val($(this).attr('id'));\" />";
 
                         if(button_block){
                             $("#call-card-buttons").html("").append("<div class=\"btn-group\">" + button_block + "</div>");

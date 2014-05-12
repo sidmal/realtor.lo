@@ -10,6 +10,18 @@
                 <source>Advertising Source Create</source>
                 <target>Создание источника рекламы</target>
             </trans-unit>
+            <trans-unit id="Branches List">
+                <source>Branches List</source>
+                <target>Филиалы</target>
+            </trans-unit>
+            <trans-unit id="Reason List">
+                <source>Reason List</source>
+                <target>Причины обращения</target>
+            </trans-unit>
+            <trans-unit id="Call Result List">
+                <source>Call Result List</source>
+                <target>Результаты разговора</target>
+            </trans-unit>
         </body>
     </file>
 </xliff>

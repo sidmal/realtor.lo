@@ -1,0 +1,50 @@
+<script type="text/javascript">
+    $(document).ready(function(){
+        $("#black-list-form").submit(function(event){
+            event.preventDefault();
+
+            $.ajax({
+                type: "post",
+                url: "{{ path('call_outcome_ajax') }}",
+                data: $("#black-list-form").serialize(),
+                complete: function(data){
+                    $("#add-to-black-list, #call-card").modal("hide");
+                },
+                dataType: 'json'
+            });
+        });
+    });
+</script>
+
+<div id="add-to-black-list" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="add_to_black_list" aria-hidden="true" style="z-index: 10000;">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3>
+            <strong>
+                Добавить номер в черный список
+            </strong>
+        </h3>
+    </div>
+
+    <form id="black-list-form">
+        <div class="modal-body">
+            <input type="hidden" name="CallCard[from-phone]" id="black-list-caller-phone" value="" />
+            <input type="hidden" name="CallCard[action]" value="black-list-forward" />
+            <input type="hidden" name="CallCard[user-id]" id="black-list-user-id" value="{{ app.user.Id }}" />
+            <input type="hidden" name="CallCard[call-type]" id="black-list-call-type" value="" />
+            <input type="hidden" name="CallCard[caller-phone]" id="black-list-caller-phone" value="{{ app.user.getOfficePhone }}" />
+            <input type="hidden" name="CallCard[linked-id]" id="black-list-linked-id" value="" />
+            <input type="hidden" name="CallCard[call-id]" id="black-list-call-id" value="" />
+            <input type="hidden" name="CallCard[ats-call-id]" id="black-list-ats-call-id" value="" />
+            <input type="hidden" name="CallCard[call-to-phone]" value="bl" />
+            <input type="hidden" name="CallCard[caller-name]" value="{{ app.user.username }}" />
+
+            <label class="control-label required" for="message">Причина добавления:</label>
+            <textarea class="input-xlarge span14" id="message" name="CallCard[message]" rows="14" required="required"></textarea>
+        </div>
+
+        <div class="modal-footer">
+            <input type="submit" class="btn btn-small btn-success" id="add-to-black-list-submit" value="Добавить" />
+        </div>
+    </form>
+</div>

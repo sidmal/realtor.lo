@@ -75,7 +75,7 @@ class UserAdmin extends SonataUserAdmin
                 ->add('inOffice', null, ['label' => 'Сотрудник в офисе'])
                 ->add('officePhone', null, ['label' => 'Рабочий телефон'])
                 ->add('phone', null, ['label' => 'Личные телефоны'])
-                ->add('mayRedirectCall', null, ['label' => 'Разрешен первод звонка на личный телефон'])
+                ->add('mayRedirectCall', null, ['label' => 'Разрешен перевод звонка на личный телефон'])
                 ->end()
             ->with('Groups')
                 ->add('groups')
@@ -100,10 +100,65 @@ class UserAdmin extends SonataUserAdmin
     {
         $filterMapper
             ->add('id')
-            ->add('username', null, ['label' => 'Логин'])
-            ->add('email')
-            ->add('firstName', 'doctrine_orm_string', ['label' => 'Имя'])
-            ->add('lastName', 'doctrine_orm_string', ['label' => 'Фамилия'])
+            ->add(
+                'username',
+                'doctrine_orm_callback',
+                [
+                    'label' => 'Логин',
+                    'callback' => function($builder, $alias, $field, $value){
+                        if(!$value) return;
+
+                        $builder->andWhere($builder->expr()->like($builder->expr()->lower($alias.'.username'), $builder->expr()->lower(':username')))
+                            ->setParameter('username', '%'.preg_replace('/\ {2,}/', ' ', $value['value']).'%');
+
+                        return true;
+                    }
+                ]
+            )
+            ->add(
+                'email',
+                'doctrine_orm_callback',
+                [
+                    'callback' => function($builder, $alias, $field, $value){
+                        if(!$value) return;
+
+                        $builder->andWhere($builder->expr()->like($builder->expr()->lower($alias.'.email'), $builder->expr()->lower(':email')))
+                            ->setParameter('email', '%'.preg_replace('/\ {2,}/', ' ', $value['value']).'%');
+
+                        return true;
+                    }
+                ]
+            )
+            ->add(
+                'firstName',
+                'doctrine_orm_callback',
+                [
+                    'label' => 'Имя',
+                    'callback' => function($builder, $alias, $field, $value){
+                        if(!$value) return;
+
+                        $builder->andWhere($builder->expr()->like($builder->expr()->lower($alias.'.firstName'), $builder->expr()->lower(':firstName')))
+                            ->setParameter('firstName', '%'.preg_replace('/\ {2,}/', ' ', $value['value']).'%');
+
+                        return true;
+                    }
+                ]
+            )
+            ->add(
+                'lastName',
+                'doctrine_orm_callback',
+                [
+                    'label' => 'Фамилия',
+                    'callback' => function($builder, $alias, $field, $value){
+                        if(!$value) return;
+
+                        $builder->andWhere($builder->expr()->like($builder->expr()->lower($alias.'.lastName'), $builder->expr()->lower(':lastName')))
+                            ->setParameter('lastName', '%'.preg_replace('/\ {2,}/', ' ', $value['value']).'%');
+
+                        return true;
+                    }
+                ]
+            )
             ->add('groups', null, ['label' => 'Группа'])
         ;
     }

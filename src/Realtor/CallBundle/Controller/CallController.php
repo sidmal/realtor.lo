@@ -9,6 +9,7 @@
 namespace Realtor\CallBundle\Controller;
 
 use Guzzle\Http\Exception\RequestException;
+use Realtor\CallBundle\Entity\BlackList;
 use Realtor\CallBundle\Entity\Call;
 use Realtor\CallBundle\Entity\CallParams;
 use Realtor\DictionaryBundle\Model\HttpClient;
@@ -37,10 +38,13 @@ class CallController extends Controller
         $request = $request->request;
         $response = new Response();
 
+        $em = $this->getDoctrine()->getManager();
+
         $callManager = $this->container->get('manager.call.action');
 
         $uniqueId = md5(uniqid(rand(),1));
 
+        $action = 'dial';
         if($request->has('to_phone') && $request->has('from_phone')){
             if(!$callManager->dial($request->get('from_phone'), $request->get('to_phone'), $uniqueId)){
                 $response->setStatusCode(403);
@@ -60,9 +64,18 @@ class CallController extends Controller
 
             switch($params['action']){
                 case 'black-list-forward': //занести в черный список
+                    $blackList = new BlackList();
+                    $blackList
+                        ->setPhone($params['from-phone'])
+                        ->setUserId($em->getRepository('ApplicationSonataUserBundle:User')->find($params['user-id']))
+                        ->setReason($params['message']);
+                    $em->persist($blackList);
+
                     if(!$callManager->blackList($uniqueId, 1)){
                         $response->setStatusCode(403);
                     }
+
+                    $action = 'bl';
                     break;
                 case 'office-random-phone-forward': //Случайный вызов
                     $action = $this->container->getParameter('call.action.random');
@@ -72,70 +85,69 @@ class CallController extends Controller
                     }
                     break;
                 default:
+                    $action = 'bxfer';
                     if(!$callManager->bxfer($params['linked-id'], 'A', $params['call-to-phone'])){
                         $response->setStatusCode(403);
                     }
                     break;
             }
-
-            $em = $this->getDoctrine()->getManager();
-
-            $call = new Call();
-            $callParams = new CallParams();
-
-            if(isset($params['advertising-source'])){
-                $callParams->setAdvertisingSource($em->getRepository('DictionaryBundle:AdvertisingSource')->find($params['advertising-source']));
-            }
-
-            $callParams->setCallerName($params['caller-name']);
-            $callParams->setCallType($params['call-type']);
-            $callParams->setMessage($params['message']);
-
-            if(isset($params['property'])){
-                $callParams
-                    ->setPropertyAddress($params['property'])
-                    ->setPropertyAgentId($em->getRepository('ApplicationSonataUserBundle:User')->findOneBy(['outerId' => $params['property-agent-id']]))
-                    ->setPropertyId($params['property-id'])
-                    ->setPropertyBaseId($params['property-base-id']);
-            }
-
-            if(isset($params['reason'])){
-                $callParams->setReason($em->getRepository('DictionaryBundle:Reason')->find($params['reason']));
-            }
-
-            if(isset($params['branch-to-call'])){
-                $callParams->setBranch($em->getRepository('DictionaryBundle:Branches')->find($params['branch-to-call']));
-            }
-
-            $initCall = null;
-            if(!empty($params['call-id'])){
-                $initCall = $em->getRepository('CallBundle:Call')->find($params['call-id']);
-            }
-
-            $call
-                ->setFromPhone($params['caller-phone'])
-                ->setToPhone($params['call-to-phone'])
-                ->setType(0)
-                ->setCallAction('bxfer')
-                ->setInternalId($uniqueId)
-                ->setEventAt(new \DateTime())
-                ->setLinkedId($params['linked-id']);
-
-            if($initCall){
-                $callParams->setCallId($initCall);
-                $initCall->setParams($callParams);
-
-                $em->persist($initCall);
-            }
-            else{
-                $callParams->setCallId($call);
-                $call->setParams($callParams);
-            }
-
-            $em->persist($call);
-            $em->persist($callParams);
-            $em->flush();
         }
+
+        $call = new Call();
+        $callParams = new CallParams();
+
+        if(isset($params['advertising-source'])){
+            $callParams->setAdvertisingSource($em->getRepository('DictionaryBundle:AdvertisingSource')->find($params['advertising-source']));
+        }
+
+        $callParams->setCallerName($params['caller-name']);
+        $callParams->setCallType($params['call-type']);
+        $callParams->setMessage($params['message']);
+
+        if(isset($params['property'])){
+            $callParams
+                ->setPropertyAddress($params['property'])
+                ->setPropertyAgentId($em->getRepository('ApplicationSonataUserBundle:User')->findOneBy(['outerId' => $params['property-agent-id']]))
+                ->setPropertyId($params['property-id'])
+                ->setPropertyBaseId($params['property-base-id']);
+        }
+
+        if(isset($params['reason'])){
+            $callParams->setReason($em->getRepository('DictionaryBundle:Reason')->find($params['reason']));
+        }
+
+        if(!empty($params['branch-to-call'])){
+            $callParams->setBranch($em->getRepository('DictionaryBundle:Branches')->find($params['branch-to-call']));
+        }
+
+        $initCall = null;
+        if(!empty($params['call-id'])){
+            $initCall = $em->getRepository('CallBundle:Call')->find($params['call-id']);
+        }
+
+        $call
+            ->setFromPhone($params['caller-phone'])
+            ->setToPhone($params['call-to-phone'])
+            ->setType(0)
+            ->setCallAction($action)
+            ->setInternalId($uniqueId)
+            ->setEventAt(new \DateTime())
+            ->setLinkedId($params['linked-id']);
+
+        if($initCall){
+            $callParams->setCallId($initCall);
+            $initCall->setParams($callParams);
+
+            $em->persist($initCall);
+        }
+        else{
+            $callParams->setCallId($call);
+            $call->setParams($callParams);
+        }
+
+        $em->persist($call);
+        $em->persist($callParams);
+        $em->flush();
 
         return $response;
     }
@@ -204,6 +216,18 @@ class CallController extends Controller
         $em->persist($call);
         $em->flush();
 
+        return new Response();
+    }
+
+    /**
+     * @param Request $request
+     * @return Response
+     *
+     * @Route("/event/to/black_list", name="event_to_black_list")
+     * @Method({"POST"})
+     */
+    public function addToBlackList(Request $request)
+    {
         return new Response();
     }
 } 

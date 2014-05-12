@@ -153,4 +153,9 @@ class Reason
     {
         return $this->createdAt;
     }
+
+    public function __toString()
+    {
+        return ($this->getName()) ? $this->getName() : 'Новая причина';
+    }
 }

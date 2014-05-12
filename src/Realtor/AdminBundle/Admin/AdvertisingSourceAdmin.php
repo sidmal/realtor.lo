@@ -17,7 +17,21 @@ class AdvertisingSourceAdmin extends Admin
     {
         $datagridMapper
             ->add('id',  null, ['label' => 'Идентификатор'])
-            ->add('name', null, ['label' => 'Наименование'])
+            ->add(
+                'name',
+                'doctrine_orm_callback',
+                [
+                    'label' => 'Наименование',
+                    'callback' => function($builder, $alias, $field, $value){
+                        if(!$value) return;
+
+                        $builder->andWhere($builder->expr()->like($builder->expr()->lower($alias.'.name'), $builder->expr()->lower(':name')))
+                            ->setParameter('name', '%'.preg_replace('/\ {2,}/', ' ', $value['value']).'%');
+
+                        return true;
+                    }
+                ]
+            )
             ->add('isActive', null, ['label' => 'Активен'])
         ;
     }
@@ -28,7 +42,7 @@ class AdvertisingSourceAdmin extends Admin
     protected function configureListFields(ListMapper $listMapper)
     {
         $listMapper
-            ->add('id', 'integer', ['label' => 'Идентификатор'])
+            ->addIdentifier('id', 'integer', ['label' => 'Идентификатор'])
             ->add('name', 'string', ['label' => 'Наименование'])
             ->add('isActive', 'boolean', ['label' => 'Активен'])
             ->add(

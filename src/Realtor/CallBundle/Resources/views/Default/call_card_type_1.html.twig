@@ -48,7 +48,7 @@
                         var button_block = "";
 
                         button_block += "<a class=\"btn btn-small btn-success\" target=\"_blank\" href=\"" + agent_show_url +"\">Данные агента</a>";
-                        button_block += "<input type=\"submit\" class=\"btn btn-small btn-success\" id=\"black-list-forward\" name=\"CallCard[black-list-forward]\" value=\"Занести в черный список\" onclick=\"$('#action').val($(this).attr('id'));\" />";
+                        //button_block += "<input type=\"submit\" class=\"btn btn-small btn-success\" id=\"black-list-forward\" name=\"CallCard[black-list-forward]\" value=\"Занести в черный список\" onclick=\"$('#action').val($(this).attr('id'));\" />";
 
                         if(data.maytrans == 1 && data.user_phone){
                             button_block += "<input type=\"submit\" class=\"btn btn-small btn-success\" id=\"agent-cell-forward\" name=\"CallCard[agent-cell-forward]\" value=\"Перевести на сотовый агента\" onclick=\"$('#action').val($(this).attr('id')); $('#call-to-phone').val(" + data.user_phone + ");\" />";

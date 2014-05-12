@@ -323,6 +323,16 @@ class Branches
 
     public function __toString()
     {
-        return (string)$this->name.' ('.$this->address.')';
+        if(!$this->getName()){
+            return 'Новый филиал';
+        }
+
+        $result = (string)$this->getName();
+
+        if($this->getAddress()){
+            $result .= ' ('.$this->getAddress().')';
+        }
+
+        return $result;
     }
 }

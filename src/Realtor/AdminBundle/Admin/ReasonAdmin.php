@@ -16,9 +16,23 @@ class ReasonAdmin extends Admin
     protected function configureDatagridFilters(DatagridMapper $datagridMapper)
     {
         $datagridMapper
-            ->add('id')
-            ->add('name')
-            ->add('isActive')
+            ->add('id', null, ['label' => 'Идентификатор'])
+            ->add(
+                'name',
+                'doctrine_orm_callback',
+                [
+                    'label' => 'Наименование',
+                    'callback' => function($builder, $alias, $field, $value){
+                            if(!$value) return;
+
+                            $builder->andWhere($builder->expr()->like($builder->expr()->lower($alias.'.name'), $builder->expr()->lower(':name')))
+                                ->setParameter('name', '%'.preg_replace('/\ {2,}/', ' ', $value['value']).'%');
+
+                            return true;
+                        }
+                ]
+            )
+            ->add('isActive', null, ['label' => 'Активен'])
         ;
     }
 
@@ -28,10 +42,9 @@ class ReasonAdmin extends Admin
     protected function configureListFields(ListMapper $listMapper)
     {
         $listMapper
-            ->add('id')
-            ->add('name')
-            ->add('isActive')
-            ->add('createdAt')
+            ->addIdentifier('id', null, ['label' => 'Идентификатор'])
+            ->add('name', null, ['label' => 'Наименование'])
+            ->add('isActive', null, ['label' => 'Активен'])
             ->add('_action', 'actions', array(
                 'actions' => array(
                     'show' => ['template' => 'AdminBundle:Default:show.html.twig'],
@@ -48,8 +61,8 @@ class ReasonAdmin extends Admin
     protected function configureFormFields(FormMapper $formMapper)
     {
         $formMapper
-            ->add('name')
-            ->add('isActive')
+            ->add('name', null, ['label' => 'Наименование', 'required' => true])
+            ->add('isActive', null, ['label' => 'Активен', 'required' => false])
         ;
     }
 
@@ -59,10 +72,10 @@ class ReasonAdmin extends Admin
     protected function configureShowFields(ShowMapper $showMapper)
     {
         $showMapper
-            ->add('id')
-            ->add('name')
-            ->add('isActive')
-            ->add('createdAt')
+            ->add('id', null, ['label' => 'Идентификатор'])
+            ->add('name', null, ['label' => 'Наименование'])
+            ->add('isActive', null, ['label' => 'Активен'])
+            ->add('createdAt', null, ['label' => 'Дата заведения'])
         ;
     }
 }

@@ -16,14 +16,40 @@ class BranchesAdmin extends Admin
     protected function configureDatagridFilters(DatagridMapper $datagridMapper)
     {
         $datagridMapper
-            ->add('id')
-            ->add('outerId')
-            ->add('branchNumber')
-            ->add('name')
-            ->add('address')
-            ->add('cityPhone')
-            ->add('onDutyAgentPhone')
-            ->add('isActive')
+            ->add('branchNumber', null, ['label' => 'Внутренний телефонный номер'])
+            ->add(
+                'name',
+                'doctrine_orm_callback',
+                [
+                    'label' => 'Наименование',
+                    'callback' => function($builder, $alias, $field, $value){
+                        if(!$value) return;
+
+                        $builder->andWhere($builder->expr()->like($builder->expr()->lower($alias.'.name'), $builder->expr()->lower(':name')))
+                            ->setParameter('name', '%'.preg_replace('/\ {2,}/', ' ', $value['value']).'%');
+
+                        return true;
+                    }
+                ]
+            )
+            ->add(
+                'address',
+                'doctrine_orm_callback',
+                [
+                    'label' => 'Адрес',
+                    'callback' => function($builder, $alias, $field, $value){
+                        if(!$value) return;
+
+                        $builder->andWhere($builder->expr()->like($builder->expr()->lower($alias.'.address'), $builder->expr()->lower(':address')))
+                            ->setParameter('address', '%'.preg_replace('/\ {2,}/', ' ', $value['value']).'%');
+
+                        return true;
+                    }
+                ]
+            )
+            ->add('cityPhone', null, ['label' => 'Городской телефонный номер'])
+            ->add('onDutyAgentPhone', null, ['label' => 'Номер дежурного'])
+            ->add('isActive', null, ['label' => 'Активен'])
         ;
     }
 
@@ -33,13 +59,10 @@ class BranchesAdmin extends Admin
     protected function configureListFields(ListMapper $listMapper)
     {
         $listMapper
-            ->add('id')
-            ->add('branchNumber')
-            ->add('name')
-            ->add('address')
-            ->add('cityPhone')
-            ->add('onDutyAgentPhone')
-            ->add('isActive')
+            ->addIdentifier('id', null, ['label' => 'Идентификатор филиала'])
+            ->add('name', null, ['label' => 'Наименование'])
+            ->add('address', null, ['label' => 'Адрес'])
+            ->add('isActive', null, ['label' => 'Активен'])
             ->add('_action', 'actions', array(
                 'actions' => array(
                     'show' => ['template' => 'AdminBundle:Default:show.html.twig'],
@@ -56,15 +79,12 @@ class BranchesAdmin extends Admin
     protected function configureFormFields(FormMapper $formMapper)
     {
         $formMapper
-            ->add('id')
-            ->add('outerId')
-            ->add('branchNumber')
-            ->add('name')
-            ->add('address')
-            ->add('cityPhone')
-            ->add('onDutyAgentPhone')
-            ->add('isActive')
-            ->add('createdAt')
+            ->add('name', null, ['label' => 'Наименование', 'required' => true])
+            ->add('branchNumber', null, ['label' => 'Внутренний телефонный номер', 'required' => false])
+            ->add('address', null, ['label' => 'Адрес', 'required' => false])
+            ->add('cityPhone', null, ['label' => 'Городской телефонный номер', 'required' => false])
+            ->add('onDutyAgentPhone', null, ['label' => 'Номер дежурного', 'required' => false])
+            ->add('isActive', null, ['label' => 'Активен', 'required' => false])
         ;
     }
 
@@ -74,15 +94,14 @@ class BranchesAdmin extends Admin
     protected function configureShowFields(ShowMapper $showMapper)
     {
         $showMapper
-            ->add('id')
-            ->add('outerId')
-            ->add('branchNumber')
-            ->add('name')
-            ->add('address')
-            ->add('cityPhone')
-            ->add('onDutyAgentPhone')
-            ->add('isActive')
-            ->add('createdAt')
+            ->add('id', null, ['label' => 'Идентификатор'])
+            ->add('outerId', null, ['label' => 'Идентификатор emls'])
+            ->add('branchNumber', null, ['label' => 'Внутренний телефонный номер'])
+            ->add('name', null, ['label' => 'Наименование'])
+            ->add('address', null, ['label' => 'Адрес'])
+            ->add('cityPhone', null, ['label' => 'Городской телефонный номер'])
+            ->add('onDutyAgentPhone', null, ['label' => 'Номер дежурного'])
+            ->add('isActive', null, ['label' => 'Активен'])
         ;
     }
 }

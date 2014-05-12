@@ -7,17 +7,25 @@
     <script type="text/javascript">
         $("body").on("click", "#phone-type .btn-group button", function(){
             $("#call-card-buttons").html("");
-            $('#call-type').val($(this).val())
+            $('#call-type, #black-list-call-type').val($(this).val());
+
+            var button_block = "<button class=\"btn btn-small btn-warning pull-right\" id=\"add-to-black-list-button\" type=\"button\" onclick=\"$('#add-to-black-list').modal({keyboard: false});\">Занести в черный список</button>";
 
             switch(parseInt($(this).val())){
                 case 0:
-                    $("#call-card-content").html("").append("{% filter escape('js') %}{% include '@Call/Default/call_card_type_1.html.twig' %}{% endfilter %}").show("slow");
+                    $(".required-buttons").html("").append(button_block);
+                    $("#call-card-content").find("#container").html("").append("{% filter escape('js') %}{% include '@Call/Default/call_card_type_1.html.twig' %}{% endfilter %}")
+                    $("#call-card-content").show("slow");
                     break;
                 case 1:
-                    $("#call-card-content").html("").append("{% filter escape('js') %}{% include '@Call/Default/call_card_type_2.html.twig' %}{% endfilter %}").show("slow");
+                    button_block += "<input type=\"submit\" class=\"btn btn-small btn-success pull-left\" value=\"Случайный вызов\">";
+
+                    $(".required-buttons").html("").append(button_block);
+                    $("#call-card-content").find("#container").html("").append("{% filter escape('js') %}{% include '@Call/Default/call_card_type_2.html.twig' %}{% endfilter %}");
+                    $("#call-card-content").show("slow");
                     break;
                 default:
-                    $("#call-card-content").html("");
+                    $("#call-card-content").find("#container").html("");
                     break;
             }
         });
@@ -30,10 +38,9 @@
                     type: "post",
                     url: "{{ path('call_outcome_ajax') }}",
                     data: $("#call-card-form").serialize(),
-                    success: function(data) {
-                        $('#call-card').modal('hide');
-                    },
-                    dataType: 'json'
+                    complete: function() {
+                        $("#call-card, #add-to-black-list").modal("hide");
+                    }
                 });
             });
 
@@ -41,7 +48,8 @@
                 event.preventDefault();
 
                 $("#call-card-form")[0].reset();
-                $("#call-card-content").html("");
+                $("#call-card-content").find("#container").html("");
+                $(".required-buttons").html("");
 
                 var linked_id = $("#linked-id").val();
 
@@ -63,10 +71,10 @@
                         url: "{{ path('call_get_income_event_ajax') }}",
                         data: { to_phone: {{ app.user.getOfficePhone }} },
                         success: function(data){
-                            $("#caller-phone").html(data.fromPhone);
-                            $("#linked-id").val(data.linkedId);
-                            $("#call-id").val(data.id);
-                            $("#ats-call-id").val(data.atsCallId);
+                            $("#caller-phone, #black-list-caller-phone").html(data.fromPhone);
+                            $("#linked-id, #black-list-linked-id").val(data.linkedId);
+                            $("#call-id, #black-list-call-id").val(data.id);
+                            $("#ats-call-id, #black-list-ats-call-id").val(data.atsCallId);
 
                             if(data.callAction == "{{ call_dial_up_event }}"){
                                 $("#call-card").modal("hide");
@@ -110,7 +118,7 @@
                             }
                         },
                         complete: function(){
-                            var event_listener = setTimeout(call_event_listener, {{ settings.period * 1000 }});
+                            //var event_listener = setTimeout(call_event_listener, {{ settings.period * 1000 }});
                         },
                         dataType: 'json'
                     });
@@ -119,12 +127,14 @@
         });
     </script>
 
-    <!--
+
     <a href="#call-card" role="button" class="btn" data-toggle="modal">Launch demo modal</a>
     <a href="#income-call-info" role="button" class="btn" data-toggle="modal">Info modal</a>
-    -->
+
 
     {% include '@SonataAdmin/Core/income_call_info.html.twig' %}
+
+    {% include '@SonataAdmin/Core/add_to_black_list.html.twig' %}
 
     <form id="call-card-form">
 
@@ -156,7 +166,10 @@
 
             <input type="hidden" name="CallCard[branch-to-call]" id="branch-to-call" value="" />
 
-            <div class="modal-body" id="call-card-content" style="display: none;"></div>
+            <div class="modal-body" id="call-card-content" style="display: none;">
+                <div class="span12 required-buttons"></div>
+                <div id="container"></div>
+            </div>
 
             <div class="modal-footer" id="call-card-buttons">
 

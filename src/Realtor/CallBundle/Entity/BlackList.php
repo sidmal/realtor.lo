@@ -39,12 +39,26 @@ class BlackList
     private $userId;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="reason", type="text")
+     */
+    private $reason;
+
+    /**
      * @var \DateTime
      *
      * @ORM\Column(name="created_at", type="datetime")
      */
     private $createdAt;
 
+    /**
+     * @ORM\PrePersist
+     */
+    public function setDateValue()
+    {
+        $this->createdAt = new \DateTime();
+    }
 
     /**
      * Get id
@@ -80,26 +94,26 @@ class BlackList
     }
 
     /**
-     * Set userId
+     * Set reason
      *
-     * @param integer $userId
+     * @param string $reason
      * @return BlackList
      */
-    public function setUserId($userId)
+    public function setReason($reason)
     {
-        $this->userId = $userId;
+        $this->reason = $reason;
 
         return $this;
     }
 
     /**
-     * Get userId
+     * Get reason
      *
-     * @return integer 
+     * @return string 
      */
-    public function getUserId()
+    public function getReason()
     {
-        return $this->userId;
+        return $this->reason;
     }
 
     /**
@@ -126,10 +140,25 @@ class BlackList
     }
 
     /**
-     * @ORM\PrePersist
+     * Set userId
+     *
+     * @param \Application\Sonata\UserBundle\Entity\User $userId
+     * @return BlackList
      */
-    public function setDateValue()
+    public function setUserId(\Application\Sonata\UserBundle\Entity\User $userId = null)
     {
-        $this->createdAt = new \DateTime();
+        $this->userId = $userId;
+
+        return $this;
+    }
+
+    /**
+     * Get userId
+     *
+     * @return \Application\Sonata\UserBundle\Entity\User 
+     */
+    public function getUserId()
+    {
+        return $this->userId;
     }
 }
