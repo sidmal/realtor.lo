@@ -21,6 +21,14 @@ services:
         class: %manager.call.action.class%
         arguments:
             - http://188.227.101.17:8080
+            - @logger
+        tags:
+            - { name: monolog.logger, channel: call_ats_action }
 
     app.password.encoder:
         class: %app.password.encoder.class%
+
+    monolog.handler.elastic_persistent:
+        class: System\Log\ElasticHandler
+        calls:
+            - [setLogDir, [%kernel.logs_dir%]]

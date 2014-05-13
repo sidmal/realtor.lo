@@ -9,6 +9,7 @@
 namespace Realtor\CallBundle\Model;
 
 use Guzzle\Http\Exception\RequestException;
+use Psr\Log\LoggerInterface;
 use Realtor\CallBundle\Exceptions\CallException;
 use Realtor\DictionaryBundle\Model\HttpClient;
 
@@ -19,13 +20,19 @@ class CallManager
      */
     private $httpClient;
 
-    public function __construct($url)
+    /**
+     * @var \Psr\Log\LoggerInterface
+     */
+    private $logger;
+
+    public function __construct($url, LoggerInterface $logger)
     {
         if(empty($url)){
             throw new CallException('url for send request to ats not set.');
         }
 
         $this->httpClient = (new HttpClient())->getClient()->post($url);
+        $this->logger = $logger;
     }
 
     public function dial($sender, $receiver, $uniqueId)
@@ -63,15 +70,24 @@ class CallManager
     protected function sendCall()
     {
         try {
-            $this->httpClient->send();
+            $response = $this->httpClient->send();
 
             $result = true;
         }
         catch(RequestException $e){
-            echo $e->getMessage();
-
             $result = false;
         }
+
+        $postData = $this->httpClient->getPostFields()->getAll();
+
+        $message = [
+            'url' => $this->httpClient->getUrl(),
+            'method' => 'post',
+            'request' => $postData,
+            'response' => isset($response) ? $response->getBody(true) : $e->getMessage()
+        ];
+
+        $this->logger->debug(json_encode($message));
 
         return $result;
     }

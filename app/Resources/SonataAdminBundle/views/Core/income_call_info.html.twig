@@ -3,23 +3,23 @@
         $("#income-call-info").on("hidden", function(event){
             info_call_cancel();
         });
-
-        function info_call_cancel(){
-            var ats_call_id = $("#ats-call-id").val();
-
-            if(ats_call_id){
-                $.ajax({
-                    type: "post",
-                    url: "{{ path('call_outcome_ajax') }}",
-                    data: { action: "info_call_cancel", receiver: "drop", linked_id: ats_call_id },
-                    success: function(data){
-                        $("#income-call-info").modal("hide");
-                    },
-                    dataType: 'json'
-                });
-            }
-        }
     });
+
+    function info_call_cancel(){
+        var ats_call_id = $("#ats-call-id").val();
+
+        if(ats_call_id){
+            $.ajax({
+                type: "post",
+                url: "{{ path('call_outcome_ajax') }}",
+                data: { action: "info_call_cancel", receiver: "drop", linked_id: ats_call_id },
+                complete: function(data){
+                    $("#income-call-info").modal("hide");
+                },
+                dataType: 'json'
+            });
+        }
+    }
 </script>
 
 <div id="income-call-info" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="income-call-info" aria-hidden="true">

@@ -5,6 +5,25 @@
     <script src="http://api-maps.yandex.ru/2.1/?lang=ru_RU" type="text/javascript"></script>
 
     <script type="text/javascript">
+        function office_random_phone_forward(){
+            $("#message, #caller-name").removeAttr("required");
+            $("#action").val("office-random-phone-forward");
+            $("#call-card-form").submit();
+        }
+
+        function call_cancel()
+        {
+            var linked_id = $("#linked-id").val();
+
+            if(linked_id){
+                $.ajax({
+                    type: "post",
+                    url: "{{ path('call_outcome_ajax') }}",
+                    data: { action: "call_cancel", receiver: "hang", linked_id: linked_id }
+                });
+            }
+        }
+
         $("body").on("click", "#phone-type .btn-group button", function(){
             $("#call-card-buttons").html("");
             $('#call-type, #black-list-call-type').val($(this).val());
@@ -18,7 +37,7 @@
                     $("#call-card-content").show("slow");
                     break;
                 case 1:
-                    button_block += "<input type=\"submit\" class=\"btn btn-small btn-success pull-left\" value=\"Случайный вызов\">";
+                    button_block += "<input type=\"button\" class=\"btn btn-small btn-success pull-left\" id=\"office-random-phone-forward\" name=\"CallCard[office-random-phone-forward]\" value=\"Случайный вызов\" onclick=\"office_random_phone_forward();\">";
 
                     $(".required-buttons").html("").append(button_block);
                     $("#call-card-content").find("#container").html("").append("{% filter escape('js') %}{% include '@Call/Default/call_card_type_2.html.twig' %}{% endfilter %}");
@@ -49,17 +68,8 @@
 
                 $("#call-card-form")[0].reset();
                 $("#call-card-content").find("#container").html("");
-                $(".required-buttons").html("");
-
-                var linked_id = $("#linked-id").val();
-
-                if(linked_id){
-                    $.ajax({
-                        type: "post",
-                        url: "{{ path('call_outcome_ajax') }}",
-                        data: { action: "call_cancel", receiver: "hang", linked_id: linked_id }
-                    });
-                }
+                $("#call-card-content").find(".required-buttons").html("");
+                $("#call-card-buttons").html("");
             });
 
             {% if app.user.getOfficePhone is not empty %}
@@ -127,10 +137,10 @@
         });
     </script>
 
-    <!--
+
     <a href="#call-card" role="button" class="btn" data-toggle="modal">Launch demo modal</a>
     <a href="#income-call-info" role="button" class="btn" data-toggle="modal">Info modal</a>
-    -->
+
 
 
     {% include '@SonataAdmin/Core/income_call_info.html.twig' %}
@@ -141,7 +151,7 @@
 
         <div id="call-card" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="call_card" aria-hidden="true" style="width: 900px; margin-left: -450px;">
             <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true" onclick="call_cancel()">×</button>
                 <h3 id="call-card-label">
                     <strong>
                         Номер телефона звонящего: <span id="caller-phone"></span>

@@ -20,6 +20,10 @@ monolog:
         console:
             type:   console
             bubble: false
+        elastic:
+            type: service
+            id: monolog.handler.elastic_persistent
+            channels: [call_ats_action]
         # uncomment to get logging in your browser
         # you may have to allow bigger header sizes in your Web server configuration
         #firephp:

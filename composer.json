@@ -27,6 +27,8 @@
         "sonata-project/seo-bundle": "~1.1",
         "sonata-project/page-bundle": "2.*",
 
+        "phpunit/phpunit": "3.7.*",
+
         "guzzle/guzzle": "@stable",
 
         "twitter/bootstrap": "*",

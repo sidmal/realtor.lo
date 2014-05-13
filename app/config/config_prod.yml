@@ -23,3 +23,7 @@ monolog:
             level: debug
         console:
             type:  console
+        elastic:
+            type: service
+            id: monolog.handler.elastic_persistent
+            channels: [call_ats_action]

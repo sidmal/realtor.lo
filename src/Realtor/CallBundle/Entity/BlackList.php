@@ -53,6 +53,13 @@ class BlackList
     private $createdAt;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="dial_id", type="string", length=128)
+     */
+    private $dialId;
+
+    /**
      * @ORM\PrePersist
      */
     public function setDateValue()
@@ -160,5 +167,28 @@ class BlackList
     public function getUserId()
     {
         return $this->userId;
+    }
+
+    /**
+     * Set dialId
+     *
+     * @param string $dialId
+     * @return BlackList
+     */
+    public function setDialId($dialId)
+    {
+        $this->dialId = $dialId;
+
+        return $this;
+    }
+
+    /**
+     * Get dialId
+     *
+     * @return string 
+     */
+    public function getDialId()
+    {
+        return $this->dialId;
     }
 }

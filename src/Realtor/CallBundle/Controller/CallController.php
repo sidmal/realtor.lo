@@ -49,6 +49,8 @@ class CallController extends Controller
             if(!$callManager->dial($request->get('from_phone'), $request->get('to_phone'), $uniqueId)){
                 $response->setStatusCode(403);
             }
+
+            return $response;
         }
         elseif($request->has('action') && $request->has('receiver')){
             if($request->get('action') == 'info_call_cancel' || $request->get('action') == 'call_cancel'){
@@ -58,20 +60,30 @@ class CallController extends Controller
                     $response->setStatusCode(403);
                 }
             }
+
+            return $response;
         }
         elseif($request->has('CallCard')){
             $params = $request->get('CallCard');
 
             switch($params['action']){
                 case 'black-list-forward': //занести в черный список
+                    $dial = $em->getRepository('CallBundle:Call')
+                        ->findOneBy(['linkedId' => $params['linked-id'], 'callAction' => 'dial-exten']);
+
+                    if(!$dial){
+                        return new Response(null, 403);
+                    }
+
                     $blackList = new BlackList();
                     $blackList
                         ->setPhone($params['from-phone'])
                         ->setUserId($em->getRepository('ApplicationSonataUserBundle:User')->find($params['user-id']))
-                        ->setReason($params['message']);
+                        ->setReason($params['message'])
+                        ->setDialId($dial->getLinkedId());
                     $em->persist($blackList);
 
-                    if(!$callManager->blackList($uniqueId, 1)){
+                    if(!$callManager->blackList($dial->getLinkedId(), 1)){
                         $response->setStatusCode(403);
                     }
 
@@ -80,13 +92,21 @@ class CallController extends Controller
                 case 'office-random-phone-forward': //Случайный вызов
                     $action = $this->container->getParameter('call.action.random');
 
-                    if(!$callManager->bxfer($params['linked-id'], 'A', $action)){
+                    if(!$callManager->bxfer($params['ats-call-id'], 'A', $action)){
                         $response->setStatusCode(403);
+                    }
+
+                    if(empty($params['call-to-phone'])){
+                        $params['call-to-phone'] = $action;
+                    }
+
+                    if(empty($params['caller-name'])){
+                        $params['caller-name'] = 'unknown';
                     }
                     break;
                 default:
                     $action = 'bxfer';
-                    if(!$callManager->bxfer($params['linked-id'], 'A', $params['call-to-phone'])){
+                    if(!$callManager->bxfer($params['ats-call-id'], 'A', $params['call-to-phone'])){
                         $response->setStatusCode(403);
                     }
                     break;
@@ -102,7 +122,10 @@ class CallController extends Controller
 
         $callParams->setCallerName($params['caller-name']);
         $callParams->setCallType($params['call-type']);
-        $callParams->setMessage($params['message']);
+
+        if(!empty($params['message'])){
+            $callParams->setMessage($params['message']);
+        }
 
         if(isset($params['property'])){
             $callParams

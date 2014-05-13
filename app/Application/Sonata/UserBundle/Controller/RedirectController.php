@@ -12,18 +12,21 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Security\Core\SecurityContext;
 
 class RedirectController extends Controller
 {
     /**
+     * @param Request $request
      * @return RedirectResponse
      *
      * @Route("/", name="redirect_index")
      * @Method({"POST", "GET"})
      */
-    public function indexAction()
+    public function indexAction(Request  $request)
     {
-        return new RedirectResponse($this->generateUrl('sonata_user_admin_security_login'));
+        return new RedirectResponse($this->generateUrl('sonata_admin_dashboard'));
     }
 
     /**
