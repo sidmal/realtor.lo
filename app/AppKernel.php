@@ -38,6 +38,8 @@ class AppKernel extends Kernel
             new Realtor\DictionaryBundle\DictionaryBundle(),
             new Realtor\AdminBundle\AdminBundle(),
             new Realtor\CallBundle\CallBundle(),
+
+            new Genemu\Bundle\FormBundle\GenemuFormBundle(),
         );
 
         if (in_array($this->getEnvironment(), array('dev', 'test'))) {

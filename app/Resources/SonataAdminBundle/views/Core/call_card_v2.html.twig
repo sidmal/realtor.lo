@@ -90,7 +90,7 @@
                                 $("#call-card").modal("hide");
 
                                 $("#income-call-info-caller-phone").html(data.fromPhone);
-                                $("#income-call-info").modal({keyboard: false});
+                                $("#income-call-info").modal({"keyboard": false, "backdrop": "static"});
                             }
                             else if(data.callAction == "{{ call_dial_down_event }}"){
                                 $("#call-card, #income-call-info").modal("hide");
@@ -124,7 +124,7 @@
                                     $("#message").val(data.message);
                                 }
 
-                                $("#call-card").modal({keyboard: false});
+                                $("#call-card").modal({"keyboard": false, "backdrop": "static"});
                             }
                         },
                         complete: function(){

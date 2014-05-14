@@ -8,7 +8,7 @@
                 url: "{{ path('call_outcome_ajax') }}",
                 data: $("#black-list-form").serialize(),
                 complete: function(data){
-                    $("#add-to-black-list, #call-card").modal("hide");
+                    $("#add-to-black-list").modal("hide");
                 },
                 dataType: 'json'
             });

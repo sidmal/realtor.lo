@@ -20,6 +20,8 @@ services:
             - ~
             - Realtor\DictionaryBundle\Entity\Branches
             - SonataAdminBundle:CRUD
+        calls:
+            - [ setSecurityContext, [@security.context]]
         tags:
             - {name: sonata.admin, manager_type: orm, group: "Справочники", label: "Филиалы"}
 

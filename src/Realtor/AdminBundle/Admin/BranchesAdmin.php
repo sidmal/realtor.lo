@@ -7,9 +7,17 @@ use Sonata\AdminBundle\Datagrid\DatagridMapper;
 use Sonata\AdminBundle\Datagrid\ListMapper;
 use Sonata\AdminBundle\Form\FormMapper;
 use Sonata\AdminBundle\Show\ShowMapper;
+use Symfony\Component\Security\Core\SecurityContext;
 
 class BranchesAdmin extends Admin
 {
+    private $securityContext;
+
+    public function setSecurityContext(SecurityContext $securityContext)
+    {
+        $this->securityContext = $securityContext;
+    }
+
     /**
      * @param DatagridMapper $datagridMapper
      */

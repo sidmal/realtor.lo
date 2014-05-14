@@ -66,21 +66,21 @@ class CallController extends Controller
         elseif($request->has('CallCard')){
             $params = $request->get('CallCard');
 
+            $dial = $this->getDoctrine()->getManager()->getRepository('CallBundle:Call')
+                ->findOneBy(['linkedId' => $params['linked-id'], 'callAction' => 'dial-exten']);
+
+            if(!$dial){
+                return new Response(null, 403);
+            }
+
             switch($params['action']){
                 case 'black-list-forward': //занести в черный список
-                    $dial = $em->getRepository('CallBundle:Call')
-                        ->findOneBy(['linkedId' => $params['linked-id'], 'callAction' => 'dial-exten']);
-
-                    if(!$dial){
-                        return new Response(null, 403);
-                    }
-
                     $blackList = new BlackList();
                     $blackList
                         ->setPhone($params['from-phone'])
                         ->setUserId($em->getRepository('ApplicationSonataUserBundle:User')->find($params['user-id']))
                         ->setReason($params['message'])
-                        ->setDialId($dial->getLinkedId());
+                        ->setDialId($dial->getAtsCallId());
                     $em->persist($blackList);
 
                     if(!$callManager->blackList($dial->getLinkedId(), 1)){
@@ -92,7 +92,7 @@ class CallController extends Controller
                 case 'office-random-phone-forward': //Случайный вызов
                     $action = $this->container->getParameter('call.action.random');
 
-                    if(!$callManager->bxfer($params['ats-call-id'], 'A', $action)){
+                    if(!$callManager->bxfer($dial->getAtsCallId(), 'A', $action)){
                         $response->setStatusCode(403);
                     }
 
@@ -106,7 +106,7 @@ class CallController extends Controller
                     break;
                 default:
                     $action = 'bxfer';
-                    if(!$callManager->bxfer($params['ats-call-id'], 'A', $params['call-to-phone'])){
+                    if(!$callManager->bxfer($dial->getAtsCallId(), 'A', $params['call-to-phone'])){
                         $response->setStatusCode(403);
                     }
                     break;
