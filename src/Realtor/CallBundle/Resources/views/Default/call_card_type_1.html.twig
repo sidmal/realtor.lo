@@ -74,7 +74,7 @@
                             });
                         }
 
-                        if(data.maytrans == 0 && data.head_phone){
+                        if(data.maytrans == 0 && !data.officephone && data.head_phone){
                             button_block += "<input type=\"submit\" class=\"btn btn-small btn-success\" id=\"agent-head-forward\" name=\"CallCard[agent-head-forward]\" value=\"Перевести на менеджера агента\" onclick=\"$('#action').val($(this).attr('id')); $('#call-to-phone').val(" + data.head_phone + ");\" />";
                         }
 
