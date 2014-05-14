@@ -26,6 +26,14 @@ class CallCardTest extends WebTestCase
             ->setEventAt(new \DateTime());
 
         $em->persist($call);
+
+        $call = new Call();
+        $call->setLinkedId($uniqueId)->setInternalId($uniqueId)->setAtsCallId($uniqueId)
+            ->setType(1)->setFromPhone('9219251983')->setToPhone('203')->setCallAction('')
+            ->setEventAt(new \DateTime());
+
+        $em->persist($call);
+
         $em->flush();
     }
 

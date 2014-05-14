@@ -16,6 +16,11 @@
 
     function init(){
         var map = new ymaps.Map('map', {center: [59.93772, 30.313622], zoom: 8, controls: ["zoomControl", "searchControl"]});
+
+        map.events.add('click', function(event){
+
+        });
+
         {% for branch in branches %}
             {% if branch.address is not empty and branch.outerId != 4962 %}
                 ymaps.geocode("{{ branch.address }}", {
@@ -41,6 +46,8 @@
 
                         var button_block = "";
 
+                        $("#call-card-buttons").html("");
+
                         $("#branch-to-call").val({{ branch.Id }});
 
                         //button_block += "<input type=\"submit\" class=\"btn btn-small btn-success\" id=\"black-list-forward\" name=\"CallCard[black-list-forward]\" value=\"Занести в черный список\" onclick=\"$('#action').val($(this).attr('id'));\" />";
@@ -59,10 +66,16 @@
                         }
 
                         if(button_block){
-                            $("#call-card-buttons").html("").append("<div class=\"btn-group\">" + button_block + "</div>");
+                            $("#call-card-buttons").append("<div class=\"btn-group\">" + button_block + "</div>");
                         }
 
                         event.stopPropagation();
+                    });
+
+                    branch.events.add("balloonclose", function(event){
+                        if(!map.balloon.isOpen()){
+                            $("#call-card-buttons").html("");
+                        }
                     });
 
                     map.geoObjects.add(branch);

@@ -35,6 +35,10 @@ class UserController extends Controller
 
         $userManager = $this->container->get('manager.user');
 
+        if($this->container->get('kernel')->getEnvironment() == 'dev'){
+            $userId = 233963;
+        }
+
         $user = $userManager->loadUserById($userId);
 
         if(!$user){

@@ -99,29 +99,45 @@
                                 $("#income-call-info").modal('hide');
 
                                 if(data.callerName){
-                                    $("#phone-type select option").filter(function(){
-                                        return $(this).val() == data.callType;
-                                    }).attr('selected', true);
+                                    $("#phone-type").find(".btn-group").find("button[value=" + data.callType + "]").click();
 
-                                    $("#phone-type").hide();
+                                    $("#phone-type").find(".btn-group").find("button").each(function(){
+                                        $(this).attr("disabled", "disabled");
+                                    });
 
                                     $("#caller-name").val(data.callerName);
 
-                                    $("#advertising-source").filter(function(){
-                                        return $(this).val() == data.advertisingSource;
-                                    }).attr('selected', true);
+                                    if(data.advertisingSource){
+                                        $("#advertising-source").val(data.advertisingSource);
+                                    }
 
-                                    $("#reason").filter(function(){
-                                        return $(this).val() == data.reason;
-                                    }).attr('selected', true);
+                                    if(data.reason){
+                                        $("#reason").val(data.reason);
+                                    }
 
+                                    if(data.propertyAddress){
+                                        $("#property").val(data.propertyAddress);
+                                    }
 
-                                    $("#property").val(data.propertyAddress);
-                                    $("#object-href").attr("href", 'http://emls.ru/spb/term/fullinfo.php?b='+ data.propertyBaseId + '&o=' + data.propertyId);
-                                    $("#property-id").val(data.propertyId);
-                                    $("#property-base-id").val(data.propertyBaseId);
-                                    $("#property-agent-id").val(data.propertyAgentId);
-                                    $("#message").val(data.message);
+                                    if(data.propertyBaseId && data.propertyId){
+                                        $("#object-href").attr("href", 'http://emls.ru/spb/term/fullinfo.php?b='+ data.propertyBaseId + '&o=' + data.propertyId);
+                                    }
+
+                                    if(data.propertyId){
+                                        $("#property-id").val(data.propertyId);
+                                    }
+
+                                    if(data.propertyBaseId){
+                                        $("#property-base-id").val(data.propertyBaseId);
+                                    }
+
+                                    if(data.propertyAgentId){
+                                        $("#property-agent-id").val(data.propertyAgentId);
+                                    }
+
+                                    if(data.message){
+                                        $("#message").text(data.message);
+                                    }
                                 }
 
                                 $("#call-card").modal({"keyboard": false, "backdrop": "static"});

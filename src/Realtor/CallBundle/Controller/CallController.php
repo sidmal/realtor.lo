@@ -54,9 +54,16 @@ class CallController extends Controller
         }
         elseif($request->has('action') && $request->has('receiver')){
             if($request->get('action') == 'info_call_cancel' || $request->get('action') == 'call_cancel'){
+                $dial = $this->getDoctrine()->getManager()->getRepository('CallBundle:Call')
+                    ->findOneBy(['linkedId' => $request->get('linked_id'), 'callAction' => 'dial-exten']);
+
+                if(!$dial){
+                    return new Response(null, 403);
+                }
+
                 $action = $this->container->getParameter('call.action.'.$request->get('receiver'));
 
-                if(!$callManager->bxfer($request->get('linked_id'), 'A', $action)){
+                if(!$callManager->bxfer($dial->getAtsCallId(), 'A', $action)){
                     $response->setStatusCode(403);
                 }
             }
@@ -66,11 +73,13 @@ class CallController extends Controller
         elseif($request->has('CallCard')){
             $params = $request->get('CallCard');
 
-            $dial = $this->getDoctrine()->getManager()->getRepository('CallBundle:Call')
-                ->findOneBy(['linkedId' => $params['linked-id'], 'callAction' => 'dial-exten']);
+            if($this->container->get('kernel')->getEnvironment() != 'dev'){
+                $dial = $this->getDoctrine()->getManager()->getRepository('CallBundle:Call')
+                    ->findOneBy(['linkedId' => $params['linked-id'], 'callAction' => 'dial-exten']);
 
-            if(!$dial){
-                return new Response(null, 403);
+                if(!$dial){
+                    return new Response(null, 403);
+                }
             }
 
             switch($params['action']){
@@ -106,8 +115,24 @@ class CallController extends Controller
                     break;
                 default:
                     $action = 'bxfer';
-                    if(!$callManager->bxfer($dial->getAtsCallId(), 'A', $params['call-to-phone'])){
-                        $response->setStatusCode(403);
+
+                    if($this->container->get('kernel')->getEnvironment() == 'dev'){
+                        $call = new Call();
+                        $call
+                            ->setLinkedId($params['linked-id'])
+                            ->setAtsCallId($params['ats-call-id'])
+                            ->setType(1)
+                            ->setFromPhone('9219251983')
+                            ->setToPhone('202')
+                            ->setCallAction('connect-exten')
+                            ->setEventAt(new \DateTime());
+
+                        $em->persist($call);
+                    }
+                    else{
+                        if(!$callManager->bxfer($dial->getAtsCallId(), 'A', $params['call-to-phone'])){
+                            $response->setStatusCode(403);
+                        }
                     }
                     break;
             }
@@ -195,6 +220,47 @@ class CallController extends Controller
         if(!$call = $this->getDoctrine()->getManager()->getRepository('CallBundle:Call')
             ->getIncomeCall($forPhone, $this->container->getParameter('call.income.event'))){
             return new Response(null, 403);
+        }
+
+        $firstCall = $this->getDoctrine()->getManager()->getRepository('CallBundle:Call')->
+            findOneBy(['linkedId' => $call[0]['linkedId'], 'callAction' => 'connect-exten']);
+
+        if($firstCall){
+            if($firstCall->getParams()){
+                if($firstCall->getParams()->getCallerName()){
+                    $call[0]['callerName'] = $firstCall->getParams()->getCallerName();
+                }
+
+                if($firstCall->getParams()->getAdvertisingSource()){
+                    $call[0]['advertisingSource'] = $firstCall->getParams()->getAdvertisingSource()->getId();
+                }
+
+                if($firstCall->getParams()->getPropertyId()){
+                    $call[0]['propertyId'] = $firstCall->getParams()->getPropertyId();
+                }
+
+                if($firstCall->getParams()->getPropertyAddress()){
+                    $call[0]['propertyAddress'] = $firstCall->getParams()->getPropertyAddress();
+                }
+
+                if($firstCall->getParams()->getPropertyAgentId()){
+                    $call[0]['propertyAgentId'] = $firstCall->getParams()->getPropertyAgentId()->getId();
+                }
+
+                if($firstCall->getParams()->getPropertyBaseId()){
+                    $call[0]['propertyBaseId'] = $firstCall->getParams()->getPropertyBaseId();
+                }
+
+                if($firstCall->getParams()->getReason()){
+                    $call[0]['reason'] = $firstCall->getParams()->getReason()->getId();
+                }
+
+                if($firstCall->getParams()->getMessage()){
+                    $call[0]['message'] = $firstCall->getParams()->getMessage();
+                }
+
+                $call[0]['callType'] = $firstCall->getParams()->getCallType();
+            }
         }
 
         return new Response(json_encode($call[0]));

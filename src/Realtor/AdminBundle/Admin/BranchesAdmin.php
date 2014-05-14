@@ -2,21 +2,16 @@
 
 namespace Realtor\AdminBundle\Admin;
 
+use Realtor\AdminBundle\Traits\Security;
 use Sonata\AdminBundle\Admin\Admin;
 use Sonata\AdminBundle\Datagrid\DatagridMapper;
 use Sonata\AdminBundle\Datagrid\ListMapper;
 use Sonata\AdminBundle\Form\FormMapper;
 use Sonata\AdminBundle\Show\ShowMapper;
-use Symfony\Component\Security\Core\SecurityContext;
 
 class BranchesAdmin extends Admin
 {
-    private $securityContext;
-
-    public function setSecurityContext(SecurityContext $securityContext)
-    {
-        $this->securityContext = $securityContext;
-    }
+    use Security;
 
     /**
      * @param DatagridMapper $datagridMapper

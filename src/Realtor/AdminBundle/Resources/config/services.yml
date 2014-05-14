@@ -62,3 +62,12 @@ services:
             - ["setCallDialDownEvent", [%call.dial_down.event%]]
         tags:
             - {name: sonata.block}
+
+    admin.admin.black_list:
+        class: Realtor\AdminBundle\Admin\BlackListAdmin
+        arguments:
+            - ~
+            - Realtor\CallBundle\Entity\BlackList
+            - SonataAdminBundle:CRUD
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: "Черный список", label: "Черный список"}
