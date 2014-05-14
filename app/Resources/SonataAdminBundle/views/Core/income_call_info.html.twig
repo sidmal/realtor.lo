@@ -1,10 +1,4 @@
 <script type="text/javascript">
-    $(document).ready(function(){
-        $("#income-call-info").on("hidden", function(event){
-            info_call_cancel();
-        });
-    });
-
     function info_call_cancel(){
         var ats_call_id = $("#ats-call-id").val();
 
@@ -24,7 +18,7 @@
 
 <div id="income-call-info" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="income-call-info" aria-hidden="true">
     <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button><br />
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true" onclick="info_call_cancel();">×</button><br />
         <input type="button" class="btn btn-small btn-warning" id="info-call-cancel" name="info-call-cancel" value="Отклонить звонок" onclick="info_call_cancel();" />
     </div>
     <div class="modal-body">
