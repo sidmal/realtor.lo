@@ -18,13 +18,21 @@
                 <source>Reason List</source>
                 <target>Причины обращения</target>
             </trans-unit>
+            <trans-unit id="Black List List">
+                <source>Black List List</source>
+                <target>Черный список</target>
+            </trans-unit>
             <trans-unit id="Call Result List">
                 <source>Call Result List</source>
                 <target>Результаты разговора</target>
             </trans-unit>
-            <trans-unit id="Black List List">
-                <source>Black List List</source>
-                <target>Черный список</target>
+            <trans-unit id="Black List Delete">
+                <source>Black List Delete</source>
+                <target>Удаление</target>
+            </trans-unit>
+            <trans-unit id="Duty List">
+                <source>Duty List</source>
+                <target>График дежурств</target>
             </trans-unit>
         </body>
     </file>

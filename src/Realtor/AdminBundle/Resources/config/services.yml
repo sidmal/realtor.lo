@@ -71,3 +71,14 @@ services:
             - SonataAdminBundle:CRUD
         tags:
             - { name: sonata.admin, manager_type: orm, group: "Черный список", label: "Черный список"}
+
+    admin.admin.duty:
+        class: Realtor\AdminBundle\Admin\DutyAdmin
+        arguments:
+            - ~
+            - Application\Sonata\UserBundle\Entity\Duty
+            - SonataAdminBundle:CRUD
+        calls:
+            - [ setSecurityContext, [@security.context]]
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: "График дежурств", label: "График дежурств" }

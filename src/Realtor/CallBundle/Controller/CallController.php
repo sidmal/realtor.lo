@@ -76,10 +76,14 @@ class CallController extends Controller
             if($this->container->get('kernel')->getEnvironment() != 'dev'){
                 $dial = $this->getDoctrine()->getManager()->getRepository('CallBundle:Call')
                     ->findOneBy(['linkedId' => $params['linked-id'], 'callAction' => 'dial-exten']);
+            }
+            else{
+                $dial = new Call();
+                $dial->setAtsCallId($uniqueId);
+            }
 
-                if(!$dial){
-                    return new Response(null, 403);
-                }
+            if(!$dial){
+                return new Response(null, 403);
             }
 
             switch($params['action']){
@@ -305,18 +309,6 @@ class CallController extends Controller
         $em->persist($call);
         $em->flush();
 
-        return new Response();
-    }
-
-    /**
-     * @param Request $request
-     * @return Response
-     *
-     * @Route("/event/to/black_list", name="event_to_black_list")
-     * @Method({"POST"})
-     */
-    public function addToBlackList(Request $request)
-    {
         return new Response();
     }
 } 

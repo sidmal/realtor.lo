@@ -102,6 +102,9 @@ sonata_admin:
                 position: right
                 type: admin.sonata.block.numberpad
 
+    templates:
+        layout: SonataAdminBundle:Core:standard_layout.html.twig
+
 knp_menu:
     twig:
         template: knp_menu.html.twig
@@ -114,3 +117,6 @@ fos_user:
     user_class: Application\Sonata\UserBundle\Entity\User
     group:
         group_class: Application\Sonata\UserBundle\Entity\Group
+
+genemu_form:
+    date: ~

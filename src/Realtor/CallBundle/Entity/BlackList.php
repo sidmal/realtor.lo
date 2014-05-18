@@ -191,4 +191,9 @@ class BlackList
     {
         return $this->dialId;
     }
+
+    public function __toString()
+    {
+        return (string)$this->getPhone();
+    }
 }

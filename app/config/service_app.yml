@@ -3,6 +3,7 @@ parameters:
     app.password.encoder.class: Application\Sonata\UserBundle\Service\MessageDigestPasswordEncoder
     manager.dictionary.branch.class: Realtor\DictionaryBundle\Model\BranchManager
     manager.call.action.class: Realtor\CallBundle\Model\CallManager
+    call.listener.class: Realtor\CallBundle\Listeners\CallListener
 
 services:
     manager.user:
@@ -32,3 +33,10 @@ services:
         class: System\Log\ElasticHandler
         calls:
             - [setLogDir, [%kernel.logs_dir%]]
+
+    call.listener:
+        class: %call.listener.class%
+        arguments:
+            - "@service_container"
+        tags:
+            - { name: doctrine.event_listener, event: preRemove }

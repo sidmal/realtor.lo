@@ -64,6 +64,15 @@ class CallManager
         return $this->sendCall();
     }
 
+    public function dndCheck($sender)
+    {
+        $this->httpClient->setPostField('action', 'dnd');
+        $this->httpClient->setPostField('cid', $sender);
+        $this->httpClient->setPostField('check', 1);
+
+        return $this->sendCall();
+    }
+
     /**
      * @return bool
      */

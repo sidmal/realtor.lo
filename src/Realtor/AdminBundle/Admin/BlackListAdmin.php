@@ -22,12 +22,22 @@ class BlackListAdmin extends Admin
     protected function configureDatagridFilters(DatagridMapper $datagridMapper)
     {
         $datagridMapper
-            ->add('id')
-            ->add('phone')
-            ->add('reason')
-            ->add('createdAt')
-            ->add('dialId')
-        ;
+            ->add('phone', null, ['label' => 'Номер телефона'])
+            ->add(
+                'reason',
+                'doctrine_orm_callback',
+                [
+                    'label' => 'Причина',
+                    'callback' => function($builder, $alias, $field, $value){
+                        if(!$value) return;
+
+                        $builder->andWhere($builder->expr()->like($builder->expr()->lower($alias.'.reason'), $builder->expr()->lower(':reason')))
+                            ->setParameter('reason', '%'.preg_replace('/\ {2,}/', ' ', $value['value']).'%');
+
+                        return true;
+                    }
+                ]
+            );
     }
 
     /**
@@ -36,32 +46,20 @@ class BlackListAdmin extends Admin
     protected function configureListFields(ListMapper $listMapper)
     {
         $listMapper
-            ->add('id')
-            ->add('phone')
-            ->add('reason')
-            ->add('createdAt')
-            ->add('dialId')
-            ->add('_action', 'actions', array(
-                'actions' => array(
-                    'show' => array(),
-                    'edit' => array(),
-                    'delete' => array(),
-                )
-            ))
-        ;
-    }
-
-    /**
-     * @param FormMapper $formMapper
-     */
-    protected function configureFormFields(FormMapper $formMapper)
-    {
-        $formMapper
-            ->add('id')
-            ->add('phone')
-            ->add('reason')
-            ->add('createdAt')
-            ->add('dialId')
+            ->add('id', null, ['label' => 'Идентификатор'])
+            ->add('phone', null, ['label' => 'Номер телефона'])
+            ->add('reason', null, ['label' => 'Причина'])
+            ->add('createdAt', null, ['label' => 'Дата добавления'])
+            ->add(
+                '_action',
+                'actions',
+                [
+                    'actions' => [
+                        'show' => ['template' => 'AdminBundle:Default:show.html.twig'],
+                        'delete' => ['template' => 'AdminBundle:Default:delete.html.twig'],
+                    ]
+                ]
+            )
         ;
     }
 
@@ -71,11 +69,10 @@ class BlackListAdmin extends Admin
     protected function configureShowFields(ShowMapper $showMapper)
     {
         $showMapper
-            ->add('id')
-            ->add('phone')
-            ->add('reason')
-            ->add('createdAt')
-            ->add('dialId')
+            ->add('id', null, ['label' => 'Идентификатор'])
+            ->add('phone', null, ['label' => 'Номер телефона'])
+            ->add('reason', null, ['label' => 'Причина'])
+            ->add('createdAt', null, ['label' => 'Дата добавления'])
         ;
     }
 }

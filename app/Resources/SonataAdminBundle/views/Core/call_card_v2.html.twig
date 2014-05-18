@@ -81,7 +81,8 @@
                         url: "{{ path('call_get_income_event_ajax') }}",
                         data: { to_phone: {{ app.user.getOfficePhone }} },
                         success: function(data){
-                            $("#caller-phone, #black-list-caller-phone").html(data.fromPhone);
+                            $("#caller-phone").html(data.fromPhone);
+                            $("#black-list-caller-phone").val(data.fromPhone);
                             $("#linked-id, #black-list-linked-id").val(data.linkedId);
                             $("#call-id, #black-list-call-id").val(data.id);
                             $("#ats-call-id, #black-list-ats-call-id").val(data.atsCallId);
@@ -144,7 +145,7 @@
                             }
                         },
                         complete: function(){
-                            var event_listener = setTimeout(call_event_listener, {{ settings.period * 1000 }});
+                            //var event_listener = setTimeout(call_event_listener, {{ settings.period * 1000 }});
                         },
                         dataType: 'json'
                     });
