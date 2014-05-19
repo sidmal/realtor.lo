@@ -8,6 +8,8 @@
 
 namespace Realtor\AdminBundle\Block;
 
+use Realtor\AdminBundle\Traits\Security;
+use Realtor\CallBundle\Model\CallManager;
 use Sonata\BlockBundle\Block\BaseBlockService;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
@@ -20,6 +22,18 @@ use Sonata\AdminBundle\Validator\ErrorElement;
 
 class NumberPad extends BaseBlockService
 {
+    use Security;
+
+    /**
+     * @var \Realtor\CallBundle\Model\CallManager
+     */
+    private $callManager;
+
+    public function setCallManager(CallManager $callManager)
+    {
+        $this->callManager = $callManager;
+    }
+
     public function setDefaultSettings(OptionsResolverInterface $resolver)
     {
         $resolver->setDefaults(
@@ -61,7 +75,9 @@ class NumberPad extends BaseBlockService
             $blockContext->getTemplate(),
             [
                 'block'     => $blockContext->getBlock(),
-                'settings'  => $settings
+                'settings'  => $settings,
+                'tnf' => $this->callManager->tnfCheck($this->getUser()->getOfficePhone()),
+                'dnd' => $this->callManager->dndCheck($this->getUser()->getOfficePhone())
             ],
             $response
         );

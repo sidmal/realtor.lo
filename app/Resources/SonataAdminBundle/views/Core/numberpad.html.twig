@@ -65,19 +65,35 @@
                                 return $('#numberpad-phone').val($('#numberpad-phone').val().slice(0, -1));
                                 break;
                             case 'DND':
+                                if($(this).attr("disabled") && $(this).attr("disabled") == "disabled"){
+                                    return true;
+                                }
+
                                 if($(this).css("color") == "rgb(51, 51, 51)"){
                                     $(this).css("color", "rgb(255, 0, 0)");
+
+                                    service_function('dnd', 1);
                                 }
                                 else{
                                     $(this).css("color", "rgb(51, 51, 51)");
+
+                                    service_function('dnd', 0);
                                 }
                                 break;
                             case 'TNF':
+                                if($(this).attr("disabled") && $(this).attr("disabled") == "disabled"){
+                                    return true;
+                                }
+
                                 if($(this).css("color") == "rgb(51, 51, 51)"){
                                     $(this).css("color", "rgb(255, 0, 0)");
+
+                                    service_function('trnf', 1);
                                 }
                                 else{
                                     $(this).css("color", "rgb(51, 51, 51)");
+
+                                    service_function('trnf', 0);
                                 }
                                 break;
                         }
@@ -102,6 +118,25 @@
                             else{
                                 alert(response.call_comment);
                             }
+                        },
+                        dataType: 'json'
+                    }
+                );
+            }
+
+            function service_function(action, is_enable){
+                $.ajax(
+                    {
+                        type: 'post',
+                        url: '{{ path('call_outcome_ajax') }}',
+                        data: {
+                            action: action,
+                            enable: is_enable,
+                            service_sender: {{ app.user.getOfficePhone }},
+                            service_receiver: {% autoescape false %}{{ app.user.phone is not empty ? app.user.phone : "\"\"" }}{% endautoescape %}
+                        },
+                        complete: function(response){
+
                         },
                         dataType: 'json'
                     }
@@ -218,7 +253,7 @@
             <div class="btn-group-lg top-margin">
                 <a class="btn sonata-action-element">
                     <p>
-                        <span class="action">DND</span>
+                        <span class="action" {% if dnd %} style="color: rgb(255, 0, 0);" {% endif %}>DND</span>
                     </p>
                 </a>
                 <a class="btn sonata-action-element" disabled="disabled">
@@ -226,9 +261,9 @@
                         <span class="action">&nbsp;</span>
                     </p>
                 </a>
-                <a class="btn sonata-action-element">
+                <a class="btn sonata-action-element" {% if app.user.phone is empty %} disabled="disabled" {% endif %}>
                     <p>
-                        <span class="action">TNF</span>
+                        <span class="action" {% if tnf %} style="color: rgb(255, 0, 0);" {% endif %}>TNF</span>
                     </p>
                 </a>
             </div>

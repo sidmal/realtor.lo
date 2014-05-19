@@ -64,9 +64,36 @@ class CallManager
         return $this->sendCall();
     }
 
+    public function dnd($sender, $enable)
+    {
+        $this->httpClient->setPostField('action', 'dnd');
+        $this->httpClient->setPostField('cid', $sender);
+        $this->httpClient->setPostField('enable', $enable);
+
+        return $this->sendCall();
+    }
+
+    public function tnf($sender, $receiver = '')
+    {
+        $this->httpClient->setPostField('action', 'trnf');
+        $this->httpClient->setPostField('cid', $sender);
+        $this->httpClient->setPostField('did', $receiver);
+
+        return $this->sendCall();
+    }
+
     public function dndCheck($sender)
     {
         $this->httpClient->setPostField('action', 'dnd');
+        $this->httpClient->setPostField('cid', $sender);
+        $this->httpClient->setPostField('check', 1);
+
+        return $this->sendCall();
+    }
+
+    public function tnfCheck($sender)
+    {
+        $this->httpClient->setPostField('action', 'trnf');
         $this->httpClient->setPostField('cid', $sender);
         $this->httpClient->setPostField('check', 1);
 

@@ -30,7 +30,6 @@ class CallController extends Controller
      */
     public function ajaxCallAction(Request $request)
     {
-
         if(!$request->isXmlHttpRequest()){
             return new Response(null, 403);
         }
@@ -50,6 +49,18 @@ class CallController extends Controller
                 $response->setStatusCode(403);
             }
 
+            $call = new Call();
+            $call
+                ->setFromPhone($request->get('from_phone'))
+                ->setToPhone($request->get('to_phone'))
+                ->setType(0)
+                ->setCallAction($action)
+                ->setInternalId($uniqueId)
+                ->setEventAt(new \DateTime());
+
+            $this->getDoctrine()->getManager()->persist($call);
+            $this->getDoctrine()->getManager()->flush();
+
             return $response;
         }
         elseif($request->has('action') && $request->has('receiver')){
@@ -66,7 +77,42 @@ class CallController extends Controller
                 if(!$callManager->bxfer($dial->getAtsCallId(), 'A', $action)){
                     $response->setStatusCode(403);
                 }
+
+                $call = new Call();
+                $call
+                    ->setFromPhone($dial->getToPhone())
+                    ->setToPhone($action)
+                    ->setType(0)
+                    ->setCallAction($action)
+                    ->setEventAt(new \DateTime());
+
+                $this->getDoctrine()->getManager()->persist($call);
+                $this->getDoctrine()->getManager()->flush();
             }
+
+            return $response;
+        }
+        elseif($request->has('action') && $request->has('enable') && $request->has('service_sender') && $request->has('service_receiver')){
+            if($request->get('action') == 'trnf'){
+                $callManager->tnf($request->get('service_sender'), $request->get('enable') == 0 ? '' :$request->get('service_receiver'));
+            }
+            elseif($request->get('action') == 'dnd'){
+                $callManager->dnd($request->get('service_sender'), $request->get('enable'));
+            }
+            else{
+                $response->setStatusCode(Response::HTTP_BAD_REQUEST);
+            }
+
+            $call = new Call();
+            $call
+                ->setFromPhone($request->get('service_sender'))
+                ->setToPhone($request->get('action'))
+                ->setType(0)
+                ->setCallAction($request->get('action'))
+                ->setEventAt(new \DateTime());
+
+            $this->getDoctrine()->getManager()->persist($call);
+            $this->getDoctrine()->getManager()->flush();
 
             return $response;
         }
