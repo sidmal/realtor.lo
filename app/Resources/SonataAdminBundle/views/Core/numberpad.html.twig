@@ -48,6 +48,10 @@
 
         <script type="text/javascript">
             $(document).ready(function(){
+                {% if tnf %}
+                    $("#tnf").css("color", "rgb(255, 0, 0)");
+                {% endif %}
+
                 $('body').on('click', 'div.btn-group-lg a', function(){
                     if($(this).find('.digital').length){
                         return $('#numberpad-phone').val($('#numberpad-phone').val() + $(this).find('.digital').text());
@@ -68,8 +72,6 @@
                                 if($(this).attr("disabled") && $(this).attr("disabled") == "disabled"){
                                     return true;
                                 }
-
-                                alert($(this).css("color"));
 
                                 if($(this).css("color") == "rgb(51, 51, 51)"){
                                     $(this).css("color", "rgb(255, 0, 0)");
@@ -258,7 +260,7 @@
                 </a>
                 <a class="btn sonata-action-element" {% if app.user.phone is empty %} disabled="disabled" {% endif %}>
                     <p>
-                        <span class="action" {% if tnf %} style="color: rgb(255, 0, 0);" {% endif %}>TNF</span>
+                        <span class="action" id="tnf">TNF</span>
                     </p>
                 </a>
             </div>
