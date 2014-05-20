@@ -49,8 +49,10 @@
         <script type="text/javascript">
             $(document).ready(function(){
                 {% if tnf %}
-                    //$("#tnf").css("color", "rgb(255, 0, 0)");
+                    $("#tnf").css("color", "rgb(255, 0, 0)");
                 {% endif %}
+
+                {% if dnd %} $("#dnd").css("color", "rgb(255, 0, 0)"); {% endif %}
 
                 $('body').on('click', 'div.btn-group-lg a', function(){
                     if($(this).find('.digital').length){
@@ -73,13 +75,13 @@
                                     return true;
                                 }
 
-                                if($(this).css("color") == "rgb(51, 51, 51)"){
-                                    $(this).css("color", "rgb(255, 0, 0)");
+                                if($("#dnd").css("color") == "rgb(51, 51, 51)"){
+                                    $("#dnd").css("color", "rgb(255, 0, 0)");
 
                                     service_function('dnd', 1);
                                 }
                                 else{
-                                    $(this).css("color", "rgb(51, 51, 51)");
+                                    $("#dnd").css("color", "rgb(51, 51, 51)");
 
                                     service_function('dnd', 0);
                                 }
@@ -89,13 +91,13 @@
                                     return true;
                                 }
 
-                                if($(this).css("color") == "rgb(51, 51, 51)"){
-                                    $(this).css("color", "rgb(255, 0, 0)");
+                                if($("#tnf").css("color") == "rgb(51, 51, 51)"){
+                                    $("#tnf").css("color", "rgb(255, 0, 0)");
 
                                     service_function('trnf', 1);
                                 }
                                 else{
-                                    $(this).css("color", "rgb(51, 51, 51)");
+                                    $("#tnf").css("color", "rgb(51, 51, 51)");
 
                                     service_function('trnf', 0);
                                 }
@@ -250,7 +252,7 @@
             <div class="btn-group-lg top-margin">
                 <a class="btn sonata-action-element">
                     <p>
-                        <span class="action" {% if dnd %} style="color: rgb(255, 0, 0);" {% endif %}>DND</span>
+                        <span class="action" id="dnd">DND</span>
                     </p>
                 </a>
                 <a class="btn sonata-action-element" disabled="disabled">
