@@ -133,22 +133,32 @@ class DutyAdmin extends Admin
 
         $formMapper
             ->add(
-                'userId',
-                'sonata_type_model',
-                [
-                    'label' => 'Дежурный',
-                    'query' => $query,
-                    'required' => true,
-                    'empty_value' => 'Выбирите дежурящего агента'
-                ]
-            )
-            ->add(
                 'branchId',
                 null,
                 [
                     'label' => 'Дежурит в филиале',
                     'required' => true,
-                    'empty_value' => 'Выбирите филиал дежурства'
+                    'empty_value' => 'Выбирите филиал дежурства',
+                ]
+            )
+            ->add(
+                'manager',
+                'sonata_type_model',
+                [
+                    'label' => 'Дежурный менеджер',
+                    'required' => true,
+                    'empty_value' => 'Выбирите дежурного менеджера',
+                    'choices' => []
+                ]
+            )
+            ->add(
+                'userId',
+                'sonata_type_model',
+                [
+                    'label' => 'Дежурный агент',
+                    'choices' => [],
+                    'required' => true,
+                    'empty_value' => 'Выбирите дежурного агента'
                 ]
             )
             ->add('phone', null, ['label' => 'Номер дежурного'])

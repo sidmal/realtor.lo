@@ -32,6 +32,14 @@ class Duty
     private $userId;
 
     /**
+     * @var \Application\Sonata\UserBundle\Entity\User
+     *
+     * @ORM\ManyToOne(targetEntity="Application\Sonata\UserBundle\Entity\User")
+     * @ORM\JoinColumn(name="manager_id", referencedColumnName="id")
+     */
+    private $manager;
+
+    /**
      * @var \Realtor\DictionaryBundle\Entity\Branches
      *
      * @ORM\ManyToOne(targetEntity="Realtor\DictionaryBundle\Entity\Branches")
@@ -265,5 +273,28 @@ class Duty
     public function __toString()
     {
         return ($this->getId()) ? (string)$this->getId() : 'Новое дежурство';
+    }
+
+    /**
+     * Set manager
+     *
+     * @param \Application\Sonata\UserBundle\Entity\User $manager
+     * @return Duty
+     */
+    public function setManager(\Application\Sonata\UserBundle\Entity\User $manager = null)
+    {
+        $this->manager = $manager;
+
+        return $this;
+    }
+
+    /**
+     * Get manager
+     *
+     * @return \Application\Sonata\UserBundle\Entity\User 
+     */
+    public function getManager()
+    {
+        return $this->manager;
     }
 }

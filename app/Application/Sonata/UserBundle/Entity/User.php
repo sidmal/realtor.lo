@@ -16,7 +16,7 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
  *          @ORM\Index(columns={"outer_id"})
  *      }
  * )
- * @ORM\Entity()
+ * @ORM\Entity(repositoryClass="Application\Sonata\UserBundle\Entity\Repository\UserRepository")
  *
  * @UniqueEntity("usernameCanonical")
  * @UniqueEntity("username")

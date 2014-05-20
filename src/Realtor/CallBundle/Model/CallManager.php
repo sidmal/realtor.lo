@@ -120,7 +120,7 @@ class CallManager
             }
         }
         catch(RequestException $e){
-            $result = true;
+            $result = false;
         }
 
         $postData = $this->httpClient->getPostFields()->getAll();

@@ -59,4 +59,66 @@ class UserController extends Controller
 
         return new Response(json_encode($user[0]));
     }
+
+    /**
+     * @param Request $request
+     * @return Response
+     *
+     * @Route("/user/get/manager/by/branch/ajax", name="user_get_manager_by_branch_ajax")
+     * @Method({"POST"})
+     */
+    public function getManagerByBranchAction(Request $request)
+    {
+        if(!$request->request->has('branch_id')){
+            return (new Response())->setStatusCode(Response::HTTP_BAD_REQUEST);
+        }
+
+        $managers = $this->getDoctrine()->getManager()->getRepository('ApplicationSonataUserBundle:User')
+            ->getManagerByBranch($request->request->get('branch_id'));
+
+        if(!$managers){
+            return (new Response())->setStatusCode(Response::HTTP_NOT_FOUND);
+        }
+
+        $response = [];
+        foreach($managers as $manager){
+            $response[] = [
+                'id' => $manager->getId(),
+                'name' => $manager->getFio().' ('.$manager->getUsername().')'
+            ];
+        }
+
+        return new Response(json_encode($response));
+    }
+
+    /**
+     * @param Request $request
+     * @return Response
+     *
+     * @Route("/user/get/agent/by/manager/ajax", name="user_get_agent_by_manager_ajax")
+     * @Method({"POST"})
+     */
+    public function getAgentByManagerAction(Request $request)
+    {
+        if(!$request->request->has('manager_id')){
+            return (new Response())->setStatusCode(Response::HTTP_BAD_REQUEST);
+        }
+
+        $agents = $this->getDoctrine()->getManager()->getRepository('ApplicationSonataUserBundle:User')
+            ->getAgentByManager($request->request->get('manager_id'));
+
+        if(!$agents){
+            return (new Response())->setStatusCode(Response::HTTP_NOT_FOUND);
+        }
+
+        $response = [];
+        foreach($agents as $agent){
+            $response[] = [
+                'id' => $agent->getId(),
+                'name' => $agent->getFio().' ('.$agent->getUsername().')'
+            ];
+        }
+
+        return new Response(json_encode($response));
+    }
 } 

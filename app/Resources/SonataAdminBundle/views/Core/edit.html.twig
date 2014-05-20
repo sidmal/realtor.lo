@@ -1,0 +1,78 @@
+{% extends '@SonataAdmin/CRUD/edit.html.twig' %}
+
+{% block javascripts %}
+    {{ parent() }}
+
+    <script style="text/javascript">
+        $(document).ready(function(){
+            $("select[id$='_branchId']").change(function(){
+                $("select[id$='_manager']").text("");
+
+                if(!$(this).find("option:selected").val()) return;
+
+                $.ajax({
+                    type: "post",
+                    url: "{{ path('user_get_manager_by_branch_ajax') }}",
+                    data: { branch_id: $(this).find("option:selected").val() },
+                    success: function(response){
+                        var options = "<option value>Выбирите дежурного менеджера</option>";
+
+                        $.each(response, function(i, item){
+                            options += "<option value=\"" + item.id + "\">" + item.name + "</option>";
+                        });
+
+                        $("select[id$='_manager']").append(options);
+
+                        {% if app.security.token and is_granted('ROLE_APP_MANAGER') %}
+                            $("select[id$='_manager']").val({{ app.user.id }}).change();
+                        {% endif %}
+                    },
+                    statusCode: {
+                        400: function(){
+                            alert("Ошибка при получение списка менеджеров. Обратитесь к разработчику.");
+                        },
+                        404: function(){
+                            alert("Не найдено ни одного менеджера для указанного филиала.");
+                        }
+                    },
+                    dataType: 'json'
+                });
+            });
+
+            $("select[id$='_manager']").change(function(){
+                $("select[id$='_userId']").text("");
+
+                if(!$(this).find("option:selected").val()) return;
+
+                $.ajax({
+                    type: "post",
+                    url: "{{ path('user_get_agent_by_manager_ajax') }}",
+                    data: { manager_id: $(this).find("option:selected").val() },
+                    success: function(response){
+                        var options = "<option value>Выбирите дежурного агента</option>";
+
+                        $.each(response, function(i, item){
+                            options += "<option value=\"" + item.id + "\">" + item.name + "</option>";
+                        });
+
+                        $("select[id$='_userId']").append(options);
+                    },
+                    statusCode: {
+                        400: function(){
+                            alert("Ошибка при получение списка агентов. Обратитесь к разработчику.");
+                        },
+                        404: function(){
+                            alert("Не найдено ни одного агента для указанного менеджера.");
+                        }
+                    },
+                    dataType: 'json'
+                });
+            });
+
+            {% if app.security.token and is_granted('ROLE_APP_MANAGER') %}
+                $("select[id$='_branchId']").val({{ app.user.branch.id }}).change();
+            {% endif %}
+
+        });
+    </script>
+{% endblock %}

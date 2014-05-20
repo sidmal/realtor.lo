@@ -104,6 +104,7 @@ sonata_admin:
 
     templates:
         layout: SonataAdminBundle:Core:standard_layout.html.twig
+        edit: SonataAdminBundle:Core:edit.html.twig
 
 knp_menu:
     twig:
