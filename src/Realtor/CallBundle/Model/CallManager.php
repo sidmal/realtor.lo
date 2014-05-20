@@ -109,6 +109,15 @@ class CallManager
             $response = $this->httpClient->send();
 
             $result = true;
+
+            if($response->hasHeader('Result')){
+                if((integer)$response->getHeader('Result') == 0){
+                    $result = false;
+                }
+                else{
+                    $result = true;
+                }
+            }
         }
         catch(RequestException $e){
             $result = false;
