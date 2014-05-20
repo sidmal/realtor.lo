@@ -120,7 +120,12 @@ class CallManager
             'url' => $this->httpClient->getUrl(),
             'method' => 'post',
             'request' => $postData,
-            'response' => isset($response) ? $response->getBody(true) : $e->getMessage()
+            'response' => isset($response) ?
+                [
+                    'headers' => $response->getHeaders(),
+                    'body' => $response->getBody(true)
+                ]
+                : $e->getMessage()
         ];
 
         $this->logger->debug(json_encode($message));
