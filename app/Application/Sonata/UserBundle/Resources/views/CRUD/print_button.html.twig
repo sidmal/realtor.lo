@@ -1,0 +1,13 @@
+{% if admin.hasRoute('print') %}
+    {% if admin.isGranted('ROLE_APP_OFFICE_DIRECTOR') or admin.isGranted('ROLE_APP_ADMINISTRATOR') or admin.isGranted('ROLE_APP_MANAGER') %}
+        <a class="btn btn-sm" href="{{ admin.generateUrl('print') }}" target="_blank">
+            <i class="icon-print"></i>
+            Печать
+        </a>
+    {% else %}
+        <button class="btn btn-sm" disabled="disabled">
+            <i class="icon-print"></i>
+            Печать
+        </button>
+    {% endif %}
+{% endif %}

@@ -2,70 +2,66 @@
 
 namespace Realtor\AdminBundle\Admin;
 
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\ORM\NoResultException;
-use Doctrine\ORM\Query\Parameter;
 use Realtor\AdminBundle\Traits\Security;
 use Sonata\AdminBundle\Admin\Admin;
 use Sonata\AdminBundle\Datagrid\DatagridMapper;
 use Sonata\AdminBundle\Datagrid\ListMapper;
 use Sonata\AdminBundle\Form\FormMapper;
+use Sonata\AdminBundle\Route\RouteCollection;
 use Sonata\AdminBundle\Show\ShowMapper;
+use Sonata\AdminBundle\Validator\ErrorElement;
+use Symfony\Component\HttpFoundation\ParameterBag;
 
 class DutyAdmin extends Admin
 {
     use Security;
+
+    protected function configureRoutes(RouteCollection $collection)
+    {
+        $collection->add('print');
+    }
 
     /**
      * @param DatagridMapper $datagridMapper
      */
     protected function configureDatagridFilters(DatagridMapper $datagridMapper)
     {
-        $em =  $this->modelManager->getEntityManager('ApplicationSonataUserBundle:User');
-
-        $builder = $em->createQueryBuilder()
-            ->select(
+        $datagridMapper
+            ->add(
+                'branchId',
+                null,
                 [
-                    'user.id',
-                    'user.fio'
+                    'label' => 'Дежурит в филиале'
+                ],
+                null,
+                [
+                    'empty_value' => 'Выберите филиал дежурства',
                 ]
             )
-            ->from('ApplicationSonataUserBundle:User', 'user')
-            ->where('user.head = :head')
-            ->andWhere('user.isFired = :isFired')
-            ->setParameters(
-                new ArrayCollection(
-                    [
-                        new Parameter('head', $this->getUser()->getId()),
-                        new Parameter('isFired', false)
-                    ]
-                )
-            );
-
-        $employees = [];
-
-        try{
-            $users = $builder->getQuery()->getArrayResult();
-
-            foreach($users as $user){
-                $employees[$user['id']] = $user['fio'];
-            }
-        }
-        catch(NoResultException $e){
-
-        }
-
-        $datagridMapper
+            ->add(
+                'manager',
+                'doctrine_orm_string',
+                [
+                    'label' => 'Дежурный менеджер'
+                ],
+                'choice',
+                [
+                    'empty_value' => 'Выберите дежурного менеджера',
+                    'choices' => []
+                ]
+            )
             ->add(
                 'userId',
                 'doctrine_orm_string',
-                ['label' => 'Дежурный'],
+                [
+                    'label' => 'Дежурный агент'
+                ],
                 'choice',
                 [
-                    'choices' => $employees
+                    'choices' => [],
+                    'empty_value' => 'Выберите дежурного агента'
                 ]
             )
-            ->add('branchId', null, ['label' => 'Дежурит в филиале'])
             ->add('phone', null, ['label' => 'Номер телефона дежурного'])
             ->add(
                 'dutyStartAt',
@@ -94,19 +90,24 @@ class DutyAdmin extends Admin
     protected function configureListFields(ListMapper $listMapper)
     {
         $listMapper
-            ->add('id')
-            ->add('dutyStartAt')
-            ->add('dutyEndAt')
-            ->add('phone')
-            ->add('createAt')
-            ->add('updatedAt')
-            ->add('_action', 'actions', array(
-                'actions' => array(
-                    'show' => array(),
-                    'edit' => array(),
-                    'delete' => array(),
-                )
-            ))
+            ->addIdentifier('id', null, ['label' => 'Идентификатор'])
+            ->add('branchId', null, ['label' => 'Дежурит в филиале'])
+            ->add('manager', null, ['label' => 'Дежурный менеджер'])
+            ->add('userId', null, ['label' => 'Дежурный агент'])
+            ->add('phone', null, ['label' => 'Номер телефона дежурного'])
+            ->add('dutyStartAt', null, ['label' => 'Дата начала дежурства'])
+            ->add('dutyEndAt', null, ['label' => 'Дата окончания дежурства'])
+            ->add(
+                '_action',
+                'actions',
+                [
+                    'actions' => [
+                        'show' => ['template' => 'AdminBundle:Default:show.html.twig'],
+                        'edit' => ['template' => 'AdminBundle:Default:edit.html.twig'],
+                        'delete' => ['template' => 'AdminBundle:Default:delete.html.twig'],
+                    ]
+                ]
+            )
         ;
     }
 
@@ -115,21 +116,53 @@ class DutyAdmin extends Admin
      */
     protected function configureFormFields(FormMapper $formMapper)
     {
-        $em =  $this->modelManager->getEntityManager('ApplicationSonataUserBundle:User');
+        $managers = $agent = [];
+        try{
+            if(!empty($this->getRequest()->request->all())){
+                $request = new ParameterBag(current($this->getRequest()->request->all()));
+            }
 
-        $query = $em->createQueryBuilder()
-            ->select('user')
-            ->from('ApplicationSonataUserBundle:User', 'user')
-            ->where('user.head = :head')
-            ->andWhere('user.isFired = :isFired')
-            ->setParameters(
-                new ArrayCollection(
-                    [
-                        new Parameter('head', $this->getUser()->getId()),
-                        new Parameter('isFired', false)
-                    ]
-                )
-            );
+            if(isset($request)){
+                if($request->has('branchId')){
+                    $managers = $this->getConfigurationPool()->getContainer()->get('doctrine')
+                        ->getManager()->getRepository('ApplicationSonataUserBundle:User')
+                        ->getManagerByBranch($request->get('branchId'));
+                }
+
+                if($request->has('manager')){
+                    $agent = $this->getConfigurationPool()->getContainer()->get('doctrine')
+                        ->getManager()->getRepository('ApplicationSonataUserBundle:User')
+                        ->getAgentByManager($request->get('manager'));
+                }
+            }
+
+            if($this->getSubject()->getId()){
+                $managers = $this->getConfigurationPool()->getContainer()->get('doctrine')
+                    ->getManager()->getRepository('ApplicationSonataUserBundle:User')
+                    ->getManagerByBranch($this->getSubject()->getBranchId());
+
+                $agent = $this->getConfigurationPool()->getContainer()->get('doctrine')
+                    ->getManager()->getRepository('ApplicationSonataUserBundle:User')
+                    ->getAgentByManager($this->getSubject()->getManager());
+            }
+        }
+        catch(\Exception $e){
+
+        }
+
+        $hours = [];
+        for($index = $this->getConfigurationPool()->getContainer()->getParameter('duty.min.hour'); $index <= $this->getConfigurationPool()->getContainer()->getParameter('duty.max.hour'); $index++){
+            $hours[] = $index;
+        }
+
+        $dutyStartDate = new \DateTime();
+        if($dutyStartDate->format('H') < $this->getConfigurationPool()->getContainer()->getParameter('duty.min.hour')
+            || $dutyStartDate->format('H') > $this->getConfigurationPool()->getContainer()->getParameter('duty.max.hour')
+            || ($dutyStartDate->format('H') + $this->getConfigurationPool()->getContainer()->getParameter('duty.delta.hour')) >= $this->getConfigurationPool()->getContainer()->getParameter('duty.max.hour')){
+            $dutyStartDate->setTime($this->getConfigurationPool()->getContainer()->getParameter('duty.min.hour'), 0);
+        }
+
+        $dutyEndDate = \DateTime::createFromFormat('Y-m-d H:i:s', $dutyStartDate->format('Y-m-d').' '.($dutyStartDate->format('H') + $this->getConfigurationPool()->getContainer()->getParameter('duty.delta.hour')).':00:00');
 
         $formMapper
             ->add(
@@ -138,37 +171,47 @@ class DutyAdmin extends Admin
                 [
                     'label' => 'Дежурит в филиале',
                     'required' => true,
-                    'empty_value' => 'Выбирите филиал дежурства',
+                    'empty_value' => 'Выберите филиал дежурства'
                 ]
             )
             ->add(
                 'manager',
-                'sonata_type_model',
+                'entity',
                 [
                     'label' => 'Дежурный менеджер',
                     'required' => true,
-                    'empty_value' => 'Выбирите дежурного менеджера',
-                    'choices' => []
+                    'empty_value' => 'Выберите дежурного менеджера',
+                    'class' => 'ApplicationSonataUserBundle:User',
+                    'choices' => $managers
                 ]
             )
             ->add(
                 'userId',
-                'sonata_type_model',
+                'entity',
                 [
                     'label' => 'Дежурный агент',
-                    'choices' => [],
                     'required' => true,
-                    'empty_value' => 'Выбирите дежурного агента'
+                    'empty_value' => 'Выберите дежурного агента',
+                    'class' => 'ApplicationSonataUserBundle:User',
+                    'choices' => $agent,
                 ]
             )
-            ->add('phone', null, ['label' => 'Номер дежурного'])
+            ->add(
+                'phone',
+                null,
+                [
+                    'label' => 'Номер дежурного',
+                    'attr' => ['readonly' => true]
+                ]
+            )
             ->add(
                 'dutyStartAt',
                 'datetime',
                 [
                     'label' => 'Дата начала дежурства',
-                    'data' => new \DateTime(),
-                    'with_minutes' => false
+                    'data' => $dutyStartDate,
+                    'with_minutes' => false,
+                    'hours' => $hours
                 ]
             )
             ->add(
@@ -176,8 +219,9 @@ class DutyAdmin extends Admin
                 'datetime',
                 [
                     'label' => 'Дата окончания дежурства',
-                    'data' => (new \DateTime())->add(new \DateInterval('PT3H')),
-                    'with_minutes' => false
+                    'data' => $dutyEndDate,
+                    'with_minutes' => false,
+                    'hours' => $hours
                 ]
             )
         ;
@@ -189,12 +233,27 @@ class DutyAdmin extends Admin
     protected function configureShowFields(ShowMapper $showMapper)
     {
         $showMapper
-            ->add('id')
-            ->add('dutyStartAt')
-            ->add('dutyEndAt')
-            ->add('phone')
-            ->add('createAt')
-            ->add('updatedAt')
+            ->add('id', null, ['label' => 'Идентификатор'])
+            ->add('branchId', null, ['label' => 'Дежурит в филиале'])
+            ->add('manager', null, ['label' => 'Дежурный менеджер'])
+            ->add('userId', null, ['label' => 'Дежурный агент'])
+            ->add('phone', null, ['label' => 'Номер телефона дежурного'])
+            ->add('dutyStartAt', null, ['label' => 'Дата начала дежурства'])
+            ->add('dutyEndAt', null, ['label' => 'Дата окончания дежурства'])
         ;
+    }
+
+    public function validate(ErrorElement $errorElement, $object)
+    {
+        $dutyCheck = $this->getConfigurationPool()->getContainer()->get('doctrine')
+            ->getManager()->getRepository('ApplicationSonataUserBundle:Duty')
+            ->checkDuty($this->getSubject()->getBranchId(), $this->getSubject()->getDutyStartAt(), $this->getSubject()->getDutyEndAt());
+
+        if($dutyCheck){
+            $errorElement
+                ->with('branchId')
+                ->addViolation('Для указанного филиала уже назначен дежурный на данный временной период.')
+                ->end();
+        }
     }
 }

@@ -32,7 +32,7 @@
             <input type="hidden" name="CallCard[action]" value="black-list-forward" />
             <input type="hidden" name="CallCard[user-id]" id="black-list-user-id" value="{{ app.user.Id }}" />
             <input type="hidden" name="CallCard[call-type]" id="black-list-call-type" value="" />
-            <input type="hidden" name="CallCard[caller-phone]" id="black-list-caller-phone" value="{{ app.user.getOfficePhone }}" />
+            <input type="hidden" name="CallCard[caller-phone]" id="black-list-caller-phone" value="{{ app.user.getUserDutyPhone is null ? app.user.getOfficePhone : app.user.getUserDutyPhone }}" />
             <input type="hidden" name="CallCard[linked-id]" id="black-list-linked-id" value="" />
             <input type="hidden" name="CallCard[call-id]" id="black-list-call-id" value="" />
             <input type="hidden" name="CallCard[ats-call-id]" id="black-list-ats-call-id" value="" />

@@ -44,7 +44,7 @@
         }
     </style>
 
-    {% if app.user.getOfficePhone is not empty %}
+    {% if app.user.getOfficePhone is not empty or app.user.getUserDutyPhone is not null %}
 
         <script type="text/javascript">
             $(document).ready(function(){
@@ -116,7 +116,7 @@
                     {
                         type: 'post',
                         url: '{{ path('call_outcome_ajax') }}',
-                        data: { to_phone: $('#numberpad-phone').val(), from_phone: {{ app.user.getOfficePhone }} },
+                        data: { to_phone: $('#numberpad-phone').val(), from_phone: {{ app.user.getUserDutyPhone is null ? app.user.getOfficePhone : app.user.getUserDutyPhone }} },
                         complete: function(response){
                             $("#numberpad-phone").val("");
                         }
@@ -125,6 +125,8 @@
             }
 
             function service_function(action, is_enable){
+                var service_receiver = "{% autoescape false %}{{ app.user.phone is not empty ? app.user.phone : "\"\"" }}{% endautoescape %}".split(",");
+
                 $.ajax(
                     {
                         type: 'post',
@@ -132,8 +134,8 @@
                         data: {
                             action: action,
                             enable: is_enable,
-                            service_sender: {{ app.user.getOfficePhone }},
-                            service_receiver: {% autoescape false %}{{ app.user.phone is not empty ? app.user.phone : "\"\"" }}{% endautoescape %}
+                            service_sender: {{ app.user.getUserDutyPhone is null ? app.user.getOfficePhone : app.user.getUserDutyPhone }},
+                            service_receiver: service_receiver[0]
                         },
                         complete: function(response){
 

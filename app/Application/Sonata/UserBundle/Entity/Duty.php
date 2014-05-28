@@ -3,12 +3,24 @@
 namespace Application\Sonata\UserBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Realtor\DictionaryBundle\Entity\Branches;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 /**
  * Duty
  *
- * @ORM\Table(name="duty")
- * @ORM\Entity
+ * @ORM\Table(
+ *      name="duty",
+ *      uniqueConstraints={
+ *          @ORM\UniqueConstraint(columns={"branch_id", "duty_start_at", "duty_end_at"})
+ *      }
+ * )
+ * @ORM\Entity(repositoryClass="Application\Sonata\UserBundle\Entity\Repository\DutyRepository")
+ * @UniqueEntity(
+ *      fields={"branchId", "dutyStartAt", "dutyEndAt"},
+ *      errorPath="branchId",
+ *      message="Для указанного филиала уже назначен дежурный на данный временной период."
+ * )
  *
  * @ORM\HasLifecycleCallbacks()
  */
@@ -96,10 +108,10 @@ class Duty
     /**
      * Set userId
      *
-     * @param integer $userId
+     * @param \Application\Sonata\UserBundle\Entity\User $userId
      * @return Duty
      */
-    public function setUserId($userId)
+    public function setUserId(User $userId)
     {
         $this->userId = $userId;
 
@@ -109,7 +121,7 @@ class Duty
     /**
      * Get userId
      *
-     * @return integer 
+     * @return \Application\Sonata\UserBundle\Entity\User
      */
     public function getUserId()
     {
@@ -119,10 +131,10 @@ class Duty
     /**
      * Set branchId
      *
-     * @param integer $branchId
+     * @param \Realtor\DictionaryBundle\Entity\Branches $branchId
      * @return Duty
      */
-    public function setBranchId($branchId)
+    public function setBranchId(Branches $branchId)
     {
         $this->branchId = $branchId;
 
@@ -132,7 +144,7 @@ class Duty
     /**
      * Get branchId
      *
-     * @return integer 
+     * @return \Realtor\DictionaryBundle\Entity\Branches
      */
     public function getBranchId()
     {

@@ -4,6 +4,8 @@ parameters:
     manager.dictionary.branch.class: Realtor\DictionaryBundle\Model\BranchManager
     manager.call.action.class: Realtor\CallBundle\Model\CallManager
     call.listener.class: Realtor\CallBundle\Listeners\CallListener
+    manager.dictionary.advertising_source.class: Realtor\DictionaryBundle\Model\AdvertisingSourceManager
+    authentication_handler.class: Application\Sonata\UserBundle\Handlers\AuthenticationHandler
 
 services:
     manager.user:
@@ -17,6 +19,12 @@ services:
         arguments:
             - http://disp.emls.ru/api/branches
             - @doctrine.orm.entity_manager
+
+    manager.dictionary.advertising_source:
+        class: %manager.dictionary.advertising_source.class%
+        arguments:
+            - http://disp.emls.ru/api/advertising_source
+            - "@doctrine.orm.entity_manager"
 
     manager.call.action:
         class: %manager.call.action.class%
@@ -40,3 +48,16 @@ services:
             - "@service_container"
         tags:
             - { name: doctrine.event_listener, event: preRemove }
+
+    authentication_handler:
+        class: %authentication_handler.class%
+        arguments:  [@router]
+        calls:
+            - [setHttpUtils, [@security.http_utils]]
+            - [setHttpKernel, [@http_kernel]]
+            - [setLogger, [@logger]]
+            - [setOptions, [{}]]
+            - [setValidator, [@validator]]
+            - [setEntityManager, [@doctrine.orm.entity_manager]]
+        tags:
+            - { name: "monolog.logger", channel: "security" }

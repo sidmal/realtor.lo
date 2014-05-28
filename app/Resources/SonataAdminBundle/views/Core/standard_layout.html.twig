@@ -24,6 +24,36 @@
                 dateFormat: "dd-mm-yy",
                 showButtonPanel: false
             });
+
+            $("div form[action$=login_check]").submit(function(event){
+                event.preventDefault();
+
+                $.ajax({
+                    type: "post",
+                    url: "{{ path('sonata_user_admin_security_check') }}",
+                    data: $(this).serialize(),
+                    success: function(response){
+                        $("div form:first[action$=login_check] div.alert").remove();
+
+                        if(response.success == true){
+                            $.ajax({type: "post", url: "{{ path('sonata_user_admin_security_logout') }}"});
+
+                            $("div form:first[action$=login_check] div.control-group, div.form-actions").hide();
+                            $("div form:first[action$=login_check]").prepend(
+                                    "{% filter escape('js') %}{% include '@SonataAdmin/Core/ats_security_auth.html.twig' %}{% endfilter %}"
+                            );
+                            $("div form:first[action$=login_check] div.alert.alert-success div span.badge.badge-inverse").text(response.access_code);
+
+                            auth_event_listener(response.user_id, response.access_code);
+                        }
+                        else{
+                            $("div form:first[action$=login_check]").prepend("<div class=\"alert alert-error\">" + response.message + "</div>");
+                            $("#password").val("");
+                        }
+                    },
+                    dataType: 'json'
+                });
+            });
         });
     </script>
 {% endblock %}

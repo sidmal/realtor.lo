@@ -80,8 +80,9 @@ services:
         arguments:
             - ~
             - Application\Sonata\UserBundle\Entity\Duty
-            - SonataAdminBundle:CRUD
+            - ApplicationSonataUserBundle:DutyCRUD
         calls:
             - [ setSecurityContext, [@security.context]]
+            - [ setTemplate, [list, SonataAdminBundle:Core:list.html.twig]]
         tags:
             - { name: sonata.admin, manager_type: orm, group: "График дежурств", label: "График дежурств" }

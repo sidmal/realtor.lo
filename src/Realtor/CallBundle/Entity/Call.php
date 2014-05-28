@@ -90,6 +90,13 @@ class Call
     private $createdAt;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="access_code", type="string", length=10, nullable=true)
+     */
+    private $access_code;
+
+    /**
      * @var \Realtor\CallBundle\Entity\CallParams
      *
      * @ORM\OneToOne(targetEntity="Realtor\CallBundle\Entity\CallParams", mappedBy="callId", cascade={"persist"}, orphanRemoval=true)
@@ -343,5 +350,28 @@ class Call
     public function getParams()
     {
         return $this->params;
+    }
+
+    /**
+     * Set access_code
+     *
+     * @param string $accessCode
+     * @return Call
+     */
+    public function setAccessCode($accessCode)
+    {
+        $this->access_code = $accessCode;
+
+        return $this;
+    }
+
+    /**
+     * Get access_code
+     *
+     * @return string 
+     */
+    public function getAccessCode()
+    {
+        return $this->access_code;
     }
 }

@@ -56,3 +56,7 @@ branch:
 redirect:
     resource: '@ApplicationSonataUserBundle/Controller/RedirectController.php'
     type: annotation
+
+duty_crud:
+    resource: '@ApplicationSonataUserBundle/Controller/DutyCRUDController.php'
+    type: annotation

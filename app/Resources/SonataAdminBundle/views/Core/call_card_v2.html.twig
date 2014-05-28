@@ -11,6 +11,12 @@
             $("#call-card-form").submit();
         }
 
+        function forward_to_call_center(){
+            $("#message, #caller-name").removeAttr("required");
+            $("#action").val("forward-to-call-center");
+            $("#call-card-form").submit();
+        }
+
         function call_cancel()
         {
             var linked_id = $("#linked-id").val();
@@ -29,6 +35,11 @@
             $('#call-type, #black-list-call-type').val($(this).val());
 
             var button_block = "<button class=\"btn btn-small btn-warning pull-right\" id=\"add-to-black-list-button\" type=\"button\" onclick=\"$('#add-to-black-list').modal({keyboard: false});\">Занести в черный список</button>";
+
+            {% if app.user.isOperator == false %}
+                button_block += "<button class=\"btn btn-small btn-success pull-left\" id=\"forward-to-call-center\" type=\"button\" onclick=\"forward_to_call_center()\">перевести в колл-центр</button>";
+            {% endif %}
+
 
             switch(parseInt($(this).val())){
                 case 0:
@@ -70,16 +81,26 @@
                 $("#call-card-content").find("#container").html("");
                 $("#call-card-content").find(".required-buttons").html("");
                 $("#call-card-buttons").html("");
+
+                $("#phone-type").find(".btn-group").find("button").each(function(){
+                    $(this).attr("disabled", false);
+                });
             });
 
-            {% if app.user.getOfficePhone is not empty %}
+            {% if app.user.getOfficePhone is not empty or app.user.getUserDutyPhone is not null %}
                 call_event_listener();
 
                 function call_event_listener(){
+                    var user_phone = ["{{ app.user.getOfficePhone}}"];
+
+                    {% if app.user.getUserDutyPhone is not null %}
+                        user_phone.push("{{ app.user.getUserDutyPhone }}");
+                    {% endif %}
+
                     $.ajax({
                         type: "post",
                         url: "{{ path('call_get_income_event_ajax') }}",
-                        data: { to_phone: {{ app.user.getOfficePhone }} },
+                        data: { to_phone: user_phone },
                         success: function(data){
                             $("#caller-phone").html(data.fromPhone);
                             $("#black-list-caller-phone").val(data.fromPhone);
@@ -184,7 +205,7 @@
             </div>
 
             <input type="hidden" name="CallCard[call-type]" id="call-type" value="" />
-            <input type="hidden" name="CallCard[caller-phone]" id="caller-phone" value="{{ app.user.getOfficePhone }}" />
+            <input type="hidden" name="CallCard[caller-phone]" id="caller-phone" value="{{ app.user.getUserDutyPhone is null ? app.user.getOfficePhone : app.user.getUserDutyPhone }}" />
             <input type="hidden" name="CallCard[linked-id]" id="linked-id" value="" />
             <input type="hidden" name="CallCard[call-id]" id="call-id" value="" />
             <input type="hidden" name="CallCard[ats-call-id]" id="ats-call-id" value="" />

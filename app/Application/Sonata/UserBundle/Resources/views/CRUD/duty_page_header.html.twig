@@ -1,0 +1,45 @@
+<style type="text/css">
+    div table{
+        margin-right: 50px;
+        width: 100%;
+        border: 1px solid #000000;
+        border-collapse: collapse;
+    }
+
+    .duty-block{
+        float: left;
+        width: 400;
+        margin-right: 50px;
+        margin-top: 15px;
+    }
+
+    .duty-time{
+        width: 70px;
+        text-align: left;
+        border: 1px solid #000000;
+    }
+
+    .duty-employer{
+        text-align: center;
+        border: 1px solid #000000;
+    }
+</style>
+
+<div class="row" {% if page_break and page_break == 1 %}style="page-break-before: always;"{% endif %}>
+    <div class="row">Утверждаю</div>
+    <div class="row">{{ "now"|date_modify("last day of -1 month")|date("d.m.Y") }}</div>
+    <div class="row">Филиал «{{ branch_name }}»</div>
+    <div class="row">Менеджер</div>
+    <div class="row">____________/{{ manager_name }}</div>
+</div>
+
+<div class="row" style="margin-top: 50px;">
+    <div class="row" style="text-align: center;">
+        <div class="row">График дежурств группы менеджера</div>
+        <div class="row">{{ manager_name }}</div>
+
+        <div class="row" style="margin-top: 20px;">{{ duty_month }}</div>
+    </div>
+</div>
+
+<div class="row" style="margin: 0 auto; padding-top: 15px; width: 900px;">

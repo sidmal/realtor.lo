@@ -8,12 +8,11 @@
 
 namespace Realtor\CallBundle\Controller;
 
-use Guzzle\Http\Exception\RequestException;
 use Realtor\CallBundle\Entity\BlackList;
 use Realtor\CallBundle\Entity\Call;
 use Realtor\CallBundle\Entity\CallParams;
-use Realtor\DictionaryBundle\Model\HttpClient;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -163,6 +162,17 @@ class CallController extends Controller
                         $params['caller-name'] = 'unknown';
                     }
                     break;
+                case 'forward-to-call-center':
+                    if(empty($params['caller-name'])){
+                        $params['caller-name'] = 'unknown';
+                    }
+
+                    $action = $this->container->getParameter('call.action.operator');
+
+                    if(!$callManager->bxfer($dial->getAtsCallId(), 'A', $action)){
+                        $response->setStatusCode(403);
+                    }
+                    break;
                 default:
                     $action = 'bxfer';
 
@@ -191,7 +201,7 @@ class CallController extends Controller
         $call = new Call();
         $callParams = new CallParams();
 
-        if(isset($params['advertising-source'])){
+        if(isset($params['advertising-source']) && !empty($params['advertising-source'])){
             $callParams->setAdvertisingSource($em->getRepository('DictionaryBundle:AdvertisingSource')->find($params['advertising-source']));
         }
 
@@ -202,7 +212,7 @@ class CallController extends Controller
             $callParams->setMessage($params['message']);
         }
 
-        if(isset($params['property'])){
+        if(isset($params['property']) && !empty($params['property'])){
             $callParams
                 ->setPropertyAddress($params['property'])
                 ->setPropertyAgentId($em->getRepository('ApplicationSonataUserBundle:User')->findOneBy(['outerId' => $params['property-agent-id']]))
@@ -210,7 +220,7 @@ class CallController extends Controller
                 ->setPropertyBaseId($params['property-base-id']);
         }
 
-        if(isset($params['reason'])){
+        if(isset($params['reason']) && !empty($params['reason'])){
             $callParams->setReason($em->getRepository('DictionaryBundle:Reason')->find($params['reason']));
         }
 
@@ -318,6 +328,47 @@ class CallController extends Controller
 
     /**
      * @param Request $request
+     * @return JsonResponse
+     *
+     * @Route("/call/event/is_authenticated_by_access_code_user", name="is_authenticated_by_access_code_user")
+     * @Method({"POST"})
+     */
+    public function isAuthenticatedByAccessCodeUserAction(Request $request)
+    {
+        if(!$request->isXmlHttpRequest()){
+            return new JsonResponse(['success' => false]);
+        }
+
+        if(!$request->request->has('access_code') || !$request->request->has('user_id')){
+            return new JsonResponse(['success' => false]);
+        }
+
+        $auth = $this->getDoctrine()->getManager()->getRepository('CallBundle:Call')
+            ->getAuthByAccessCodeEvent($request->request->get('access_code'));
+
+        if(!$auth || count($auth) == 0){
+            return new JsonResponse(['success' => false]);
+        }
+
+        if(!$user = $this->getDoctrine()->getManager()->getRepository('ApplicationSonataUserBundle:User')->find($request->request->get('user_id'))){
+            return new JsonResponse(['success' => false]);
+        }
+
+        $user->setUserDutyPhone($auth[0]->getFromPhone());
+
+        $this->getDoctrine()->getManager()->persist($user);
+        $this->getDoctrine()->getManager()->flush();
+
+        return new JsonResponse(
+            [
+                'success' => true,
+                'event_id' => $auth[0]->getId()
+            ]
+        );
+    }
+
+    /**
+     * @param Request $request
      * @return Response
      *
      * @Route("/call/event/income", name="call_event_income")
@@ -344,6 +395,10 @@ class CallController extends Controller
 
         if($request->has('time') && $time = $request->get('time')){
             $call->setEventAt(new \DateTime($time));
+        }
+
+        if($request->has('pincode') && $accessCode = $request->get('pincode')){
+            $call->setAccessCode($accessCode);
         }
 
         $call

@@ -66,9 +66,12 @@ security:
                 check_path: /admin/login_check
                 failure_path: null
                 default_target_path: /admin
+                success_handler: authentication_handler
+                failure_handler: authentication_handler
             logout:
                 path: /admin/logout
                 target: /admin/login
+                handler: authentication_handler
             anonymous: true
         # -> end custom configuration
 

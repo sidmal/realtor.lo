@@ -1,0 +1,25 @@
+<div class="row duty-block">
+    <div class="row" style="text-align: center;">{{ duty_day }}</div>
+    <table border="0" cellpadding="0" cellspacing="0">
+        <tr>
+            <th class="duty-time">время</th>
+            <th class="duty-employer">ФИО</th>
+        </tr>
+
+        {% set counter = duty_min_hour %}
+
+        {% for index in duty_min_hour..(duty_max_hour - 1) %}
+            {% if index in item_day|keys %}
+                <tr>
+                    <td class="duty-time">{{ index }} - {{ index + 1 }}</td>
+                    <td class="duty-employer">{{ item_day[index] }}</td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td class="duty-time">{{ index }} - {{ index + 1 }}</td>
+                    <td class="duty-employer">&nbsp;</td>
+                </tr>
+            {% endif %}
+        {% endfor %}
+    </table>
+</div>

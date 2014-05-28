@@ -62,4 +62,33 @@ class BranchController extends Controller
 
         return new Response(json_encode($response));
     }
+
+    /**
+     * @Route("/branches/get/all/ajax", name="branches_get_all_ajax")
+     * @Method({"POST"})
+     */
+    public function getBranchesAction(Request $request)
+    {
+        $response = new Response();
+
+        if(!$request->isXmlHttpRequest()){
+            return $response->setStatusCode(Response::HTTP_BAD_REQUEST);
+        }
+
+        $branches = $this->getDoctrine()->getManager()->getRepository('DictionaryBundle:Branches')
+            ->findBy(['isActive' => true]);
+
+        if(!$branches){
+            return $response->setStatusCode(Response::HTTP_NOT_FOUND);
+        }
+
+        $result = [];
+        foreach($branches as $branch){
+            if($branch->getOnDutyAgentPhone()){
+                $result[] = ['id' => $branch->getId(), 'duty_agent' => $branch->getOnDutyAgentPhone()];
+            }
+        }
+
+        return $response->setContent(json_encode($result));
+    }
 } 

@@ -161,6 +161,13 @@ class User extends BaseUser
     protected $lastName;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="user_duty_phone", type="string", length=128, nullable=true)
+     */
+    protected $userDutyPhone;
+
+    /**
      * @var \Doctrine\Common\Collections\Collection
      */
     protected $groups;
@@ -493,5 +500,47 @@ class User extends BaseUser
     public function getLastName()
     {
         return $this->lastName;
+    }
+
+    public function __toString()
+    {
+        if(!$this->getId()){
+            return 'Новый пользователь';
+        }
+
+        $result = $this->getFio();
+        if($this->getUsername()){
+            $result .= ' ('.$this->getUsername().')';
+        }
+
+        return $result;
+    }
+
+    /**
+     * Set userDutyPhone
+     *
+     * @param string $userDutyPhone
+     * @return User
+     */
+    public function setUserDutyPhone($userDutyPhone)
+    {
+        $this->userDutyPhone = $userDutyPhone;
+
+        return $this;
+    }
+
+    /**
+     * Get userDutyPhone
+     *
+     * @return string 
+     */
+    public function getUserDutyPhone()
+    {
+        return $this->userDutyPhone;
+    }
+
+    public function isOperator()
+    {
+        return in_array('ROLE_APP_OPERATOR', $this->getRoles());
     }
 }

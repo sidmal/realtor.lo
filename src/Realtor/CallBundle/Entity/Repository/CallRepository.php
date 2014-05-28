@@ -31,13 +31,13 @@ class CallRepository extends EntityRepository
             )
             ->from('CallBundle:Call', 'call')
             ->where('call.type = 1')
-            ->andWhere('call.toPhone = :forPhone')
             ->setMaxResults(1)
             ->orderBy('call.eventAt', 'desc');
 
         $qb->andWhere($qb->expr()->in('call.callAction', ':events'));
         $qb->andWhere($qb->expr()->between('call.createdAt', ':dateFrom', ':dateTo'));
         $qb->andWhere($qb->expr()->notLike('call.fromPhone', ':fromPhone'));
+        $qb->andWhere($qb->expr()->in('call.toPhone', ':forPhone'));
 
         $qb->setParameters(
             new ArrayCollection(
@@ -53,6 +53,37 @@ class CallRepository extends EntityRepository
 
         try{
             $result = $qb->getQuery()->getResult(AbstractQuery::HYDRATE_ARRAY);
+        }
+        catch(NoResultException $e){
+            $result = null;
+        }
+
+        return $result;
+    }
+
+    public function getAuthByAccessCodeEvent($accessCode)
+    {
+        $builder = $this->getEntityManager()->createQueryBuilder()
+            ->select('call')
+            ->from('CallBundle:Call', 'call')
+            ->where('call.callAction = :call_action')
+            ->andWhere('call.access_code = :access_code');
+
+        $builder->andWhere($builder->expr()->between('call.createdAt', ':current_day_start', ':current_day_end'));
+
+        $builder->setParameters(
+            new ArrayCollection(
+                [
+                    new Parameter('call_action', 'pincode'),
+                    new Parameter('access_code', $accessCode),
+                    new Parameter('current_day_start', (new \DateTime())->setTime(0, 0, 0), Type::DATETIME),
+                    new Parameter('current_day_end', (new \DateTime())->setTime(23, 59, 59), Type::DATETIME),
+                ]
+            )
+        );
+
+        try{
+            $result = $builder->getQuery()->getResult();
         }
         catch(NoResultException $e){
             $result = null;

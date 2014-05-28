@@ -110,7 +110,7 @@ class CallCard extends BaseBlockService
                 'reason' => $this->em->getRepository('DictionaryBundle:Reason')->findBy(['isActive' => true]),
                 'branches' => $this->em->getRepository('DictionaryBundle:Branches')->findBy(['isActive' => true]),
                 'call_dial_up_event' => $this->getCallDialUpEvent(),
-                'call_dial_down_event' => $this->getCallDialDownEvent()
+                'call_dial_down_event' => $this->getCallDialDownEvent(),
             ],
             $response
         );

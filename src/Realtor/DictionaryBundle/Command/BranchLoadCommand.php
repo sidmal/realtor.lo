@@ -22,7 +22,7 @@ class BranchLoadCommand extends ContainerAwareCommand
         $this
             ->setName('dictionary:branch:load')
             ->setDescription('Load branches dictionary from emls application.')
-            ->addOption('rewrite', null, InputOption::VALUE_REQUIRED, 'make full rewriting of the table.', 'yes')
+            ->addOption('rewrite', null, InputOption::VALUE_REQUIRED, 'make full rewriting of the table.', 'no')
             ->addOption('message', null, InputOption::VALUE_REQUIRED, 'write output message.', 'no');;
     }
 

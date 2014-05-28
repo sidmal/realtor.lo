@@ -1,0 +1,58 @@
+{% block stylesheets %}
+    <link href="{{ asset('bundles/sonataadmin/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet" />
+{% endblock %}
+
+<body>
+    {% set page_break = 0 %}
+
+    {% for key_branch, item_branch in duty %}
+        {% for key_manager, item_manager in item_branch %}
+
+            {%
+                set params = {
+                    'duty_month': duty_month,
+                    'branch_name': key_branch,
+                    'manager_name': key_manager,
+                    'page_break': page_break
+                }
+            %}
+
+            {% include '@ApplicationSonataUser/CRUD/duty_page_header.html.twig' with params %}
+
+            {% set counter = 0 %}
+
+            {% for key_day, item_day in item_manager %}
+
+                {%
+                    set duty_day_params = {
+                        'duty_day': key_day,
+                        'item_day': item_day,
+                        'duty_min_hour': duty_min_hour,
+                        'duty_max_hour': duty_max_hour
+                    }
+                %}
+
+                {% set params = params + {'page_break': 1} %}
+
+                {% if counter == 4 %}
+                    {% include '@ApplicationSonataUser/CRUD/duty_page_footer.html.twig' %}
+                    <div style="clear: both; padding-top: 30px;"></div>
+
+                    {% include '@ApplicationSonataUser/CRUD/duty_page_header.html.twig' with params %}
+
+                    {% set counter = 0 %}
+                {% endif %}
+
+                {% include '@ApplicationSonataUser/CRUD/duty_day.html.twig' with duty_day_params %}
+
+                {% set counter = counter + 1 %}
+            {% endfor %}
+
+            {% include '@ApplicationSonataUser/CRUD/duty_page_footer.html.twig' %}
+            <div style="clear: both; padding-top: 30px;"></div>
+
+            {% set page_break = 1 %}
+
+        {% endfor %}
+    {% endfor %}
+</body>

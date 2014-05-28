@@ -22,14 +22,14 @@ class CallCardTest extends WebTestCase
 
         $call = new Call();
         $call->setLinkedId($uniqueId)->setInternalId($uniqueId)->setAtsCallId($uniqueId)
-            ->setType(1)->setFromPhone('9219251983')->setToPhone('203')->setCallAction('connect-exten')
+            ->setType(1)->setFromPhone('9219251983')->setToPhone('204')->setCallAction('connect-exten')
             ->setEventAt(new \DateTime());
 
         $em->persist($call);
 
         $call = new Call();
         $call->setLinkedId($uniqueId)->setInternalId($uniqueId)->setAtsCallId($uniqueId)
-            ->setType(1)->setFromPhone('9219251983')->setToPhone('203')->setCallAction('')
+            ->setType(1)->setFromPhone('9219251983')->setToPhone('204')->setCallAction('')
             ->setEventAt(new \DateTime());
 
         $em->persist($call);
@@ -48,6 +48,22 @@ class CallCardTest extends WebTestCase
         $call->setLinkedId($uniqueId)->setInternalId($uniqueId)->setAtsCallId($uniqueId)
             ->setType(1)->setFromPhone('9219251983')->setToPhone('203')->setCallAction('dial-exten')
             ->setEventAt(new \DateTime());
+
+        $em->persist($call);
+        $em->flush();
+    }
+
+    public function testAuthAccessCode()
+    {
+        $client = static::createClient();
+        $em = $client->getContainer()->get('doctrine.orm.entity_manager');
+
+        $uniqueId = md5(uniqid(rand(), 1));
+
+        $call = new Call();
+        $call->setLinkedId($uniqueId)->setInternalId($uniqueId)->setAtsCallId($uniqueId)
+            ->setType(1)->setFromPhone('205')->setToPhone('000')->setCallAction('pincode')
+            ->setEventAt(new \DateTime())->setAccessCode('4221');
 
         $em->persist($call);
         $em->flush();

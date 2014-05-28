@@ -1,36 +1,14 @@
-{% extends '@SonataAdmin/CRUD/edit.html.twig' %}
+{% extends "SonataAdminBundle:CRUD:list.html.twig" %}
 
 {% block javascripts %}
     {{ parent() }}
 
-    <script style="text/javascript">
+    <script type="text/javascript">
         $(document).ready(function(){
-            var branches = {};
-
-            $.ajax({
-                type: "post",
-                url: "{{ path('branches_get_all_ajax') }}",
-                success: function(response){
-                    $.each(response, function(i, item){
-                        branches[item.id] = item.duty_agent;
-                    });
-                },
-                dataType: 'json'
-            });
-
-            $("select[id$='_branchId']").change(function(){
-                $("select[id$='_manager']").text("");
-                $("div[id$='_manager'] span.select2-chosen").text("");
+            $("#filter_branchId_value").change(function(){
+                $("#filter_manager_value").text("");
 
                 if(!$(this).find("option:selected").val()) return;
-
-                if(!branches[parseInt($(this).find("option:selected").val())]){
-                    $(this).find("option:selected").attr("selected", false);
-                    $("div[id$='_branchId'] span.select2-chosen").text("");
-                    return alert("Выбор данного филиала не возможен. Не установлен номер дежурного агента для филиала.");
-                }
-
-                $("input[id$='_phone']").val(branches[parseInt($(this).find("option:selected").val())]);
 
                 $.ajax({
                     type: "post",
@@ -43,10 +21,10 @@
                             options += "<option value=\"" + item.id + "\">" + item.name + "</option>";
                         });
 
-                        $("select[id$='_manager']").append(options);
+                        $("#filter_manager_value").append(options);
 
                         {% if app.security.token and is_granted('ROLE_APP_MANAGER') %}
-                            $("select[id$='_manager']").val({{ app.user.id }}).change();
+                            $("#filter_manager_value").val({{ app.user.id }}).change();
                         {% endif %}
                     },
                     statusCode: {
@@ -61,9 +39,8 @@
                 });
             });
 
-            $("select[id$='_manager']").change(function(){
-                $("select[id$='_userId']").text("");
-                $("div[id$='_userId'] span.select2-chosen").text("");
+            $("#filter_manager_value").change(function(){
+                $("#filter_userId_value").text("");
 
                 if(!$(this).find("option:selected").val()) return;
 
@@ -78,7 +55,7 @@
                             options += "<option value=\"" + item.id + "\">" + item.name + "</option>";
                         });
 
-                        $("select[id$='_userId']").append(options);
+                        $("#filter_userId_value").append(options);
                     },
                     statusCode: {
                         400: function(){
@@ -93,9 +70,16 @@
             });
 
             {% if app.security.token and is_granted('ROLE_APP_MANAGER') %}
-                $("select[id$='_branchId']").val({{ app.user.branch.id }}).change();
+                $("#filter_branchId_value").val({{ app.user.branch.id }}).change();
             {% endif %}
 
         });
     </script>
+{% endblock %}
+
+{% block actions %}
+    <div class="sonata-actions btn-group">
+        {% include 'SonataAdminBundle:Core:create_button.html.twig' %}
+        {% include '@ApplicationSonataUser/CRUD/print_button.html.twig' %}
+    </div>
 {% endblock %}

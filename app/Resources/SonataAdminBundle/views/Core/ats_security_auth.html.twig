@@ -1,0 +1,43 @@
+<script type="text/javascript">
+    var timer_counter = 2000;
+
+    function auth_event_listener(user_id, access_code){
+        var event_listener;
+
+        $.ajax({
+            type: "post",
+            url: "{{ path('is_authenticated_by_access_code_user') }}",
+            data: { user_id: user_id, access_code: access_code },
+            success: function(response){
+                if(response.success == true){
+                    $("div form[action$='login_check']").off("submit").submit();
+                }
+                else{
+                    event_listener = setTimeout(auth_event_listener(user_id, access_code), 2000);
+                }
+            },
+            complete: function(){
+                if(timer_counter >= 300000){
+                    clearTimeout(event_listener);
+                    location.reload();
+                }
+
+                timer_counter = timer_counter + 2000;
+            },
+            statusCode: {
+                500: function(){
+                    event_listener = setTimeout(auth_event_listener(user_id, access_code), 2000);
+                }
+            },
+            dataType: 'json'
+        });
+    }
+</script>
+
+<div class="alert alert-success">
+    Логин-парольная авторизация прошла успешно.
+    <div style="margin-top: 10px;">
+        <strong>Для продолжения прохождения авторизации</strong> пожалуйста введите следующий
+        код на телефонном аппарате: <span class="badge badge-inverse">1234</span>
+    </div>
+</div>

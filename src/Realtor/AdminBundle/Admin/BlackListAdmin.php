@@ -22,6 +22,7 @@ class BlackListAdmin extends Admin
     protected function configureDatagridFilters(DatagridMapper $datagridMapper)
     {
         $datagridMapper
+            ->add('userId', null, ['label' => 'Добавил'])
             ->add('phone', null, ['label' => 'Номер телефона'])
             ->add(
                 'reason',
@@ -47,6 +48,7 @@ class BlackListAdmin extends Admin
     {
         $listMapper
             ->add('id', null, ['label' => 'Идентификатор'])
+            ->add('userId', null, ['label' => 'Добавил'])
             ->add('phone', null, ['label' => 'Номер телефона'])
             ->add('reason', null, ['label' => 'Причина'])
             ->add('createdAt', null, ['label' => 'Дата добавления'])
@@ -70,6 +72,7 @@ class BlackListAdmin extends Admin
     {
         $showMapper
             ->add('id', null, ['label' => 'Идентификатор'])
+            ->add('userId', null, ['label' => 'Добавил'])
             ->add('phone', null, ['label' => 'Номер телефона'])
             ->add('reason', null, ['label' => 'Причина'])
             ->add('createdAt', null, ['label' => 'Дата добавления'])
