@@ -118,7 +118,7 @@ class DutyAdmin extends Admin
     {
         $managers = $agent = [];
         try{
-            if(!empty($this->getRequest()->request->all())){
+            if($this->getRequest()->request->all()){
                 $request = new ParameterBag(current($this->getRequest()->request->all()));
             }
 
