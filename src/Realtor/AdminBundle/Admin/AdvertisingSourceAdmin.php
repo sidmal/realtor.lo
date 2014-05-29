@@ -2,14 +2,29 @@
 
 namespace Realtor\AdminBundle\Admin;
 
+use Realtor\AdminBundle\Traits\Security;
 use Sonata\AdminBundle\Admin\Admin;
 use Sonata\AdminBundle\Datagrid\DatagridMapper;
 use Sonata\AdminBundle\Datagrid\ListMapper;
 use Sonata\AdminBundle\Form\FormMapper;
+use Sonata\AdminBundle\Route\RouteCollection;
 use Sonata\AdminBundle\Show\ShowMapper;
 
 class AdvertisingSourceAdmin extends Admin
 {
+    use Security;
+
+    protected function configureRoutes(RouteCollection $collection)
+    {
+        /*var_dump($this->isGranted('ROLE_APP_ADMINISTRATOR'));
+        var_dump($this->isGranted('ROLE_APP_MANAGER_dkdkd'));
+        var_dump($this->getConfigurationPool()->getContainer()->get('security.context')->getToken());
+
+        if($this->isGranted('ROLE_APP_ADMINISTRATOR')){
+            $collection->remove('create');
+        }*/
+    }
+
     /**
      * @param DatagridMapper $datagridMapper
      */

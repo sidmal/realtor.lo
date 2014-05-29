@@ -543,4 +543,9 @@ class User extends BaseUser
     {
         return in_array('ROLE_APP_OPERATOR', $this->getRoles());
     }
+
+    public function isAdministrator()
+    {
+        return in_array('ROLE_APP_ADMINISTRATOR', $this->getRoles());
+    }
 }

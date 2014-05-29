@@ -2,15 +2,13 @@ parameters:
 #    admin.example.class: Realtor\AdminBundle\Example
 
 services:
-#    admin.example:
-#        class: %admin.example.class%
-#        arguments: [@service_id, "plain_value", %parameter%]
-    admin.admin.advertising_source:
+    admin.admin.advertising.source:
         class: Realtor\AdminBundle\Admin\AdvertisingSourceAdmin
         arguments:
             - ~
             - Realtor\DictionaryBundle\Entity\AdvertisingSource
             - SonataAdminBundle:CRUD
+            - [setSecurityContext, [@security.context]]
         tags:
             - {name: sonata.admin, manager_type: orm, group: "Справочники", label: "Источники рекламы"}
 
@@ -34,7 +32,7 @@ services:
         tags:
             - {name: sonata.admin, manager_type: orm, group: "Справочники", label: "Причина обращения"}
 
-    admin.admin.call_result:
+    admin.admin.call.result:
         class: Realtor\AdminBundle\Admin\CallResultAdmin
         arguments:
             - ~
@@ -66,7 +64,7 @@ services:
         tags:
             - {name: sonata.block}
 
-    admin.admin.black_list:
+    admin.admin.black.list:
         class: Realtor\AdminBundle\Admin\BlackListAdmin
         arguments:
             - ~
@@ -84,5 +82,6 @@ services:
         calls:
             - [ setSecurityContext, [@security.context]]
             - [ setTemplate, [list, SonataAdminBundle:Core:list.html.twig]]
+            - [ setTemplate, [edit, SonataAdminBundle:Core:edit.html.twig]]
         tags:
             - { name: sonata.admin, manager_type: orm, group: "График дежурств", label: "График дежурств" }

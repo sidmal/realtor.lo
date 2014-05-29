@@ -9,6 +9,7 @@
 
             $.ajax({
                 type: "post",
+                async: false,
                 url: "{{ path('branches_get_all_ajax') }}",
                 success: function(response){
                     $.each(response, function(i, item){
@@ -34,6 +35,7 @@
 
                 $.ajax({
                     type: "post",
+                    async: false,
                     url: "{{ path('user_get_manager_by_branch_ajax') }}",
                     data: { branch_id: $(this).find("option:selected").val() },
                     success: function(response){
@@ -69,6 +71,7 @@
 
                 $.ajax({
                     type: "post",
+                    async: false,
                     url: "{{ path('user_get_agent_by_manager_ajax') }}",
                     data: { manager_id: $(this).find("option:selected").val() },
                     success: function(response){
@@ -94,6 +97,11 @@
 
             {% if app.security.token and is_granted('ROLE_APP_MANAGER') %}
                 $("select[id$='_branchId']").val({{ app.user.branch.id }}).change();
+                $("select[id$='_manager']").val({{ app.user.id }}).change();
+
+                {% if object.userId %}
+                    $("select[id$='_userId']").val({{ object.userId.id }}).change();
+                {% endif %}
             {% endif %}
 
         });
