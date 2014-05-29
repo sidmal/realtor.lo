@@ -22,14 +22,14 @@ class CallCardTest extends WebTestCase
 
         $call = new Call();
         $call->setLinkedId($uniqueId)->setInternalId($uniqueId)->setAtsCallId($uniqueId)
-            ->setType(1)->setFromPhone('9219251983')->setToPhone('204')->setCallAction('connect-exten')
+            ->setType(1)->setFromPhone('9219251983')->setToPhone('205')->setCallAction('connect-exten')
             ->setEventAt(new \DateTime());
 
         $em->persist($call);
 
         $call = new Call();
         $call->setLinkedId($uniqueId)->setInternalId($uniqueId)->setAtsCallId($uniqueId)
-            ->setType(1)->setFromPhone('9219251983')->setToPhone('204')->setCallAction('')
+            ->setType(1)->setFromPhone('9219251983')->setToPhone('205')->setCallAction('')
             ->setEventAt(new \DateTime());
 
         $em->persist($call);
@@ -46,7 +46,7 @@ class CallCardTest extends WebTestCase
 
         $call = new Call();
         $call->setLinkedId($uniqueId)->setInternalId($uniqueId)->setAtsCallId($uniqueId)
-            ->setType(1)->setFromPhone('9219251983')->setToPhone('203')->setCallAction('dial-exten')
+            ->setType(1)->setFromPhone('9219251983')->setToPhone('205')->setCallAction('dial-exten')
             ->setEventAt(new \DateTime());
 
         $em->persist($call);
@@ -62,8 +62,8 @@ class CallCardTest extends WebTestCase
 
         $call = new Call();
         $call->setLinkedId($uniqueId)->setInternalId($uniqueId)->setAtsCallId($uniqueId)
-            ->setType(1)->setFromPhone('205')->setToPhone('000')->setCallAction('pincode')
-            ->setEventAt(new \DateTime())->setAccessCode('7318');
+            ->setType(1)->setFromPhone('202')->setToPhone('000')->setCallAction('pincode')
+            ->setEventAt(new \DateTime())->setAccessCode('0100');
 
         $em->persist($call);
         $em->flush();

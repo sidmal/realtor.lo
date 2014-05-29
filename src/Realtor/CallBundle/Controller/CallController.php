@@ -119,8 +119,17 @@ class CallController extends Controller
             $params = $request->get('CallCard');
 
             if($this->container->get('kernel')->getEnvironment() != 'dev'){
+                $criteria = [
+                    'linkedId' => $params['linked-id'],
+                    'callAction' => 'dial-exten'
+                ];
+
+                if(preg_match('/^\d+$/', $params['caller-phone'])){
+                    $criteria['toPhone'] = $params['caller-phone'];
+                }
+
                 $dial = $this->getDoctrine()->getManager()->getRepository('CallBundle:Call')
-                    ->findOneBy(['linkedId' => $params['linked-id'], 'callAction' => 'dial-exten']);
+                    ->findOneBy($criteria);
             }
             else{
                 $dial = new Call();
