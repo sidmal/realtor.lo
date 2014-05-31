@@ -86,7 +86,7 @@
                                     service_function('dnd', 0);
                                 }
                                 break;
-                            case 'TNF':
+                            case 'FWD':
                                 if($(this).attr("disabled") && $(this).attr("disabled") == "disabled"){
                                     return true;
                                 }
@@ -264,7 +264,7 @@
                 </a>
                 <a class="btn sonata-action-element" {% if app.user.phone is empty %} disabled="disabled" {% endif %}>
                     <p>
-                        <span class="action" id="tnf">TNF</span>
+                        <span class="action" id="tnf">FWD</span>
                     </p>
                 </a>
             </div>
