@@ -12,6 +12,7 @@ use Guzzle\Http\Exception\RequestException;
 use Psr\Log\LoggerInterface;
 use Realtor\CallBundle\Exceptions\CallException;
 use Realtor\DictionaryBundle\Model\HttpClient;
+use Symfony\Component\HttpFoundation\Response;
 
 class CallManager
 {
@@ -110,6 +111,10 @@ class CallManager
 
             $result = true;
 
+            if($response->getStatusCode() != Response::HTTP_OK){
+                return false;
+            }
+
             if($response->hasHeader('Result')){
                 if((integer)$response->getHeader('Result') == 0){
                     $result = false;
@@ -131,7 +136,7 @@ class CallManager
             'request' => $postData,
             'response' => isset($response) ?
                 [
-                    'headers' => $response->getHeaders(),
+                    'headers' => $response->getHeaders()->toArray(),
                     'body' => $response->getBody(true)
                 ]
                 : $e->getMessage()
