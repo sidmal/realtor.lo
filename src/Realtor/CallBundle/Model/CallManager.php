@@ -116,7 +116,7 @@ class CallManager
             }
 
             if($response->hasHeader('Result')){
-                print_r($response->getHeader('Result'));
+                print_r($response->getHeader('Result')->toArray());
                 if((integer)$response->getHeader('Result') == 0){
                     $result = false;
                 }
