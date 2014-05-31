@@ -116,7 +116,7 @@ class CallManager
             }
 
             if($response->hasHeader('Result')){
-                if((integer)$response->getHeader('Result') == 0){
+                if((integer)$response->getHeader('Result')[0] == 0){
                     $result = false;
                 }
                 else{
