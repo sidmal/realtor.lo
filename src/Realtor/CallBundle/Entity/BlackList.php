@@ -62,7 +62,7 @@ class BlackList
     /**
      * @var
      *
-     * @ORM\Column(name="is_verify", type="boolean", nullable=true)
+     * @ORM\Column(name="is_verify", type="boolean")
      */
     private $isVerify = false;
 
