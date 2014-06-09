@@ -60,3 +60,7 @@ redirect:
 duty_crud:
     resource: '@ApplicationSonataUserBundle/Controller/DutyCRUDController.php'
     type: annotation
+
+black_list_crud:
+    resource: '@AdminBundle/Controller/BlackListCRUDController.php'
+    type: annotation

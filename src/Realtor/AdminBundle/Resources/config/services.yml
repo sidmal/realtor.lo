@@ -69,7 +69,7 @@ services:
         arguments:
             - ~
             - Realtor\CallBundle\Entity\BlackList
-            - SonataAdminBundle:CRUD
+            - AdminBundle:BlackListCRUD
         tags:
             - { name: sonata.admin, manager_type: orm, group: "Черный список", label: "Черный список"}
 

@@ -9,6 +9,7 @@
 namespace Realtor\DictionaryBundle\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -35,9 +36,9 @@ class UserController extends Controller
 
         $userManager = $this->container->get('manager.user');
 
-        if($this->container->get('kernel')->getEnvironment() == 'dev'){
+        /*if($this->container->get('kernel')->getEnvironment() == 'dev'){
             $userId = 233963;
-        }
+        }*/
 
         $user = $userManager->loadUserById($userId);
 
@@ -120,5 +121,41 @@ class UserController extends Controller
         }
 
         return new Response(json_encode($response));
+    }
+
+    /**
+     * @param Request $request
+     * @return JsonResponse
+     *
+     * @Route("/user/get/by/name/ajax", name="user_get_by_name_ajax")
+     * @Method({"GET"})
+     */
+    public function getUserByNameAction(Request $request)
+    {
+        $response = new JsonResponse();
+
+        if(!$request->isXmlHttpRequest()){
+            return $response->setStatusCode(Response::HTTP_BAD_REQUEST);
+        }
+
+        if(!$request->query->has('term') || !$userName = $request->query->get('term')){
+            return $response->setStatusCode(Response::HTTP_BAD_REQUEST);
+        }
+
+        $users = $this->getDoctrine()->getManager()->getRepository('ApplicationSonataUserBundle:User')
+            ->getUserByName($userName);
+
+        $responseData = [];
+        foreach($users as $user){
+            $responseData[] = [
+                'id' => $user->getId(),
+                'branch_name' => $user->getBranch()->getName(),
+                'name' => $user->getFio(),
+                'phone' => $user->getPhone(),
+                'office_phone' => $user->getOfficePhone()
+            ];
+        }
+
+        return $response->setData($responseData);
     }
 } 

@@ -548,4 +548,14 @@ class User extends BaseUser
     {
         return in_array('ROLE_APP_ADMINISTRATOR', $this->getRoles());
     }
+
+    public function isDirector()
+    {
+        return in_array('ROLE_APP_OFFICE_DIRECTOR', $this->getRoles());
+    }
+
+    public function isManager()
+    {
+        return in_array('ROLE_APP_MANAGER', $this->getRoles());
+    }
 }

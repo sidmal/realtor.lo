@@ -85,6 +85,10 @@ class CallController extends Controller
                     ->setCallAction($action)
                     ->setEventAt(new \DateTime());
 
+                if($request->get('action') == 'call_cancel'){
+                    $call->setCallResult($this->getDoctrine()->getManager()->getRepository('DictionaryBundle:CallResult')->find($request->get('call_result')));
+                }
+
                 $this->getDoctrine()->getManager()->persist($call);
                 $this->getDoctrine()->getManager()->flush();
             }
@@ -150,10 +154,6 @@ class CallController extends Controller
                         ->setDialId($dial->getAtsCallId());
                     $em->persist($blackList);
 
-                    if(!$callManager->blackList($dial->getLinkedId(), 1)){
-                        $response->setStatusCode(403);
-                    }
-
                     $action = 'bl';
                     break;
                 case 'office-random-phone-forward': //Случайный вызов
@@ -181,6 +181,23 @@ class CallController extends Controller
                     if(!$callManager->bxfer($dial->getAtsCallId(), 'A', $action)){
                         $response->setStatusCode(403);
                     }
+                    break;
+                case 'user-add-phone':
+                case 'user-replace-phone':
+                    $action = $params['action'];
+
+                    $user = $this->getDoctrine()->getManager()->getRepository('ApplicationSonataUserBundle:User')->find($params['user-id']);
+
+                    if($params['action'] == 'user-replace-phone'){
+                        $user->setPhone($params['user-call-phone']);
+                    }
+                    else{
+                        $userPhone = $user->getPhone();
+                        $user->setPhone($userPhone.', '.$params['user-call-phone']);
+                    }
+
+                    $this->getDoctrine()->getManager()->persist($user);
+
                     break;
                 default:
                     $action = 'bxfer';

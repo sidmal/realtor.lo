@@ -1,5 +1,5 @@
 {% if admin.hasRoute('print') %}
-    {% if admin.isGranted('ROLE_APP_OFFICE_DIRECTOR') or admin.isGranted('ROLE_APP_ADMINISTRATOR') or admin.isGranted('ROLE_APP_MANAGER') %}
+    {% if app.user.isAdministrator() or app.user.isDirector() or app.user.isManager() %}
         <a class="btn btn-sm" href="{{ admin.generateUrl('print') }}" target="_blank">
             <i class="icon-print"></i>
             Печать

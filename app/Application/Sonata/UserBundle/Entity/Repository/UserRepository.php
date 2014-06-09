@@ -76,4 +76,29 @@ class UserRepository extends EntityRepository
 
         return $result;
     }
+
+    public function getUserByName($userName)
+    {
+        $builder = $this->getEntityManager()->createQueryBuilder()
+            ->select('user')
+            ->from('ApplicationSonataUserBundle:User', 'user')
+        ;
+
+        $builder->where(
+            $builder->expr()->like(
+                $builder->expr()->lower('user.fio'),
+                $builder->expr()->lower(':userName')
+            )
+        )->setParameter('userName', '%'.$userName.'%');
+
+        try{
+            $result = $builder->getQuery()->getResult();
+        }
+        catch(NoResultException $e){
+            $result = null;
+        }
+
+        return $result;
+
+    }
 }

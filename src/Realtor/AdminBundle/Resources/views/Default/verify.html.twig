@@ -1,0 +1,32 @@
+{% if admin.hasRoute('verify') and object.isVerify == false %}
+    {% if app.user.isAdministrator() or app.user.isDirector() %}
+        <script type="text/javascript">
+            function verify(){
+                $.ajax({
+                    type: "post",
+                    async: false,
+                    url: "{{ admin.generateObjectUrl('verify', object) }}",
+                    success: function(response){
+                        location.reload();
+                    },
+                    statusCode: {
+                        400: function(){
+                            alert("Верификация номера не удалась в связи с технической ошибкой.");
+                        },
+                        403: function(){
+                            alert("Верификация номера не удалась в связи с ошибкой на АТС.");
+                        },
+                        405: function(){
+                            alert("Верификация номера не удалась. Не санкционированный доступ к функционалу.");
+                        }
+                    },
+                    dataType: 'json'
+                });
+            }
+        </script>
+
+        <a class="btn btn-small" href="#" title="Подтвердить" onclick="verify();">
+            <i class="icon-ok"></i>
+        </a>
+    {% endif %}
+{% endif %}

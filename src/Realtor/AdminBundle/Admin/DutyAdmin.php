@@ -40,25 +40,23 @@ class DutyAdmin extends Admin
             )
             ->add(
                 'manager',
-                'doctrine_orm_string',
+                null,
                 [
-                    'label' => 'Дежурный менеджер'
+                    'label' => 'Дежурный менеджер',
                 ],
-                'choice',
+                null,
                 [
                     'empty_value' => 'Выберите дежурного менеджера',
-                    'choices' => []
                 ]
             )
             ->add(
                 'userId',
-                'doctrine_orm_string',
+                null,
                 [
                     'label' => 'Дежурный агент'
                 ],
-                'choice',
+                null,
                 [
-                    'choices' => [],
                     'empty_value' => 'Выберите дежурного агента'
                 ]
             )
@@ -155,14 +153,22 @@ class DutyAdmin extends Admin
             $hours[] = $index;
         }
 
-        $dutyStartDate = new \DateTime();
-        if($dutyStartDate->format('H') < $this->getConfigurationPool()->getContainer()->getParameter('duty.min.hour')
-            || $dutyStartDate->format('H') > $this->getConfigurationPool()->getContainer()->getParameter('duty.max.hour')
-            || ($dutyStartDate->format('H') + $this->getConfigurationPool()->getContainer()->getParameter('duty.delta.hour')) >= $this->getConfigurationPool()->getContainer()->getParameter('duty.max.hour')){
-            $dutyStartDate->setTime($this->getConfigurationPool()->getContainer()->getParameter('duty.min.hour'), 0);
-        }
+        if(!$this->getSubject()->getId()){
+            $dutyStartDate = new \DateTime();
+            $dutyStartDate->modify('+1 month');
 
-        $dutyEndDate = \DateTime::createFromFormat('Y-m-d H:i:s', $dutyStartDate->format('Y-m-d').' '.($dutyStartDate->format('H') + $this->getConfigurationPool()->getContainer()->getParameter('duty.delta.hour')).':00:00');
+            if($dutyStartDate->format('H') < $this->getConfigurationPool()->getContainer()->getParameter('duty.min.hour')
+                || $dutyStartDate->format('H') > $this->getConfigurationPool()->getContainer()->getParameter('duty.max.hour')
+                || ($dutyStartDate->format('H') + $this->getConfigurationPool()->getContainer()->getParameter('duty.delta.hour')) >= $this->getConfigurationPool()->getContainer()->getParameter('duty.max.hour')){
+                $dutyStartDate->setTime($this->getConfigurationPool()->getContainer()->getParameter('duty.min.hour'), 0);
+            }
+
+            $dutyEndDate = \DateTime::createFromFormat('Y-m-d H:i:s', $dutyStartDate->format('Y-m-d').' '.($dutyStartDate->format('H') + $this->getConfigurationPool()->getContainer()->getParameter('duty.delta.hour')).':00:00');
+        }
+        else{
+            $dutyStartDate = $this->getSubject()->getDutyStartAt();
+            $dutyEndDate = $this->getSubject()->getDutyEndAt();
+        }
 
         $formMapper
             ->add(
@@ -176,7 +182,7 @@ class DutyAdmin extends Admin
             )
             ->add(
                 'manager',
-                'entity',
+                null,
                 [
                     'label' => 'Дежурный менеджер',
                     'required' => true,
@@ -222,6 +228,17 @@ class DutyAdmin extends Admin
                     'data' => $dutyEndDate,
                     'with_minutes' => false,
                     'hours' => $hours
+                ]
+            )
+            ->add(
+                'duty_delta_hour',
+                'hidden',
+                [
+                    'mapped' => false,
+                    'data' => $this->getConfigurationPool()->getContainer()->getParameter('duty.delta.hour'),
+                    'attr' => [
+                        'hidden' => true
+                    ]
                 ]
             )
         ;

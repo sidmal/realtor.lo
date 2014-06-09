@@ -19,22 +19,29 @@
 
         function call_cancel()
         {
+            if(!$("#call-result").find("option:selected").val()){
+                alert("Укажите результат разговора."); return;
+            }
+
             var linked_id = $("#linked-id").val();
 
             if(linked_id){
                 $.ajax({
                     type: "post",
                     url: "{{ path('call_outcome_ajax') }}",
-                    data: { action: "call_cancel", receiver: "hang", linked_id: linked_id }
+                    data: { action: "call_cancel", receiver: "hang", linked_id: linked_id, call_result: $("#call-result").find("option:selected").val() }
                 });
             }
+
+            $("#call-result-modal").modal("hide");
         }
 
         $("body").on("click", "#phone-type .btn-group button", function(){
             $("#call-card-buttons").html("");
             $('#call-type, #black-list-call-type').val($(this).val());
 
-            var button_block = "<button class=\"btn btn-small btn-warning pull-right\" id=\"add-to-black-list-button\" type=\"button\" onclick=\"$('#add-to-black-list').modal({keyboard: false});\">Занести в черный список</button>";
+            var button_block = "<button class=\"btn btn-small btn-warning pull-right\" id=\"add-to-black-list-button\" type=\"button\" onclick=\"$('#add-to-black-list').modal({keyboard: false});\">Занести в черный список</button>"
+                /*+ "<button class=\"btn btn-small btn-primary pull-left\" id=\"add-call-result\" type=\"button\" onclick=\"$('#call-card').modal('hide'); $('#call-result-modal').modal({keyboard: false});\">Добавить результат разговора</button>"*/;
 
             {% if app.user.isOperator == false %}
                 button_block += "<button class=\"btn btn-small btn-success pull-left\" id=\"forward-to-call-center\" type=\"button\" onclick=\"forward_to_call_center()\">перевести в колл-центр</button>";
@@ -52,6 +59,13 @@
 
                     $(".required-buttons").html("").append(button_block);
                     $("#call-card-content").find("#container").html("").append("{% filter escape('js') %}{% include '@Call/Default/call_card_type_2.html.twig' %}{% endfilter %}");
+                    $("#call-card-content").show("slow");
+                    break;
+                case 2:
+                    button_block += "<input type=\"button\" class=\"btn btn-small btn-success pull-left\" id=\"forward-call-to-other-employer\" name=\"CallCard[forward-call-to-other-employer]\" value=\"Перевести звонок на другого сотрудника\" onclick=\"$('#forward-to-receiver-container').show();\">";
+
+                    $(".required-buttons").html("").append(button_block);
+                    $("#call-card-content").find("#container").html("").append("{% filter escape('js') %}{% include '@Call/Default/call_card_type_3.html.twig' %}{% endfilter %}")
                     $("#call-card-content").show("slow");
                     break;
                 default:
@@ -88,9 +102,9 @@
             });
 
             {% if app.user.getOfficePhone is not empty or app.user.getUserDutyPhone is not null %}
-                call_event_listener();
+                call_event_listener(false);
 
-                function call_event_listener(){
+                function call_event_listener(stop){
                     var user_phone = ["{{ app.user.getOfficePhone}}"];
 
                     {% if app.user.getUserDutyPhone is not null %}
@@ -166,11 +180,17 @@
                             }
                         },
                         complete: function(){
-                            var event_listener = setTimeout(call_event_listener, {{ settings.period * 1000 }});
+                            if(!stop){
+                                var event_listener = setTimeout(call_event_listener(false), {{ settings.period * 1000 }});
+                            }
                         },
                         dataType: 'json'
                     });
                 }
+
+                $("#call-result-modal").on("show", function(){
+                    call_event_listener(true);
+                });
             {% endif %}
         });
     </script>
@@ -185,11 +205,13 @@
 
     {% include '@SonataAdmin/Core/add_to_black_list.html.twig' %}
 
+    {% include '@SonataAdmin/Core/call_result_modal.html.twig' %}
+
     <form id="call-card-form">
 
         <div id="call-card" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="call_card" aria-hidden="true" style="width: 900px; margin-left: -450px;">
             <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true" onclick="call_cancel()">×</button>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true" onclick="$('#call-result-modal').modal({'keyboard': false, 'backdrop': 'static'});">×</button>
                 <h3 id="call-card-label">
                     <strong>
                         Номер телефона звонящего: <span id="caller-phone"></span>
@@ -200,6 +222,7 @@
                     <div class="btn-group">
                         <button class="btn btn-small btn-success" type="button" value="0">Клиент знает объект</button>
                         <button class="btn btn-small btn-success" type="button" value="1">Клиент не знает чего хочет</button>
+                        <button class="btn btn-small btn-success" type="button" value="2">Звонок сотрудника</button>
                     </div>
                 </div>
             </div>
@@ -214,6 +237,7 @@
             <input type="hidden" name="CallCard[call-to-phone]" id="call-to-phone" value="" />
 
             <input type="hidden" name="CallCard[branch-to-call]" id="branch-to-call" value="" />
+            <input type="hidden" name="CallCard[call-result]" id="call-card-call-result" value="" />
 
             <div class="modal-body" id="call-card-content" style="display: none;">
                 <div class="span12 required-buttons"></div>

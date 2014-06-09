@@ -90,6 +90,14 @@ class Call
     private $createdAt;
 
     /**
+     * @var
+     *
+     * @ORM\ManyToOne(targetEntity="Realtor\DictionaryBundle\Entity\CallResult")
+     * @ORM\JoinColumn(name="call_result_id", referencedColumnName="id", nullable=true)
+     */
+    private $callResult;
+
+    /**
      * @var string
      *
      * @ORM\Column(name="access_code", type="string", length=10, nullable=true)
@@ -373,5 +381,28 @@ class Call
     public function getAccessCode()
     {
         return $this->access_code;
+    }
+
+    /**
+     * Set callResult
+     *
+     * @param \Realtor\DictionaryBundle\Entity\CallResult $callResult
+     * @return Call
+     */
+    public function setCallResult(\Realtor\DictionaryBundle\Entity\CallResult $callResult = null)
+    {
+        $this->callResult = $callResult;
+
+        return $this;
+    }
+
+    /**
+     * Get callResult
+     *
+     * @return \Realtor\DictionaryBundle\Entity\CallResult 
+     */
+    public function getCallResult()
+    {
+        return $this->callResult;
     }
 }

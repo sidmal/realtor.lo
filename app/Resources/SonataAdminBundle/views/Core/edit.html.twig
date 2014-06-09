@@ -95,7 +95,7 @@
                 });
             });
 
-            {% if app.security.token and is_granted('ROLE_APP_MANAGER') %}
+            {% if app.security.token and app.user.isManager() %}
                 $("select[id$='_branchId']").val({{ app.user.branch.id }}).change();
                 $("select[id$='_manager']").val({{ app.user.id }}).change();
 
@@ -104,6 +104,23 @@
                 {% endif %}
             {% endif %}
 
+            $("select[id$='_dutyStartAt_date_day']").change(function(){
+                $("select[id$='_dutyEndAt_date_day']").val($(this).find("option:selected").val()).change();
+            });
+
+            $("select[id$='_dutyStartAt_date_month']").change(function(){
+                $("select[id$='_dutyEndAt_date_month']").val($(this).find("option:selected").val()).change();
+            });
+
+            $("select[id$='_dutyStartAt_date_year']").change(function(){
+                $("select[id$='_dutyEndAt_date_year']").val($(this).find("option:selected").val()).change();
+            });
+
+            $("select[id$='_dutyStartAt_time_hour']").change(function(){
+                var hour_end = parseInt($(this).find("option:selected").val()) + parseInt($("input[id$='_duty_delta_hour']").val());
+
+                $("select[id$='_dutyEndAt_time_hour']").val(hour_end).change();
+            });
         });
     </script>
 {% endblock %}

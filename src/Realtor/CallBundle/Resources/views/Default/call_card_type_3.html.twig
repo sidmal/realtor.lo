@@ -1,0 +1,123 @@
+<script type="text/javascript">
+    $("#forward-call-to-other-employer").click(function(){
+        $("#call-card-buttons").html("")
+    });
+
+    $(function() {
+        $("#caller-name").autocomplete({
+            delay: 0,
+            minLength: 2,
+            source: function(request, response){
+                var object = [];
+
+                $.getJSON("{{ path('user_get_by_name_ajax') }}", request, function(data, status, xhr){
+                    $.each(data, function(i, item){
+                        var user_href = "{{ path('admin_sonata_user_user_show', {'id': 'user_href'}) }}";
+                        user_href = user_href.replace("user_href", item.id);
+
+                        object.push(
+                            {
+                                value: item.name + " (" + item.branch_name + ")",
+                                label: item.name + " (" + item.branch_name + ")",
+                                user_id: item.id,
+                                href: user_href
+                            }
+                        );
+                    });
+
+                    response(object);
+                });
+            },
+            select: function(event, ui){
+                var button_block = "<input type=\"submit\" class=\"btn btn-small btn-success\" id=\"user-add-phone\" name=\"CallCard[user-add-phone]\" value=\"Добавить телефон\" onclick=\"$('#action').val($(this).attr('id'));\" />"
+                    + "<input type=\"submit\" class=\"btn btn-small btn-success\" id=\"user-replace-phone\" name=\"CallCard[user-replace-phone]\" value=\"Заменить телефон\" onclick=\"$('#action').val($(this).attr('id'));\" />";
+
+                event.preventDefault(); $(this).val(ui.item.label);
+
+                $("#user-href").attr("href", ui.item.href);
+
+                if($("#forward-to-receiver-container").css("display") == "none"){
+                    $("#user-id").val(ui.item.user_id);
+                    $("#user-call-phone").val($("#caller-phone").html());
+                    $("#call-card-buttons").html("").append("<div class=\"btn-group\">" + button_block + "</div>");
+                }
+
+            }
+        });
+    });
+
+    $(function() {
+        $("#forward-to-receiver").autocomplete({
+            delay: 0,
+            minLength: 2,
+            source: function(request, response){
+                var object = [];
+
+                $.getJSON("{{ path('user_get_by_name_ajax') }}", request, function(data, status, xhr){
+                    $.each(data, function(i, item){
+                        var user_href = "{{ path('admin_sonata_user_user_show', {'id': 'user_href'}) }}";
+                        user_href = user_href.replace("user_href", item.id);
+
+                        object.push(
+                                {
+                                    value: item.name + " (" + item.branch_name + ")",
+                                    label: item.name + " (" + item.branch_name + ")",
+                                    user_id: item.id,
+                                    href: user_href,
+                                    phone: item.phone,
+                                    office_phone: item.office_phone
+                                }
+                        );
+                    });
+
+                    response(object);
+                });
+            },
+            select: function(event, ui){
+                var button_block = "<input type=\"submit\" class=\"btn btn-small btn-success\" id=\"agent-cell-forward\" name=\"CallCard[agent-cell-forward]\" value=\"Перевести на сотовый агента\" onclick=\"$('#action').val($(this).attr('id')); $('#call-to-phone').val(" + ui.item.phone + ");\" />";
+                        + "<input type=\"submit\" class=\"btn btn-small btn-success\" id=\"agent-office-forward\" name=\"CallCard[agent-office-forward]\" value=\"Перевести на рабочий телефон агента\" onclick=\"$('#action').val($(this).attr('id')); $('#call-to-phone').val(" + ui.item.office_phone + ");\" />";
+
+                event.preventDefault(); $(this).val(ui.item.label);
+
+                $("#user-href").attr("href", ui.item.href);
+
+                $("#call-card-buttons").html("").append("<div class=\"btn-group\">" + button_block + "</div>");
+
+            }
+        });
+    });
+</script>
+
+<div>
+    <div class="span6">
+        <div class="control-group">
+            <label class="control-label required" for="caller-name">Имя звонящего сотрудника:</label>
+            <div class="input-append">
+                <input type="text" id="caller-name" name="CallCard[caller-name]" required="required" class="span10" placeholder="Имя сотрудника" autocomplete="off" />
+                <span class="add-on"><i class="icon-search"></i></span>
+                <a href="" target="_blank" id="user-href" class="btn view_link btn" title="Показать">
+                    <i class="icon-eye-open"></i>
+                </a>
+            </div>
+
+            <input type="hidden" name="CallCard[user-id]" id="user-id" value="" />
+            <input type="hidden" name="CallCard[user-call-phone]" id="user-call-phone" value="" />
+        </div>
+
+        <div class="control-group" style="display: none;" id="forward-to-receiver-container">
+            <label class="control-label required" for="forward-to-receiver">На кого перевести:</label>
+            <div class="input-append">
+                <input type="text" id="forward-to-receiver" name="CallCard[forward-to-receiver]" class="span10" placeholder="На кого перевести" autocomplete="off" />
+                <span class="add-on"><i class="icon-search"></i></span>
+                <a href="" target="_blank" id="user-href" class="btn view_link btn" title="Показать">
+                    <i class="icon-eye-open"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="span6">
+        <label class="control-label required" for="message">Сообщение:</label>
+        <textarea class="input-xlarge span14" id="message" name="CallCard[message]" rows="10" required="required"></textarea>
+    </div>
+</div>

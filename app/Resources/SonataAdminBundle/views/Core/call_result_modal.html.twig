@@ -1,0 +1,32 @@
+<script type="text/javascript">
+    $(document).ready(function(){
+        $("#call-result").change(function(){
+            $("#call-card-call-result").val($(this).find("option:selected").val());
+        });
+    });
+</script>
+
+<div id="call-result-modal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="call_result_modal" aria-hidden="true">
+    <div class="modal-header">
+        <h3>
+            <strong>
+                Результат разговора
+            </strong>
+        </h3>
+    </div>
+
+    <div class="modal-body">
+        <div class="control-group">
+            <label class="control-label required" for="call-result">Результат разговора:</label>
+            <select name="call-result" id="call-result" required="required" class="span12" style="margin-bottom: 15px;">
+                {% for item in call_result %}
+                    <option value="{{ item.id }}">{{ item.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+
+    <div class="modal-footer">
+        <input type="button" class="btn btn-small btn-success" id="add-to-black-list-submit" value="Добавить" onclick="call_cancel();" />
+    </div>
+</div>

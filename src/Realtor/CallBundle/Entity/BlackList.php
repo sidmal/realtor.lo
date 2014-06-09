@@ -60,6 +60,13 @@ class BlackList
     private $dialId;
 
     /**
+     * @var
+     *
+     * @ORM\Column(name="is_verify", type="boolean", nullable=true)
+     */
+    private $isVerify = false;
+
+    /**
      * @ORM\PrePersist
      */
     public function setDateValue()
@@ -195,5 +202,28 @@ class BlackList
     public function __toString()
     {
         return (string)$this->getPhone();
+    }
+
+    /**
+     * Set isVerify
+     *
+     * @param boolean $isVerify
+     * @return BlackList
+     */
+    public function setIsVerify($isVerify)
+    {
+        $this->isVerify = $isVerify;
+
+        return $this;
+    }
+
+    /**
+     * Get isVerify
+     *
+     * @return boolean 
+     */
+    public function getIsVerify()
+    {
+        return $this->isVerify;
     }
 }

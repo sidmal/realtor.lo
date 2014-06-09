@@ -14,6 +14,7 @@ class BlackListAdmin extends Admin
     protected function configureRoutes(RouteCollection $collection)
     {
         $collection->remove('create');
+        $collection->add('verify', $this->getRouterIdParameter().'/verify');
     }
 
     /**
@@ -48,6 +49,7 @@ class BlackListAdmin extends Admin
     {
         $listMapper
             ->add('id', null, ['label' => 'Идентификатор'])
+            ->add('isVerify', null, ['label' => 'Добавление подтверждено'])
             ->add('userId', null, ['label' => 'Добавил'])
             ->add('phone', null, ['label' => 'Номер телефона'])
             ->add('reason', null, ['label' => 'Причина'])
@@ -59,6 +61,7 @@ class BlackListAdmin extends Admin
                     'actions' => [
                         'show' => ['template' => 'AdminBundle:Default:show.html.twig'],
                         'delete' => ['template' => 'AdminBundle:Default:delete.html.twig'],
+                        'verify' => ['template' => 'AdminBundle:Default:verify.html.twig'],
                     ]
                 ]
             )
