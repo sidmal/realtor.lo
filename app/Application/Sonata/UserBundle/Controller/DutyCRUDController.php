@@ -20,15 +20,15 @@ class DutyCRUDController extends CRUDController
      */
     public function printAction()
     {
-        $securityContext = $this->container->get('security.context');
+        $user = $this->getUser();
         $redirectResponse = new RedirectResponse($this->generateUrl('admin_sonata_user_duty_list'));
 
         $dutyRepository = $this->getDoctrine()->getManager()->getRepository('ApplicationSonataUserBundle:Duty');
 
-        if($securityContext->isGranted('ROLE_APP_MANAGER')){
+        if($user->isManager()){
             $dutyList = $dutyRepository->getDuty($this->getUser()->getId());
         }
-        elseif($securityContext->isGranted('ROLE_APP_OFFICE_DIRECTOR') || $securityContext->isGranted('ROLE_APP_ADMINISTRATOR')){
+        elseif($user->isDirector() || $user->isAdministrator()){
             $dutyList = $dutyRepository->getDuty();
         }
         else{
