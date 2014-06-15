@@ -10,6 +10,10 @@
 </style>
 
 <script type="text/javascript">
+    $(document).ready(function(){
+        $("#who-call").select2();
+    });
+
     var branch_show_url = "{{ path("admin_realtor_dictionary_branches_show", {"id":"branch_id"}) }}";
 
     ymaps.ready(init);

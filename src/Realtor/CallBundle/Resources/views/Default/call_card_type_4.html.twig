@@ -1,4 +1,8 @@
 <script type="text/javascript">
+    $(document).ready(function(){
+        $("#who-call").select2();
+    });
+
     $("#forward-call-to-other-employer").click(function(){
         $("#call-card-buttons").html("")
     });
@@ -171,19 +175,21 @@
 
 <div>
     <div class="span6">
-
-        <input type="hidden" id="caller-name" name="CallCard[caller-name]" value="<undefined>" />
-        <input type="hidden" name="CallCard[appended-user-id]" id="appended-user-id" value="{{ app.user.Id }}" />
-
         <div class="control-group">
             <label class="control-label required" for="who-call">Кто звонит:</label>
-            <select id="who-call" name="CallCard[who-call]" required="required" class="span10">
+            <select id="who-call" name="CallCard[who-call]" required="required" class="span12">
                 <option></option>
                 {% for item in who_call_list %}
                     <option value="{{ item.id }}">{{ item.name }}</option>
                 {% endfor %}
             </select>
+
+            <input type="hidden" id="caller-name" name="CallCard[caller-name]" value="<undefined>" />
+            <input type="hidden" name="CallCard[appended-user-id]" id="appended-user-id" value="{{ app.user.Id }}" />
+
         </div>
+
+        <br />
 
         <div class="control-group" id="forward-to-receiver-container">
             <label class="control-label required" for="forward-to-receiver">Куда перевести звонок:</label>
