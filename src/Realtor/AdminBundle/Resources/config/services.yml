@@ -71,7 +71,16 @@ services:
             - Realtor\CallBundle\Entity\BlackList
             - AdminBundle:BlackListCRUD
         tags:
-            - { name: sonata.admin, manager_type: orm, group: "Черный список", label: "Черный список"}
+            - { name: sonata.admin, manager_type: orm, group: "Список", label: "Черный список"}
+
+    admin.admin.user.phones:
+        class: Realtor\AdminBundle\Admin\UserPhonesAdmin
+        arguments:
+            - ~
+            - Realtor\CallBundle\Entity\UserPhones
+            - AdminBundle:UserPhonesCRUD
+        tags:
+            - {name: sonata.admin, manager_type: orm, group: "Список", label: "Телефоны сотрудников"}
 
     admin.admin.duty:
         class: Realtor\AdminBundle\Admin\DutyAdmin
@@ -85,3 +94,12 @@ services:
             - [ setTemplate, [edit, SonataAdminBundle:Core:edit.html.twig]]
         tags:
             - { name: sonata.admin, manager_type: orm, group: "График дежурств", label: "График дежурств" }
+
+    admin.admin.callers:
+        class: Realtor\AdminBundle\Admin\CallersAdmin
+        arguments:
+            - ~
+            - Realtor\DictionaryBundle\Entity\Callers
+            - SonataAdminBundle:CRUD
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: "Справочники", label: "Вызывающие" }

@@ -34,6 +34,10 @@
                 <source>Duty List</source>
                 <target>График дежурств</target>
             </trans-unit>
+            <trans-unit id="Callers List">
+                <source>Callers List</source>
+                <target>Вызывающие</target>
+            </trans-unit>
         </body>
     </file>
 </xliff>

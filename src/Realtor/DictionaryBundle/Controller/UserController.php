@@ -152,7 +152,10 @@ class UserController extends Controller
                 'branch_name' => $user->getBranch()->getName(),
                 'name' => $user->getFio(),
                 'phone' => $user->getPhone(),
-                'office_phone' => $user->getOfficePhone()
+                'office_phone' => $user->getOfficePhone(),
+                'may_trans_to_cell_phone' => $user->getMayRedirectCall(),
+                'manager_office_phone' => $user->getHead() ? $user->getHead()->getOfficePhone() : false,
+                'branch_phone' => $user->getBranch()->getBranchPhone()
             ];
         }
 

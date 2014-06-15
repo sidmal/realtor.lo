@@ -101,4 +101,32 @@ class UserRepository extends EntityRepository
         return $result;
 
     }
+
+    public function getUserByPhone($phone)
+    {
+        $builder = $this->getEntityManager()->createQueryBuilder()
+            ->select('user')
+            ->from('ApplicationSonataUserBundle:User', 'user')
+            ->where('user.officePhone = :phone');
+
+        $builder->orWhere($builder->expr()->like('user.phone', ':like_phone'));
+
+        $builder->setParameters(
+            new ArrayCollection(
+                [
+                    new Parameter('phone', $phone),
+                    new Parameter('like_phone', '%'.$phone.'%')
+                ]
+            )
+        );
+
+        try{
+            $result = $builder->getQuery()->getResult();
+        }
+        catch(NoResultException $e){
+            $result = null;
+        }
+
+        return $result;
+    }
 }

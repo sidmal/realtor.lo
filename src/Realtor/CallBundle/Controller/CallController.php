@@ -10,7 +10,9 @@ namespace Realtor\CallBundle\Controller;
 
 use Realtor\CallBundle\Entity\BlackList;
 use Realtor\CallBundle\Entity\Call;
+use Realtor\CallBundle\Entity\CallMessages;
 use Realtor\CallBundle\Entity\CallParams;
+use Realtor\CallBundle\Entity\UserPhones;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -186,40 +188,30 @@ class CallController extends Controller
                 case 'user-replace-phone':
                     $action = $params['action'];
 
-                    $user = $this->getDoctrine()->getManager()->getRepository('ApplicationSonataUserBundle:User')->find($params['user-id']);
+                    $userPhone = new UserPhones();
 
-                    if($params['action'] == 'user-replace-phone'){
-                        $user->setPhone($params['user-call-phone']);
-                    }
-                    else{
-                        $userPhone = $user->getPhone();
-                        $user->setPhone($userPhone.', '.$params['user-call-phone']);
+                    if($action == 'user-replace-phone'){
+                        $this->getDoctrine()->getManager()->getRepository('CallBundle:UserPhones')->removePhonesByUser($params['user-id']);
                     }
 
-                    $this->getDoctrine()->getManager()->persist($user);
+                    $userPhone
+                        ->setPhone($params['user-call-phone'])
+                        ->setUserId($this->getDoctrine()->getManager()->getRepository('ApplicationSonataUserBundle:User')->find($params['user-id']))
+                        ->setAppendedUserId($this->getDoctrine()->getManager()->getRepository('ApplicationSonataUserBundle:User')->find($params['appended-user-id']))
+                        ->setPhoneAction($action)
+                        ->setDialId($dial->getAtsCallId());
+
+                    $this->getDoctrine()->getManager()->persist($userPhone);
+                    $em->flush();
 
                     break;
                 default:
                     $action = 'bxfer';
 
-                    if($this->container->get('kernel')->getEnvironment() == 'dev'){
-                        $call = new Call();
-                        $call
-                            ->setLinkedId($params['linked-id'])
-                            ->setAtsCallId($params['ats-call-id'])
-                            ->setType(1)
-                            ->setFromPhone('9219251983')
-                            ->setToPhone('202')
-                            ->setCallAction('connect-exten')
-                            ->setEventAt(new \DateTime());
+                    if(!$callManager->bxfer($dial->getAtsCallId(), 'A', $params['call-to-phone'])){
+                        $response->setStatusCode(403);
+                    }
 
-                        $em->persist($call);
-                    }
-                    else{
-                        if(!$callManager->bxfer($dial->getAtsCallId(), 'A', $params['call-to-phone'])){
-                            $response->setStatusCode(403);
-                        }
-                    }
                     break;
             }
         }
@@ -235,7 +227,13 @@ class CallController extends Controller
         $callParams->setCallType($params['call-type']);
 
         if(!empty($params['message'])){
-            $callParams->setMessage($params['message']);
+            $callMessage = new CallMessages();
+            $callMessage
+                ->setCallParamId($callParams)
+                ->setMessage($params['message']);
+            $callParams->addMessage($callMessage);
+
+            $this->getDoctrine()->getManager()->persist($callMessage);
         }
 
         if(isset($params['property']) && !empty($params['property'])){
@@ -252,6 +250,10 @@ class CallController extends Controller
 
         if(!empty($params['branch-to-call'])){
             $callParams->setBranch($em->getRepository('DictionaryBundle:Branches')->find($params['branch-to-call']));
+        }
+
+        if(!empty($params['who-call'])){
+            $callParams->setOtherWhoCall($em->getRepository('DictionaryBundle:Callers')->find($params['who-call']));
         }
 
         $initCall = null;
@@ -308,10 +310,11 @@ class CallController extends Controller
             return new Response(null, 403);
         }
 
-        $firstCall = $this->getDoctrine()->getManager()->getRepository('CallBundle:Call')->
-            findOneBy(['linkedId' => $call[0]['linkedId'], 'callAction' => 'connect-exten']);
+        $firstCall = $this->getDoctrine()->getManager()->getRepository('CallBundle:Call')->findOneBy(['linkedId' => $call[0]['linkedId'], 'callAction' => 'connect-exten']);
 
         if($firstCall){
+            $call[0]['caller_default'] = $firstCall->getFromPhone();
+
             if($firstCall->getParams()){
                 if($firstCall->getParams()->getCallerName()){
                     $call[0]['callerName'] = $firstCall->getParams()->getCallerName();
@@ -342,7 +345,21 @@ class CallController extends Controller
                 }
 
                 if($firstCall->getParams()->getMessage()){
-                    $call[0]['message'] = $firstCall->getParams()->getMessage();
+                    $allCall = $this->getDoctrine()->getManager()->getRepository('CallBundle:Call')->findAll(['linkedId' => $call[0]['linkedId']]);
+
+                    foreach($allCall as $item){
+                        if($item->getParams()){
+                            if($item->getParams()->getMessage()){
+                                foreach($item->getParams()->getMessage() as $message){
+                                    $call[0]['message'][] = $message->getMessage();
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if($firstCall->getParams()->getOtherWhoCall()){
+                    $call[0]['who_call'] = $firstCall->getParams()->getOtherWhoCall()->getId();
                 }
 
                 $call[0]['callType'] = $firstCall->getParams()->getCallType();
@@ -437,5 +454,62 @@ class CallController extends Controller
         $em->flush();
 
         return new Response();
+    }
+
+    /**
+     * @param Request $request
+     * @return JsonResponse|Response
+     *
+     * @Route("/get/user/branch/by/phone/ajax", name="get_user_branch_by_phone_ajax")
+     * @Method({"GET"})
+     */
+    public function getUserAndBranchesByPhone(Request $request)
+    {
+        $response = new JsonResponse();
+
+        if(!$request->isXmlHttpRequest()){
+            return $response->setStatusCode(Response::HTTP_FORBIDDEN);
+        }
+
+        if(!$request->query->has('term')){
+            return $response->setStatusCode(Response::HTTP_BAD_REQUEST);
+        }
+
+        $users = $this->getDoctrine()->getManager()->getRepository('ApplicationSonataUserBundle:User')->getUserByPhone($request->query->get('term'));
+
+        $responseData = [];
+
+        if($users){
+            foreach($users as $user){
+                $responseData[] = [
+                    'id' => $user->getId(),
+                    'branch_name' => $user->getBranch()->getName(),
+                    'name' => $user->getFio(),
+                    'phone' => $user->getPhone(),
+                    'office_phone' => $user->getOfficePhone(),
+                    'may_trans_to_cell_phone' => $user->getMayRedirectCall(),
+                    'manager_office_phone' => $user->getHead() ? $user->getHead()->getOfficePhone() : false,
+                    'branch_phone' => $user->getBranch()->getBranchPhone()
+                ];
+            }
+        }
+
+        $branches = $this->getDoctrine()->getManager()->getRepository('DictionaryBundle:Branches')->getBranchByPhone($request->query->get('term'));
+
+        if($branches){
+            foreach($branches as $branch){
+                $responseData[] = [
+                    'id' => $branch->getId(),
+                    'name' => $branch->getName(),
+                    'phone' => $branch->getBranchNumber()
+                ];
+            }
+        }
+
+        if(empty($responseData)){
+            return $response->setStatusCode(Response::HTTP_NOT_FOUND);
+        }
+
+        return $response->setData($responseData);
     }
 } 

@@ -65,6 +65,15 @@ class CallManager
         return $this->sendCall();
     }
 
+    public function rl($uniqueId, $enable)
+    {
+        $this->httpClient->setPostField('action', 'rl');
+        $this->httpClient->setPostField('uniqueid', $uniqueId);
+        $this->httpClient->setPostField('enable', $enable);
+
+        return $this->sendCall();
+    }
+
     public function dnd($sender, $enable)
     {
         $this->httpClient->setPostField('action', 'dnd');

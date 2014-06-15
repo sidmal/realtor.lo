@@ -64,3 +64,7 @@ duty_crud:
 black_list_crud:
     resource: '@AdminBundle/Controller/BlackListCRUDController.php'
     type: annotation
+
+user_phone_crud:
+    resource: '@AdminBundle/Controller/UserPhonesCRUDController.php'
+    type: annotation

@@ -102,9 +102,9 @@ class CallParams
     private $reason;
 
     /**
-     * @var string
+     * @var \Realtor\CallBundle\Entity\CallMessages
      *
-     * @ORM\Column(name="message", type="text", nullable=true)
+     * @ORM\OneToMany(targetEntity="Realtor\CallBundle\Entity\CallMessages", mappedBy="callParamId")
      */
     private $message;
 
@@ -115,6 +115,14 @@ class CallParams
      * @ORM\JoinColumn(name="branch_id", referencedColumnName="id", nullable=true)
      */
     private $branch;
+
+    /**
+     * @var \Realtor\DictionaryBundle\Entity\Callers
+     *
+     * @ORM\ManyToOne(targetEntity="Realtor\DictionaryBundle\Entity\Callers")
+     * @ORM\JoinColumn(name="who_call_id", referencedColumnName="id", nullable=true)
+     */
+    private $other_who_call;
 
     /**
      * Get id
@@ -242,29 +250,6 @@ class CallParams
     }
 
     /**
-     * Set message
-     *
-     * @param string $message
-     * @return CallParams
-     */
-    public function setMessage($message)
-    {
-        $this->message = $message;
-
-        return $this;
-    }
-
-    /**
-     * Get message
-     *
-     * @return string 
-     */
-    public function getMessage()
-    {
-        return $this->message;
-    }
-
-    /**
      * Set callId
      *
      * @param \Realtor\CallBundle\Entity\Call $callId
@@ -377,5 +362,68 @@ class CallParams
     public function getBranch()
     {
         return $this->branch;
+    }
+
+    /**
+     * Set other_who_call
+     *
+     * @param \Realtor\DictionaryBundle\Entity\Callers $otherWhoCall
+     * @return CallParams
+     */
+    public function setOtherWhoCall(\Realtor\DictionaryBundle\Entity\Callers $otherWhoCall = null)
+    {
+        $this->other_who_call = $otherWhoCall;
+
+        return $this;
+    }
+
+    /**
+     * Get other_who_call
+     *
+     * @return \Realtor\DictionaryBundle\Entity\Callers 
+     */
+    public function getOtherWhoCall()
+    {
+        return $this->other_who_call;
+    }
+    /**
+     * Constructor
+     */
+    public function __construct()
+    {
+        $this->message = new \Doctrine\Common\Collections\ArrayCollection();
+    }
+
+    /**
+     * Add message
+     *
+     * @param \Realtor\CallBundle\Entity\CallMessages $message
+     * @return CallParams
+     */
+    public function addMessage(\Realtor\CallBundle\Entity\CallMessages $message)
+    {
+        $this->message[] = $message;
+
+        return $this;
+    }
+
+    /**
+     * Remove message
+     *
+     * @param \Realtor\CallBundle\Entity\CallMessages $message
+     */
+    public function removeMessage(\Realtor\CallBundle\Entity\CallMessages $message)
+    {
+        $this->message->removeElement($message);
+    }
+
+    /**
+     * Get message
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getMessage()
+    {
+        return $this->message;
     }
 }

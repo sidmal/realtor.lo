@@ -13,7 +13,7 @@ use Doctrine\ORM\Mapping as ORM;
  *          "comment"="справочник филиалов"
  *      }
  * )
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="Realtor\DictionaryBundle\Entity\Repository\BranchesRepository")
  *
  * @ORM\HasLifecycleCallbacks()
  */
@@ -334,5 +334,10 @@ class Branches
         }
 
         return $result;
+    }
+
+    public function getBranchPhone()
+    {
+        return empty($this->branchNumber) ? $this->getCityPhone() : $this->getBranchNumber();
     }
 }
