@@ -25,6 +25,8 @@ class CallRepository extends EntityRepository
                     'call.id',
                     'call.linkedId',
                     'call.fromPhone',
+                    'call.toPhone',
+                    'call.createdAt',
                     'call.callAction',
                     'call.atsCallId',
                 ]
@@ -84,6 +86,39 @@ class CallRepository extends EntityRepository
 
         try{
             $result = $builder->getQuery()->getResult();
+        }
+        catch(NoResultException $e){
+            $result = null;
+        }
+
+        return $result;
+    }
+
+    public function getLastCallByCaller($caller, array $events)
+    {
+        $qb = $this->getEntityManager()->createQueryBuilder()
+            ->select('call')
+            ->from('CallBundle:Call', 'call')
+            ->leftJoin('call.params', 'call_params')
+            ->where('call.type = 1')
+            ->andWhere('call.fromPhone = :caller_phone')
+            ->orderBy('call.eventAt', 'desc');
+
+        $qb->andWhere($qb->expr()->in('call.callAction', ':events'));
+        $qb->andWhere($qb->expr()->notIn('call_params.callerName', ':not_callers_name'));
+
+        $qb->setParameters(
+            new ArrayCollection(
+                [
+                    new Parameter('caller_phone', $caller),
+                    new Parameter('events', $events),
+                    new Parameter('not_callers_name', ['', '<undefined>', 'undefined'])
+                ]
+            )
+        );
+
+        try{
+            $result = $qb->getQuery()->getResult();
         }
         catch(NoResultException $e){
             $result = null;

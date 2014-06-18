@@ -12,6 +12,7 @@ use Realtor\AdminBundle\Traits\Security;
 use Sonata\AdminBundle\Controller\CRUDController;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Response;
 
 class DutyCRUDController extends CRUDController
 {
@@ -25,21 +26,47 @@ class DutyCRUDController extends CRUDController
 
         $dutyRepository = $this->getDoctrine()->getManager()->getRepository('ApplicationSonataUserBundle:Duty');
 
+        $type = $this->get('request')->get('type');
+        if($type > 2 || $type < 0){
+            $type = 1;
+        }
+
         if($user->isManager()){
-            $dutyList = $dutyRepository->getDuty($this->getUser()->getId());
+            $dutyList = $dutyRepository->getDuty($type, $this->getUser()->getId());
         }
         elseif($user->isDirector() || $user->isAdministrator()){
-            $dutyList = $dutyRepository->getDuty();
+            $dutyList = $dutyRepository->getDuty($type);
         }
         else{
-            return $redirectResponse;
+            if(!$this->get('request')->isXmlHttpRequest()){
+                return $redirectResponse;
+            }
+            else{
+                return (new Response())->setStatusCode(Response::HTTP_BAD_REQUEST);
+            }
         }
 
         if(!$dutyList){
-            return $redirectResponse;
+            if(!$this->get('request')->isXmlHttpRequest()){
+                return $redirectResponse;
+            }
+            else{
+                return (new Response())->setStatusCode(Response::HTTP_NOT_FOUND);
+            }
+        }
+
+        if($this->get('request')->isXmlHttpRequest()){
+            return new Response();
         }
 
         $dutyMonth = new \DateTime();
+
+        if($type == 0){
+            $dutyMonth->modify('last day of -1 month');
+        }
+        elseif($type == 2){
+            $dutyMonth->modify('last day of +1 month');
+        }
 
         return $this->render(
             '@ApplicationSonataUser/CRUD/print.html.twig',

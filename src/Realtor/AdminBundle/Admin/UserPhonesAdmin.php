@@ -37,6 +37,7 @@ class UserPhonesAdmin extends Admin
         $listMapper
             ->addIdentifier('id', null, ['label' => 'Идентификатор'])
             ->add('phone', null, ['label' => 'Номер телефона'])
+            ->add('userId', null, ['label' => 'Чей номер'])
             ->add('appendedUserId', null, ['label' => 'Добавил'])
             ->add('isVerify', null, ['label' => 'Верифицирован'])
             ->add('createdAt', null, ['label' => 'Дата добавления'])
@@ -62,6 +63,7 @@ class UserPhonesAdmin extends Admin
         $showMapper
             ->add('id', null, ['label' => 'Идентификатор'])
             ->add('phone', null, ['label' => 'Номер телефона'])
+            ->add('userId', null, ['label' => 'Чей номер'])
             ->add('appendedUserId', null, ['label' => 'Добавил'])
             ->add('isVerify', null, ['label' => 'Верифицирован'])
             ->add('createdAt', null, ['label' => 'Дата добавления'])

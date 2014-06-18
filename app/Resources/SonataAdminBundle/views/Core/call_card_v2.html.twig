@@ -5,6 +5,28 @@
     <script src="http://api-maps.yandex.ru/2.1/?lang=ru_RU" type="text/javascript"></script>
 
     <script type="text/javascript">
+        var default_caller_name;
+
+        function getUserReplacedPhones(){
+            $.ajax({
+                type: "post",
+                url: "{{ path('user_get_phones_by_id') }}",
+                data: { userId: $("#user-id").val() },
+                success: function(response){
+                    var content = "<tr><th>Номер</th><th>Действие</th></tr>";
+                    $.each(response, function(i, item){
+                        content += "<tr><td>" + item.phone + "</td>" +
+                                "<td><button class=\"btn btn-mini btn-danger\" type=\"button\">Земенить номер</button></td></tr>"
+                    });
+
+                    alert(content);
+                    $("#user-phones-replace").find("table").html(content);
+                    $("#user-phones-replace").modal({"keyboard": false, "backdrop": "static"});
+                },
+                dataType: 'json'
+            });
+        }
+
         function office_random_phone_forward(){
             $("#message, #caller-name").removeAttr("required");
             $("#action").val("office-random-phone-forward");
@@ -52,6 +74,11 @@
                 case 0:
                     $(".required-buttons").html("").append(button_block);
                     $("#call-card-content").find("#container").html("").append("{% filter escape('js') %}{% include '@Call/Default/call_card_type_1.html.twig' %}{% endfilter %}")
+
+                    if(default_caller_name){
+                        $("#caller-name").val(default_caller_name);
+                    }
+
                     $("#call-card-content").show("slow");
                     break;
                 case 1:
@@ -59,6 +86,11 @@
 
                     $(".required-buttons").html("").append(button_block);
                     $("#call-card-content").find("#container").html("").append("{% filter escape('js') %}{% include '@Call/Default/call_card_type_2.html.twig' %}{% endfilter %}");
+
+                    if(default_caller_name){
+                        $("#caller-name").val(default_caller_name);
+                    }
+
                     $("#call-card-content").show("slow");
                     break;
                 case 2:
@@ -66,11 +98,21 @@
 
                     $(".required-buttons").html("").append(button_block);
                     $("#call-card-content").find("#container").html("").append("{% filter escape('js') %}{% include '@Call/Default/call_card_type_3.html.twig' %}{% endfilter %}")
+
+                    if(default_caller_name){
+                        $("#caller-name").val(default_caller_name);
+                    }
+
                     $("#call-card-content").show("slow");
                     break;
                 case 3:
                     $(".required-buttons").html("").append(button_block);
                     $("#call-card-content").find("#container").html("").append("{% filter escape('js') %}{% include '@Call/Default/call_card_type_4.html.twig' %}{% endfilter %}")
+
+                    if(default_caller_name){
+                        $("#caller-name").val(default_caller_name);
+                    }
+
                     $("#call-card-content").show("slow");
                     break;
                 default:
@@ -80,6 +122,8 @@
         });
 
         $(document).ready(function(){
+            $("#advertising-source, #who-call, #reason").select2();
+
             $("#call-card-form").submit(function(event){
                 event.preventDefault();
 
@@ -142,7 +186,13 @@
                             if(data.callAction == "{{ call_dial_up_event }}"){
                                 $("#call-card").modal("hide");
 
-                                $("#income-call-info-caller-phone").html(data.fromPhone);
+                                var caller_phone = data.fromPhone;
+
+                                if(data.caller_default_name){
+                                    caller_phone += " (" + data.caller_default_name + ")";
+                                }
+
+                                $("#income-call-info-caller-phone").html(caller_phone);
                                 $("#income-call-info").modal({"keyboard": false, "backdrop": "static"});
                             }
                             else if(data.callAction == "{{ call_dial_down_event }}"){
@@ -150,6 +200,10 @@
                             }
                             else{
                                 $("#income-call-info").modal('hide');
+
+                                if(data.caller_default_name){
+                                    default_caller_name = data.caller_default_name;
+                                }
 
                                 if(data.callerName){
                                     $("#phone-type").find(".btn-group").find("button[value=" + data.callType + "]").click();
@@ -231,6 +285,17 @@
     {% include '@SonataAdmin/Core/add_to_black_list.html.twig' %}
 
     {% include '@SonataAdmin/Core/call_result_modal.html.twig' %}
+
+    <div id="user-phones-replace" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="user_phones_replace" aria-hidden="true" style="z-index: 10000;">
+        <div class="modal-body">
+            <label class="control-label required">Номера телефонов сотрудника:</label>
+            <table class="table"></table>
+        </div>
+        <div class="modal-footer">
+            <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+            <button class="btn btn-primary">Save changes</button>
+        </div>
+    </div>
 
     <form id="call-card-form">
 

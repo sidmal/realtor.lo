@@ -1,8 +1,4 @@
 <script type="text/javascript">
-    $(document).ready(function(){
-        $("#who-call").select2();
-    });
-
     $("#forward-call-to-other-employer").click(function(){
         $("#call-card-buttons").html("")
     });
@@ -81,7 +77,7 @@
                             response_item = { id: item.id, phone: item.phone };
 
                         if(item.branch_name){
-                            value += " (" + item.branch_name + ")";
+                            value += " " + item.match_phone + " (" + item.branch_name + ")";
 
                             response_item["may_trans_to_cell_phone"] = item.may_trans_to_cell_phone;
                             response_item["office_phone"] = item.office_phone;
@@ -89,6 +85,7 @@
                             response_item["branch_phone"] = item.branch_phone;
                         }
                         else{
+                            value += " " + item.phone;
                             is_branch = true;
                             href = "{{ path('admin_realtor_dictionary_branches_show', {'id': 'object_href'}) }}";
                         }
@@ -176,6 +173,11 @@
 <div>
     <div class="span6">
         <div class="control-group">
+            <label class="control-label required" for="who-call">Имя звонящего:</label>
+            <input type="text" id="caller-name" name="CallCard[caller-name]" class="span12" placeholder="Имя звонящего" value="" autocomplete="off" />
+        </div>
+
+        <div class="control-group">
             <label class="control-label required" for="who-call">Кто звонит:</label>
             <select id="who-call" name="CallCard[who-call]" required="required" class="span12">
                 <option></option>
@@ -184,7 +186,6 @@
                 {% endfor %}
             </select>
 
-            <input type="hidden" id="caller-name" name="CallCard[caller-name]" value="<undefined>" />
             <input type="hidden" name="CallCard[appended-user-id]" id="appended-user-id" value="{{ app.user.Id }}" />
 
         </div>

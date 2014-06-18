@@ -1,9 +1,46 @@
 {% if admin.hasRoute('print') %}
     {% if app.user.isAdministrator() or app.user.isDirector() or app.user.isManager() %}
-        <a class="btn btn-sm" href="{{ admin.generateUrl('print') }}" target="_blank">
+        <script type="text/javascript">
+            $(document).ready(function(){
+                $.ajax({
+                    type: "get",
+                    url: "{{ admin.generateUrl('print', {'type': 0}) }}",
+                    async: false,
+                    error: function(jqXHR, textStatus, errorThrown) {
+                        $("#print-type-0").addClass("disabled").find("a").removeAttr("href").removeAttr("target");
+                    }
+                });
+
+                $.ajax({
+                    type: "get",
+                    url: "{{ admin.generateUrl('print', {'type': 1}) }}",
+                    async: false,
+                    error: function(jqXHR, textStatus, errorThrown) {
+                        $("#print-type-1").addClass("disabled").find("a").removeAttr("href").removeAttr("target");
+                    }
+                });
+
+                $.ajax({
+                    type: "get",
+                    url: "{{ admin.generateUrl('print', {'type': 2}) }}",
+                    async: false,
+                    error: function(jqXHR, textStatus, errorThrown) {
+                        $("#print-type-2").addClass("disabled").find("a").removeAttr("href").removeAttr("target");
+                    }
+                });
+            });
+        </script>
+
+        <a class="btn btn-sm dropdown-toggle" data-toggle="dropdown" href="#">
             <i class="icon-print"></i>
             Печать
+            <span class="caret"></span>
         </a>
+        <ul class="dropdown-menu">
+            <li id="print-type-0"><a href="{{ admin.generateUrl('print', {'type': 0}) }}" target="_blank">Печать предыдущего месяца</a></li>
+            <li id="print-type-1"><a href="{{ admin.generateUrl('print', {'type': 1}) }}" target="_blank">Печать текущего месяца</a></li>
+            <li id="print-type-2"><a href="{{ admin.generateUrl('print', {'type': 2}) }}" target="_blank">Печать следующего месяца</a></li>
+        </ul>
     {% else %}
         <button class="btn btn-sm" disabled="disabled">
             <i class="icon-print"></i>

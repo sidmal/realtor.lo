@@ -30,7 +30,7 @@
             },
             select: function(event, ui){
                 var button_block = "<input type=\"submit\" class=\"btn btn-small btn-success\" id=\"user-add-phone\" name=\"CallCard[user-add-phone]\" value=\"Добавить телефон\" onclick=\"$('#action').val($(this).attr('id'));\" />"
-                        + "<input type=\"submit\" class=\"btn btn-small btn-success\" id=\"user-replace-phone\" name=\"CallCard[user-replace-phone]\" value=\"Заменить телефон\" onclick=\"$('#action').val($(this).attr('id'));\" />";
+                        + "<input type=\"button\" class=\"btn btn-small btn-success\" id=\"user-replace-phone\" name=\"CallCard[user-replace-phone]\" value=\"Заменить телефон\" onclick=\"getUserReplacedPhones();\" />";
 
                 event.preventDefault(); $(this).val(ui.item.label);
 
@@ -121,7 +121,7 @@
                             response_item = { id: item.id, phone: item.phone };
 
                         if(item.branch_name){
-                            value += " (" + item.branch_name + ")";
+                            value += " " + item.match_phone + " (" + item.branch_name + ")";
 
                             response_item["may_trans_to_cell_phone"] = item.may_trans_to_cell_phone;
                             response_item["office_phone"] = item.office_phone;
@@ -129,6 +129,7 @@
                             response_item["branch_phone"] = item.branch_phone;
                         }
                         else{
+                            value += " " + item.phone;
                             is_branch = true;
                             href = "{{ path('admin_realtor_dictionary_branches_show', {'id': 'object_href'}) }}";
                         }
@@ -275,7 +276,7 @@
 
     <div class="span6">
         <label class="control-label required" for="message">Сообщение:</label>
-        <textarea class="input-xlarge span14" id="message" name="CallCard[message]" rows="4" required="required"></textarea>
+        <textarea class="input-xlarge span14" id="message" name="CallCard[message]" rows="4"></textarea>
 
         <div style="height: 140px; overflow: scroll;" id="messages-history">
             <label class="control-label required" for="message" style="display: none;">Предыдущие сообщения:</label>

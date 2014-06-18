@@ -36,9 +36,9 @@ class UserController extends Controller
 
         $userManager = $this->container->get('manager.user');
 
-        /*if($this->container->get('kernel')->getEnvironment() == 'dev'){
+        if($this->container->get('kernel')->getEnvironment() == 'dev'){
             $userId = 233963;
-        }*/
+        }
 
         $user = $userManager->loadUserById($userId);
 
@@ -160,5 +160,41 @@ class UserController extends Controller
         }
 
         return $response->setData($responseData);
+    }
+
+    /**
+     * @param Request $request
+     * @return JsonResponse|Response
+     *
+     * @Route("/user/get/phones/by/id", name="user_get_phones_by_id")
+     * @Method({"POST"})
+     */
+    public function getUsersPhones(Request $request)
+    {
+        $response = new JsonResponse();
+
+        if(!$request->isXmlHttpRequest()){
+            return $response->setStatusCode(Response::HTTP_FORBIDDEN);
+        }
+
+        if(!$request->request->has('userId')){
+            return $response->setStatusCode(Response::HTTP_BAD_REQUEST);
+        }
+
+        $phones = $this->getDoctrine()->getManager()->getRepository('CallBundle:UserPhones')->findBy(['appendedUserId' => $request->request->get('userId')]);
+
+        if(!$phones){
+            return $response->setStatusCode(Response::HTTP_NOT_FOUND);
+        }
+
+        $phonesData = [];
+        foreach($phones as $phone){
+            $phonesData[] = [
+                'id' => $phone->getId(),
+                'phone' => $phone->getPhone()
+            ];
+        }
+
+        return $response->setData($phonesData);
     }
 } 

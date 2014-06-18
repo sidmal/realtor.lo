@@ -32,15 +32,28 @@ class DutyRepository extends EntityRepository
         12 => 'декабрь'
     ];
 
-    public function getDuty($manager = null)
+    public function getDuty($type, $manager = null)
     {
+        if($type == 0){
+            $queryDateStart = (new \DateTime())->modify('first day of -1 month');
+            $queryDateEnd = (new \DateTime())->modify('last day of -1 month');
+        }
+        elseif($type == 1){
+            $queryDateStart = (new \DateTime())->modify('first day of 0 month');
+            $queryDateEnd = (new \DateTime())->modify('last day of 0 month');
+        }
+        else{
+            $queryDateStart = (new \DateTime())->modify('first day of +1 month');
+            $queryDateEnd = (new \DateTime())->modify('last day of +1 month');
+        }
+
         $builder = $this->getEntityManager()->createQueryBuilder()
             ->select('duty')
             ->from('ApplicationSonataUserBundle:Duty', 'duty')
             ->where('duty.dutyEndAt > :duty_end_at')
-            ->setParameter('duty_end_at', new \DateTime(), Type::DATETIME)
+            ->setParameter('duty_end_at', $queryDateStart, Type::DATETIME)
             ->andWhere('duty.dutyEndAt <= :last_month_day')
-            ->setParameter('last_month_day', (new \DateTime())->modify('last day of 0 month')->setTime(23, 59, 59), Type::DATETIME)
+            ->setParameter('last_month_day', $queryDateEnd->setTime(23, 59, 59), Type::DATETIME)
             ->orderBy('duty.dutyStartAt', 'asc')
         ;
 

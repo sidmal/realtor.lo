@@ -310,7 +310,15 @@ class CallController extends Controller
             return new Response(null, 403);
         }
 
+        $lastCallByCaller = $this->getDoctrine()->getManager()->getRepository('CallBundle:Call')->getLastCallByCaller($call[0]['fromPhone'], $this->container->getParameter('call.income.event'));
+
         $firstCall = $this->getDoctrine()->getManager()->getRepository('CallBundle:Call')->findOneBy(['linkedId' => $call[0]['linkedId'], 'callAction' => 'connect-exten']);
+
+        if($lastCallByCaller){
+            if($lastCallByCaller[0]->getParams()){
+                $call[0]['caller_default_name'] = $lastCallByCaller[0]->getParams()->getCallerName();
+            }
+        }
 
         if($firstCall){
             $call[0]['caller_default'] = $firstCall->getFromPhone();
@@ -345,13 +353,13 @@ class CallController extends Controller
                 }
 
                 if($firstCall->getParams()->getMessage()){
-                    $allCall = $this->getDoctrine()->getManager()->getRepository('CallBundle:Call')->findAll(['linkedId' => $call[0]['linkedId']]);
+                    $allCall = $this->getDoctrine()->getManager()->getRepository('CallBundle:Call')->findBy(['linkedId' => $call[0]['linkedId']]);
 
                     foreach($allCall as $item){
                         if($item->getParams()){
                             if($item->getParams()->getMessage()){
                                 foreach($item->getParams()->getMessage() as $message){
-                                    $call[0]['message'][] = $message->getMessage();
+                                    $call[0]['message'][] = $call[0]['createdAt']->format('H:i').' - '.$call[0]['toPhone'].' - '.$message->getMessage();
                                 }
                             }
                         }
@@ -481,6 +489,10 @@ class CallController extends Controller
 
         if($users){
             foreach($users as $user){
+                if($user->getOfficePhone() == $request->query->get('term')){
+
+                }
+
                 $responseData[] = [
                     'id' => $user->getId(),
                     'branch_name' => $user->getBranch()->getName(),
@@ -489,7 +501,8 @@ class CallController extends Controller
                     'office_phone' => $user->getOfficePhone(),
                     'may_trans_to_cell_phone' => $user->getMayRedirectCall(),
                     'manager_office_phone' => $user->getHead() ? $user->getHead()->getOfficePhone() : false,
-                    'branch_phone' => $user->getBranch()->getBranchPhone()
+                    'branch_phone' => $user->getBranch()->getBranchPhone(),
+                    'match_phone' => ($user->getOfficePhone() == $request->query->get('term')) ? $user->getOfficePhone() : $user->getPhone()
                 ];
             }
         }
