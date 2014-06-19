@@ -172,6 +172,8 @@ class UserManager
         if(count($violations = $this->validator->validate($user)) > 0){
             $user->setUsername($employee['login'].'_'.md5(uniqid(rand(),1)));
             $user->setUsernameCanonical($employee['login'].'_'.md5(uniqid(rand(),1)));
+            $user->setEmail($employee['sys_user_email'].'_'.md5(uniqid(rand(),1)));
+            $user->setEmailCanonical($employee['sys_user_email'].'_'.md5(uniqid(rand(),1)));
         }
 
         $this->em->persist($user);
