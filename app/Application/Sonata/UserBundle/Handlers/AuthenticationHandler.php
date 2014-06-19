@@ -123,9 +123,9 @@ class AuthenticationHandler
     }
 
     /**
-     * @param Validator $validator
+     * @param Validator\ValidatorInterface $validator
      */
-    public function setValidator(Validator $validator)
+    public function setValidator(Validator\ValidatorInterface $validator)
     {
         $this->validator = $validator;
     }
