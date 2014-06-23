@@ -15,13 +15,15 @@
                 success: function(response){
                     var content = "<tr><th>Номер</th><th>Действие</th></tr>";
                     $.each(response, function(i, item){
-                        content += "<tr><td>" + item.phone + "</td>" +
-                                "<td><button class=\"btn btn-mini btn-danger\" type=\"button\">Земенить номер</button></td></tr>"
+                        content += "<tr>" +
+                                "<td>" + item.phone + "</td>" +
+                                "<td><button class=\"btn btn-mini btn-danger\" type=\"button\" onclick=\"$('#replace-user-phone-id').val(" + item.id + "); $('#action').val('user-replace-phone'); $('#call-card-form').submit();\">Земенить номер</button></td>" +
+                                "</tr>"
                     });
 
-                    alert(content);
                     $("#user-phones-replace").find("table").html(content);
                     $("#user-phones-replace").modal({"keyboard": false, "backdrop": "static"});
+                    $("#call-card").find(".modal-header").find(".close").attr("disabled", true);
                 },
                 dataType: 'json'
             });
@@ -134,8 +136,13 @@
                     complete: function(response){
                         var action = $("#call-card-form input[id=action]").val();
 
-                        if(action == "user-add-phone" || action == "user-replace-phone"){
+                        if(action == "user-add-phone"){
                             self.alert("Номер сотрудника успешно добавлен."); $("#add-to-black-list").modal("hide");
+                        }
+                        else if(action == "user-replace-phone"){
+                            self.alert("Номер сотрудника успешно изменен.");
+                            $("#user-phones-replace").modal("hide");
+                            $("#add-to-black-list").modal("hide");
                         }
                         else{
                             $("#call-card, #add-to-black-list").modal("hide");
@@ -156,6 +163,11 @@
                 $("#phone-type").find(".btn-group").find("button").each(function(){
                     $(this).attr("disabled", false);
                 });
+            });
+
+            $("#user-phones-replace").on("hidden", function(event){
+                event.preventDefault();
+                $("#call-card").find(".modal-header").find(".close").removeAttr("disabled");
             });
 
             {% if app.user.getOfficePhone is not empty or app.user.getUserDutyPhone is not null %}
@@ -291,10 +303,6 @@
             <label class="control-label required">Номера телефонов сотрудника:</label>
             <table class="table"></table>
         </div>
-        <div class="modal-footer">
-            <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
-            <button class="btn btn-primary">Save changes</button>
-        </div>
     </div>
 
     <form id="call-card-form">
@@ -330,6 +338,8 @@
 
             <input type="hidden" name="CallCard[branch-to-call]" id="branch-to-call" value="" />
             <input type="hidden" name="CallCard[call-result]" id="call-card-call-result" value="" />
+
+            <input type="hidden" name="CallCard[replace-user-phone-id]" id="replace-user-phone-id" value="" />
 
             <div class="modal-body" id="call-card-content" style="display: none;">
                 <div class="span12 required-buttons"></div>

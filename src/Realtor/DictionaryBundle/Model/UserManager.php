@@ -37,7 +37,7 @@ class UserManager
      */
     private $validator;
 
-    public function __construct($url, EntityManager $em, Validator $validator)
+    public function __construct($url, EntityManager $em, Validator\ValidatorInterface $validator)
     {
         if(empty($url)){
             new UserException('url for load users from remote service not set.');

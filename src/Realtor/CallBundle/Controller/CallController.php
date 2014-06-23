@@ -191,7 +191,7 @@ class CallController extends Controller
                     $userPhone = new UserPhones();
 
                     if($action == 'user-replace-phone'){
-                        $this->getDoctrine()->getManager()->getRepository('CallBundle:UserPhones')->removePhonesByUser($params['user-id']);
+                        $userPhone = $this->getDoctrine()->getManager()->getRepository('CallBundle:UserPhones')->find($params['replace-user-phone-id']);
                     }
 
                     $userPhone

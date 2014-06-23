@@ -55,6 +55,8 @@ class UserController extends Controller
 
             if($head){
                 $user[0]['head_phone'] = $head->getOfficePhone();
+                $user[0]['head_id'] = $head->getId();
+                $user[0]['head_is_fired'] = $head->getIsFired();
             }
         }
 
