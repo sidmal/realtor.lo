@@ -2,7 +2,7 @@
     {% if app.user.isAdministrator() or app.user.isDirector() or app.user.isManager() %}
         <script type="text/javascript">
             $(document).ready(function(){
-                $.ajax({
+                /*$.ajax({
                     type: "get",
                     url: "{{ admin.generateUrl('print', {'type': 0}) }}",
                     async: false,
@@ -27,7 +27,7 @@
                     error: function(jqXHR, textStatus, errorThrown) {
                         $("#print-type-2").addClass("disabled").find("a").removeAttr("href").removeAttr("target");
                     }
-                });
+                });*/
             });
         </script>
 

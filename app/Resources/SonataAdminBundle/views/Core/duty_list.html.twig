@@ -1,0 +1,54 @@
+{% extends 'SonataAdminBundle:CRUD:base_list.html.twig' %}
+
+{% block javascripts %}
+    {{ parent() }}
+
+    <script style="text/javascript" src="{{ asset('bundles/admin/js/zabuto_calendar.js') }}"></script>
+
+    <script style="text/javascript">
+        var min_navigation_date = new Date(2014, 4, 1).getMonth();
+        var current_date = new Date().getMonth(),
+                min_previous_navigation_steps = current_date - min_navigation_date;
+
+        $(document).ready(function(){
+            $("#duty-calendar").zabuto_calendar({
+                action_nav: function(){
+                    var navigation_date = new Date($(this).data("to").year, $(this).data("to").month - 1, 1);
+
+                    if(navigation_date.valueOf() < min_navigation_date.valueOf()){
+
+                    }
+                },
+                language: "ru",
+                cell_border: true,
+                show_previous: min_previous_navigation_steps
+            });
+        });
+    </script>
+{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+
+    <link rel="stylesheet" href="{{ asset('bundles/admin/css/zabuto_calendar.css') }}" media="all">
+{% endblock %}
+
+{% block actions %}
+    <div class="sonata-actions btn-group" style="margin-right: 150px;">
+        {% include '@ApplicationSonataUser/CRUD/print_button.html.twig' %}
+    </div>
+{% endblock %}
+
+{% block side_menu %}{{ knp_menu_render(admin.sidemenu(action), {'currentClass' : 'active'}, 'list') }}{% endblock %}
+
+{% block list_table %}
+    <div>
+        <div class="span5">
+            <div id="duty-calendar"></div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block list_filters %}
+
+{% endblock %}

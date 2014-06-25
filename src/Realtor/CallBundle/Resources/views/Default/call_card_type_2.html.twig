@@ -44,6 +44,8 @@
                         var interoffice_phone = "{{ branch.branchNumber is not empty ? branch.branchNumber : "" }}";
                         var duty_agent = "{{ branch.onDutyAgentPhone is not empty ? branch.onDutyAgentPhone : "" }}";
 
+                        interoffice_phone += "##" + interoffice_phone.substring(0, 2);
+
                         var button_block = "";
 
                         $("#call-card-buttons").html("");
@@ -58,7 +60,7 @@
 
                         if(interoffice_phone){
                             //button_block += "<input type=\"submit\" class=\"btn btn-small btn-success\" id=\"office-interoffice-phone-forward\" name=\"CallCard[office-interoffice-phone-forward]\" value=\"Перевести на внутренний телефон\" onclick=\"$('#action').val($(this).attr('id')); $('#call-to-phone').val(" + interoffice_phone + ");\" />";
-                            button_block += "<input type=\"submit\" class=\"btn btn-small btn-success\" id=\"office-loud-call-forward\" name=\"CallCard[office-loud-call-forward]\" value=\"Громкая связь\" onclick=\"$('#action').val($(this).attr('id')); $('#call-to-phone').val(" + interoffice_phone + ");\" />";
+                            button_block += "<input type=\"submit\" class=\"btn btn-small btn-success\" id=\"office-loud-call-forward\" name=\"CallCard[office-loud-call-forward]\" value=\"Громкая связь\" onclick=\"$('#action').val($(this).attr('id')); $('#call-to-phone').val('" + interoffice_phone + "');\" />";
                         }
 
                         if(duty_agent){

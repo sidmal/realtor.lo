@@ -48,6 +48,17 @@ class UserController extends Controller
 
         $user[0]['app_id'] = $userManager->save($user[0]);
 
+        $userEntity = $this->getDoctrine()->getManager()->getRepository('ApplicationSonataUserBundle:User')->find($user[0]['app_id']);
+        if($branch_phone = $userEntity->getBranch()->getBranchNumber()){
+            if(!empty($branch_phone)){
+                $user[0]['branch_phone'] = $branch_phone.'##'.substr($branch_phone, 0, 2);
+            }
+        }
+
+        if($this->container->get('kernel')->getEnvironment() == 'dev'){
+            $user[0]['in_office'] = 1;
+        }
+
         $user[0]['head_phone'] = '';
         if($user[0]['id_manager'] > 0){
             $head = $this->getDoctrine()->getManager()->getRepository('ApplicationSonataUserBundle:User')

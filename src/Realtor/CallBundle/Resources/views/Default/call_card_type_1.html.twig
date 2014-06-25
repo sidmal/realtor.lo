@@ -55,8 +55,8 @@
                                 button_block += "<input type=\"submit\" class=\"btn btn-small btn-success\" id=\"agent-cell-forward\" name=\"CallCard[agent-cell-forward]\" value=\"Перевести на сотовый агента\" onclick=\"$('#action').val($(this).attr('id')); $('#call-to-phone').val(" + data.user_phone + ");\" />";
                             }
 
-                            if(data.in_office == 1){
-                                button_block += "<input type=\"submit\" class=\"btn btn-small btn-success\" id=\"agent-loud-call-forward\" name=\"CallCard[agent-loud-call-forward]\" value=\"Громкий вызов агента\" onclick=\"$('#action').val($(this).attr('id'));\" />";
+                            if(data.in_office == 1 && data.branch_phone){
+                                button_block += "<input type=\"submit\" class=\"btn btn-small btn-success\" id=\"agent-loud-call-forward\" name=\"CallCard[agent-loud-call-forward]\" value=\"Громкий вызов агента\" onclick=\"$('#action').val($(this).attr('id')); $('#call-to-phone').val('" + data.branch_phone + "');\" />";
                             }
 
                             if(data.officephone){
