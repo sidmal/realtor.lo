@@ -51,7 +51,7 @@ class UserController extends Controller
         $userEntity = $this->getDoctrine()->getManager()->getRepository('ApplicationSonataUserBundle:User')->find($user[0]['app_id']);
         if($branch_phone = $userEntity->getBranch()->getBranchNumber()){
             if(!empty($branch_phone)){
-                $user[0]['branch_phone'] = $branch_phone.'##'.substr($branch_phone, 0, 2);
+                $user[0]['branch_phone'] = '##'.substr($branch_phone, 0, 2);
             }
         }
 

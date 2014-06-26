@@ -44,7 +44,7 @@
                         var interoffice_phone = "{{ branch.branchNumber is not empty ? branch.branchNumber : "" }}";
                         var duty_agent = "{{ branch.onDutyAgentPhone is not empty ? branch.onDutyAgentPhone : "" }}";
 
-                        interoffice_phone += "##" + interoffice_phone.substring(0, 2);
+                        interoffice_phone = "##" + interoffice_phone.substring(0, 2);
 
                         var button_block = "";
 

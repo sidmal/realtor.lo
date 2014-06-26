@@ -47,7 +47,7 @@ class BranchController extends Controller
             $response['branch_phone'] = $branch->getOnDutyAgentPhone();
         }
         elseif($branch->getBranchNumber()){
-            $response['branch_phone'] = $branch->getBranchNumber().'##'.substr($branch->getBranchNumber(), 0, 2);
+            $response['branch_phone'] = '##'.substr($branch->getBranchNumber(), 0, 2);
         }
         elseif($branch->getCityPhone()){
             $response['branch_phone'] = $branch->getCityPhone();
