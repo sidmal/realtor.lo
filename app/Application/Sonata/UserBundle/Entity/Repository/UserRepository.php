@@ -129,4 +129,54 @@ class UserRepository extends EntityRepository
 
         return $result;
     }
+
+    public function getCurrentLogin()
+    {
+        $qb = $this->getEntityManager()->createQueryBuilder()
+            ->select(
+                [
+                    'users.username',
+                ]
+            )
+            ->from('ApplicationSonataUserBundle:User', 'users');
+
+        try{
+            $queryResult = $qb->getQuery()->getArrayResult();
+
+            $result = [];
+            foreach($queryResult as $item){
+                $result[] = $item['username'];
+            }
+        }
+        catch(\Exception $e){
+            $result = [];
+        }
+
+        return $result;
+    }
+
+    public function getCurrentEmail()
+    {
+        $qb = $this->getEntityManager()->createQueryBuilder()
+            ->select(
+                [
+                    'users.email',
+                ]
+            )
+            ->from('ApplicationSonataUserBundle:User', 'users');
+
+        try{
+            $queryResult = $qb->getQuery()->getArrayResult();
+
+            $result = [];
+            foreach($queryResult as $item){
+                $result[] = $item['email'];
+            }
+        }
+        catch(\Exception $e){
+            $result = [];
+        }
+
+        return $result;
+    }
 }

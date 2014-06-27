@@ -55,7 +55,18 @@ class UserLoadCommand extends ContainerAwareCommand
             }
         }
 
+        $currentUsersLogin = $this->getContainer()->get('doctrine')->getManager()->getRepository('ApplicationSonataUserBundle:User')->getCurrentLogin();
+        $currentEmailsLogin = $this->getContainer()->get('doctrine')->getManager()->getRepository('ApplicationSonataUserBundle:User')->getCurrentEmail();
+
         foreach($employees['head'] as $employee){
+            if(in_array($employee['login'], $currentUsersLogin)){
+                $employee['login'] = $employee['login'].'_'.md5(uniqid(rand(),1));
+            }
+
+            if(in_array($employee['sys_user_email'], $currentEmailsLogin)){
+                $employee['sys_user_email'] = $employee['sys_user_email'].'_'.md5(uniqid(rand(),1));
+            }
+
             $userManager->save($employee);
 
             $progress->advance();

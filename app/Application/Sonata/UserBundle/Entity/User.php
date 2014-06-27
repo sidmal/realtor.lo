@@ -18,10 +18,10 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
  * )
  * @ORM\Entity(repositoryClass="Application\Sonata\UserBundle\Entity\Repository\UserRepository")
  *
- * @UniqueEntity(fields={"usernameCanonical"}, groups={"registration"})
+ * @UniqueEntity("usernameCanonical")
+ * @UniqueEntity("emailCanonical")
  * @UniqueEntity("username")
  * @UniqueEntity("email")
- * @UniqueEntity(fields={"emailCanonical"}, groups={"registration"})
  */
 class User extends BaseUser
 {
