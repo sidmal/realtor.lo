@@ -414,6 +414,29 @@ $.fn.zabuto_calendar = function (options) {
                                 $('#' + id + '_modal').modal();
                             });
                         }
+
+                        if ("popover" in ajaxSettings && (ajaxSettings.popover === true)) {
+                            $dowElement.addClass("event-clickable");
+
+                            $("#" + id).popover({
+                                content: value.body,
+                                animation: false,
+                                trigger: "manual"
+                            }).click(function(event){
+                                $(".event-clickable").each(function(){
+                                    $(this).popover("hide");
+                                });
+
+                                $(this).popover("show");
+                                $(".popover-title").append("<button type=\"button\" class=\"close\">&times;</button>");
+
+                                $(".popover-title").find(".close").bind("click", function(){
+                                    $("#" + id).popover("hide");
+                                });
+
+                                event.preventDefault();
+                            });
+                        }
                     }
                 });
             }

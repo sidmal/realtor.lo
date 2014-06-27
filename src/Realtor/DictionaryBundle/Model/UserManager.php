@@ -33,7 +33,7 @@ class UserManager
     private $em;
 
     /**
-     * @var \Symfony\Component\Validator\Validator
+     * @var \Symfony\Component\Validator\Validator\ValidatorInterface
      */
     private $validator;
 
@@ -167,6 +167,22 @@ class UserManager
             if($head){
                 $user->setHead($head);
             }
+        }
+
+        if($this->em->getRepository('ApplicationSonataUserBundle:User')->findOneBy(['username' => $employee['login']])){
+            $user->setUsername($employee['login'].'_'.md5(uniqid(rand(),1)));
+        }
+
+        if($this->em->getRepository('ApplicationSonataUserBundle:User')->findOneBy(['usernameCanonical' => $employee['login']])){
+            $user->setUsernameCanonical($employee['login'].'_'.md5(uniqid(rand(),1)));
+        }
+
+        if($this->em->getRepository('ApplicationSonataUserBundle:User')->findOneBy(['email' => $employee['sys_user_email']])){
+            $user->setEmail($employee['sys_user_email'].'_'.md5(uniqid(rand(),1)));
+        }
+
+        if($this->em->getRepository('ApplicationSonataUserBundle:User')->findOneBy(['emailCanonical' => $employee['sys_user_email']])){
+            $user->setEmailCanonical($employee['sys_user_email'].'_'.md5(uniqid(rand(),1)));
         }
 
         if(count($violations = $this->validator->validate($user)) > 0){

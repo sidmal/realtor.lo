@@ -37,7 +37,7 @@ class UserLoadCommand extends ContainerAwareCommand
             return $output->writeln('error on process load user: '.$e->getMessage());
         }
 
-        $progress = new ProgressHelper();
+        $progress = $this->getHelperSet()->get('progress');
 
         $progress->start($output, count($users));
         if(count($users) > 1){

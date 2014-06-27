@@ -3,6 +3,8 @@
 {% block javascripts %}
     {{ parent() }}
 
+    <script style="text/javascript" src="{{ asset('bundles/admin/js/bootstrap-tooltip.js') }}"></script>
+    <script style="text/javascript" src="{{ asset('bundles/admin/js/bootstrap-popover.js') }}"></script>
     <script style="text/javascript" src="{{ asset('bundles/admin/js/zabuto_calendar.js') }}"></script>
 
     <script style="text/javascript">
@@ -19,8 +21,12 @@
 
                     }
                 },
+                ajax: {
+                    url: "{{ path('duty_get_unfilled') }}",
+                    popover: true
+                },
                 language: "ru",
-                cell_border: true,
+                cell_border: false,
                 show_previous: min_previous_navigation_steps
             });
         });
@@ -31,6 +37,7 @@
     {{ parent() }}
 
     <link rel="stylesheet" href="{{ asset('bundles/admin/css/zabuto_calendar.css') }}" media="all">
+    <link rel="stylesheet" href="{{ asset('bundles/admin/css/duty_calendar.css') }}" media="all">
 {% endblock %}
 
 {% block actions %}
