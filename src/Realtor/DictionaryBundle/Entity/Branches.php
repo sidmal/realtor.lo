@@ -91,9 +91,17 @@ class Branches
      */
     private $createdAt;
 
+    /**
+     * @var integer
+     *
+     * @ORM\Column(name="duty_agents_count", type="integer")
+     */
+    private $dutyAgentsCount;
+
     public function __construct()
     {
         $this->isActive = true;
+        $this->dutyAgentsCount = 0;
     }
 
     /**
@@ -339,5 +347,28 @@ class Branches
     public function getBranchPhone()
     {
         return empty($this->branchNumber) ? $this->getCityPhone() : $this->getBranchNumber();
+    }
+
+    /**
+     * Set dutyAgentsCount
+     *
+     * @param integer $dutyAgentsCount
+     * @return Branches
+     */
+    public function setDutyAgentsCount($dutyAgentsCount)
+    {
+        $this->dutyAgentsCount = $dutyAgentsCount;
+
+        return $this;
+    }
+
+    /**
+     * Get dutyAgentsCount
+     *
+     * @return integer 
+     */
+    public function getDutyAgentsCount()
+    {
+        return $this->dutyAgentsCount;
     }
 }

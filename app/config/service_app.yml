@@ -14,6 +14,7 @@ services:
             - http://disp.emls.ru/api/employee
             - @doctrine.orm.entity_manager
             - @validator
+            - @fos_user.user_manager
     manager.dictionary.branch:
         class: %manager.dictionary.branch.class%
         arguments:

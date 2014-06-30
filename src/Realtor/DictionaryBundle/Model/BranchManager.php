@@ -68,6 +68,7 @@ class BranchManager
             ->setAddress($branchItem['office_address'])
             ->setBranchNumber($branchItem['ext_phone'])
             ->setOnDutyAgentPhone($branchItem['duty_agent'])
+            ->setDutyAgentsCount($branchItem['duty_cnt'])
             ->setMayTrans($branchItem['maytrans'] == 1 ? true : false)
             ->setIsActive(true);
 

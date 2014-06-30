@@ -17,3 +17,17 @@
 .purple {
     background-color: purple;
 }
+
+.sonata-bc .popover{
+    max-width: 650px;
+    width: 600px;
+    height: 300px;
+}
+
+.popover-content{
+    height: 230px;
+}
+
+.popover-content{
+    overflow-y: scroll;
+}

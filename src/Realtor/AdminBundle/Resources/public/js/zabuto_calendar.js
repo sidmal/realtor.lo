@@ -421,7 +421,9 @@ $.fn.zabuto_calendar = function (options) {
                             $("#" + id).popover({
                                 content: value.body,
                                 animation: false,
-                                trigger: "manual"
+                                trigger: "manual",
+                                container: "body",
+                                html: true
                             }).click(function(event){
                                 $(".event-clickable").each(function(){
                                     $(this).popover("hide");

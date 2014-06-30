@@ -9,10 +9,12 @@
 namespace Realtor\DictionaryBundle\Model;
 
 use Application\Sonata\UserBundle\Entity\User;
+use Application\Sonata\UserBundle\Form\UserType;
 use Doctrine\ORM\EntityManager;
 use Guzzle\Http\Exception\RequestException;
 use Guzzle\Http\Message\RequestInterface;
 use Realtor\DictionaryBundle\Exceptions\UserException;
+use Symfony\Component\Form\FormFactory;
 use Symfony\Component\Validator\Validator;
 
 class UserManager
@@ -37,7 +39,9 @@ class UserManager
      */
     private $validator;
 
-    public function __construct($url, EntityManager $em, Validator\ValidatorInterface $validator)
+    private $fosUserManager;
+
+    public function __construct($url, EntityManager $em, Validator\ValidatorInterface $validator, \FOS\UserBundle\Doctrine\UserManager $userManager)
     {
         if(empty($url)){
             new UserException('url for load users from remote service not set.');
@@ -47,6 +51,7 @@ class UserManager
         $this->url = $url;
         $this->em = $em;
         $this->validator = $validator;
+        $this->fosUserManager = $userManager;
     }
 
     /**
@@ -169,20 +174,26 @@ class UserManager
             }
         }
 
-        if(count($violations = $this->validator->validate($user)) > 0){
-            $user->setUsername($employee['login'].'_'.md5(uniqid(rand(),1)));
-            $user->setUsernameCanonical($employee['login'].'_'.md5(uniqid(rand(),1)));
+        if($this->fosUserManager->findUserByEmail($employee['sys_user_email'])){
             $user->setEmail($employee['sys_user_email'].'_'.md5(uniqid(rand(),1)));
             $user->setEmailCanonical($employee['sys_user_email'].'_'.md5(uniqid(rand(),1)));
+
+            $this->fosUserManager->updateCanonicalFields($user);
         }
 
-        try{
-            $this->em->persist($user);
-            $this->em->flush($user);
+        if($this->fosUserManager->findUserByUsername($employee['login'])){
+            $user->setUsername($employee['login'].'_'.md5(uniqid(rand(),1)));
+            $user->setUsernameCanonical($employee['login'].'_'.md5(uniqid(rand(),1)));
+
+            $this->fosUserManager->updateCanonicalFields($user);
         }
-        catch(\Exception $e){
-            echo $e->getMessage()."\n";
+
+        if(count($violations = $this->validator->validate($user)) > 0){
+
         }
+
+        $this->em->persist($user);
+        $this->em->flush($user);
 
         return $user->getId();
     }

@@ -135,6 +135,7 @@ class UserRepository extends EntityRepository
         $qb = $this->getEntityManager()->createQueryBuilder()
             ->select(
                 [
+                    'users.id',
                     'users.username',
                 ]
             )
@@ -145,7 +146,7 @@ class UserRepository extends EntityRepository
 
             $result = [];
             foreach($queryResult as $item){
-                $result[] = $item['username'];
+                $result[$item['username']] = $item['id'];
             }
         }
         catch(\Exception $e){
@@ -160,6 +161,7 @@ class UserRepository extends EntityRepository
         $qb = $this->getEntityManager()->createQueryBuilder()
             ->select(
                 [
+                    'users.id',
                     'users.email',
                 ]
             )
@@ -170,7 +172,7 @@ class UserRepository extends EntityRepository
 
             $result = [];
             foreach($queryResult as $item){
-                $result[] = $item['email'];
+                $result[$item['email']] = $item['id'];
             }
         }
         catch(\Exception $e){

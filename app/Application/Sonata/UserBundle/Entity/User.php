@@ -17,11 +17,6 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
  *      }
  * )
  * @ORM\Entity(repositoryClass="Application\Sonata\UserBundle\Entity\Repository\UserRepository")
- *
- * @UniqueEntity("usernameCanonical")
- * @UniqueEntity("emailCanonical")
- * @UniqueEntity("username")
- * @UniqueEntity("email")
  */
 class User extends BaseUser
 {
