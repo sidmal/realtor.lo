@@ -30,7 +30,7 @@ services:
     manager.call.action:
         class: %manager.call.action.class%
         arguments:
-            - http://188.227.101.17:8080
+            - http://188.227.101.17:8080 #http://192.168.251.16:8080
             - @logger
         tags:
             - { name: monolog.logger, channel: call_ats_action }
