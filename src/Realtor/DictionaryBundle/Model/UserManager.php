@@ -123,11 +123,11 @@ class UserManager
         }
 
         $user->setOuterId($employee['id_user']);
-        $user->setUsername($employee['login']);
-        $user->setUsernameCanonical($employee['login']);
+        //$user->setUsername($employee['login']);
+        //$user->setUsernameCanonical($employee['login']);
         $user->setPassword($employee['passsha1']);
-        $user->setEmail($employee['sys_user_email']);
-        $user->setEmailCanonical($employee['sys_user_email']);
+        //$user->setEmail($employee['sys_user_email']);
+        //$user->setEmailCanonical($employee['sys_user_email']);
         $user->setPhone($employee['user_phone']);
         $user->setBranch($branch);
         $user->setFirstname($employee['user_name']);
@@ -174,22 +174,59 @@ class UserManager
             }
         }
 
-        if($this->fosUserManager->findUserByEmail($employee['sys_user_email'])){
-            $user->setEmail($employee['sys_user_email'].'_'.md5(uniqid(rand(),1)));
-            $user->setEmailCanonical($employee['sys_user_email'].'_'.md5(uniqid(rand(),1)));
+        if(!$user->getId()){
+            if($this->fosUserManager->findUserByEmail($employee['sys_user_email'])){
+                $user->setEmail($employee['sys_user_email'].'_'.md5(uniqid(rand(),1)));
+                $user->setEmailCanonical($employee['sys_user_email'].'_'.md5(uniqid(rand(),1)));
 
-            $this->fosUserManager->updateCanonicalFields($user);
+                $this->fosUserManager->updateCanonicalFields($user);
+            }
+            else{
+                $user->setEmail($employee['sys_user_email']);
+                $user->setEmailCanonical($employee['sys_user_email']);
+
+                $this->fosUserManager->updateCanonicalFields($user);
+            }
+
+            if($this->fosUserManager->findUserByUsername($employee['login'])){
+                $user->setUsername($employee['login'].'_'.md5(uniqid(rand(),1)));
+                $user->setUsernameCanonical($employee['login'].'_'.md5(uniqid(rand(),1)));
+
+                $this->fosUserManager->updateCanonicalFields($user);
+            }
+            else{
+                $user->setUsername($employee['login']);
+                $user->setUsernameCanonical($employee['login']);
+
+                $this->fosUserManager->updateCanonicalFields($user);
+            }
         }
+        else{
+            if(!preg_match('/^\S+\_[aA-fF0-9]{32}$/', $user->getUsernameCanonical())){
+                $user->setUsername($employee['login']);
+                $user->setUsernameCanonical($employee['login']);
 
-        if($this->fosUserManager->findUserByUsername($employee['login'])){
-            $user->setUsername($employee['login'].'_'.md5(uniqid(rand(),1)));
-            $user->setUsernameCanonical($employee['login'].'_'.md5(uniqid(rand(),1)));
+                $this->fosUserManager->updateCanonicalFields($user);
+            }
+            else{
+                $user->setUsername($user->getUsernameCanonical());
+                $user->setUsernameCanonical($user->getUsernameCanonical());
 
-            $this->fosUserManager->updateCanonicalFields($user);
-        }
+                $this->fosUserManager->updateCanonicalFields($user);
+            }
 
-        if(count($violations = $this->validator->validate($user)) > 0){
+            if(!preg_match('/^\S+\_[aA-fF0-9]{32}$/', $user->getEmailCanonical())){
+                $user->setEmail($employee['sys_user_email']);
+                $user->setEmailCanonical($employee['sys_user_email']);
 
+                $this->fosUserManager->updateCanonicalFields($user);
+            }
+            else{
+                $user->setEmail($user->getEmailCanonical());
+                $user->setEmailCanonical($user->getEmailCanonical());
+
+                $this->fosUserManager->updateCanonicalFields($user);
+            }
         }
 
         $this->em->persist($user);
