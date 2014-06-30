@@ -94,7 +94,7 @@ class Branches
     /**
      * @var integer
      *
-     * @ORM\Column(name="duty_agents_count", type="integer", nullable=true)
+     * @ORM\Column(name="duty_agents_count", type="integer")
      */
     private $dutyAgentsCount;
 
