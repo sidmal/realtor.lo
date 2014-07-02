@@ -22,7 +22,7 @@ class CallCardTest extends WebTestCase
 
         $call = new Call();
         $call->setLinkedId('a5227340611c5cb917558893f4c60e9a')->setInternalId($uniqueId)->setAtsCallId($uniqueId)
-            ->setType(1)->setFromPhone('9219251984')->setToPhone('205')->setCallAction('connect-exten')
+            ->setType(1)->setFromPhone('9219251985')->setToPhone('205')->setCallAction('connect-exten')
             ->setEventAt(new \DateTime());
 
         $em->persist($call);

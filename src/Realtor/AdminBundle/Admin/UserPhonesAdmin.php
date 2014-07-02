@@ -37,6 +37,7 @@ class UserPhonesAdmin extends Admin
         $listMapper
             ->addIdentifier('id', null, ['label' => 'Идентификатор'])
             ->add('phone', null, ['label' => 'Номер телефона'])
+            ->add('phoneBeforeReplace', null, ['label' => 'Заменяемый номер телефона'])
             ->add('userId', null, ['label' => 'Чей номер'])
             ->add('appendedUserId', null, ['label' => 'Добавил'])
             ->add('isVerify', null, ['label' => 'Верифицирован'])
