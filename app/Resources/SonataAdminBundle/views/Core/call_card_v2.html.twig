@@ -108,6 +108,8 @@
                     $("#call-card-content").show("slow");
                     break;
                 case 3:
+                    button_block += "<input type=\"submit\" class=\"btn btn-small btn-success\" id=\"forward-call-to-ats\" name=\"CallCard[forward-call-to-ats]\" value=\"Перевести на АТС\" onclick=\"$('#message, #caller-name, #who-call').removeAttr('required'); $('#action').val($(this).attr('id')); $('#call-to-phone').val('Employee');\" />"
+
                     $(".required-buttons").html("").append(button_block);
                     $("#call-card-content").find("#container").html("").append("{% filter escape('js') %}{% include '@Call/Default/call_card_type_4.html.twig' %}{% endfilter %}")
 
@@ -201,7 +203,7 @@
                                 var caller_phone = data.fromPhone;
 
                                 if(data.caller_default_name){
-                                    caller_phone += " (" + data.caller_default_name + ")";
+                                    $("#income-call-info-caller-name").html(" (" + data.caller_default_name + ")");
                                 }
 
                                 $("#income-call-info-caller-phone").html(caller_phone);

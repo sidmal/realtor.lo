@@ -11,11 +11,22 @@
 
 <script type="text/javascript">
     var branch_show_url = "{{ path("admin_realtor_dictionary_branches_show", {"id":"branch_id"}) }}";
+    var branch_items = [];
+
+    {% for branch in branches %}
+        {% if branch.address is not empty and branch.outerId != 4962 %}
+            branch_items[{{ branch.id }}] = {
+                "city_phone": "{{ branch.cityPhone is not empty ? branch.cityPhone : "" }}",
+                "interoffice_phone": "{{ branch.branchNumber is not empty ? branch.branchNumber : "" }}",
+                "duty_agent": "{{ branch.onDutyAgentPhone is not empty ? branch.onDutyAgentPhone : "" }}"
+            };
+        {% endif %}
+    {% endfor %}
 
     ymaps.ready(init);
 
     function init(){
-        var map = new ymaps.Map('map', {center: [59.93772, 30.313622], zoom: 8, controls: ["zoomControl", "searchControl"]});
+        var map = new ymaps.Map('map', {center: [59.93772, 30.313622], zoom: 8, controls: ["zoomControl", "searchControl", "fullscreenControl"]});
 
         map.events.add('click', function(event){
 
@@ -85,6 +96,40 @@
             {% endif %}
         {% endfor %}
     }
+
+    $(document).ready(function(){
+        $("#branch").change(function(){
+            if(!branch_items[$(this).val()]){
+                return;
+            }
+
+            var city_phone = branch_items[$(this).val()]["city_phone"];
+            var interoffice_phone = branch_items[$(this).val()]["interoffice_phone"];
+            var duty_agent = branch_items[$(this).val()]["duty_agent"];
+
+            if(interoffice_phone){
+                interoffice_phone = "##" + interoffice_phone.substring(0, 2);
+            }
+
+            var button_block = "";
+
+            $("#call-card-buttons").html("");
+
+            $("#branch-to-call").val($(this).val());
+
+            if(interoffice_phone){
+                button_block += "<input type=\"submit\" class=\"btn btn-small btn-success\" id=\"office-loud-call-forward\" name=\"CallCard[office-loud-call-forward]\" value=\"Громкая связь\" onclick=\"$('#action').val($(this).attr('id')); $('#call-to-phone').val('" + interoffice_phone + "');\" />";
+            }
+
+            if(duty_agent){
+                button_block += "<input type=\"submit\" class=\"btn btn-small btn-success\" id=\"office-duty-agent-phone-forward\" name=\"CallCard[office-duty-agent-phone-forward]\" value=\"Перевести на дежурного агента\" onclick=\"$('#action').val($(this).attr('id')); $('#call-to-phone').val(" + duty_agent + ");\" />";
+            }
+
+            if(button_block){
+                $("#call-card-buttons").append("<div class=\"btn-group\">" + button_block + "</div>");
+            }
+        });
+    });
 </script>
 
 <div>
@@ -112,12 +157,46 @@
     </div>
 
     <div class="span6">
-        <label class="control-label required" for="message">Сообщение:</label>
-        <textarea class="input-xlarge span14" id="message" name="CallCard[message]" rows="4" required="required"></textarea>
+        <div class="control-group">
+            <label class="control-label required" for="branch">Филиал:</label>
+            <select name="CallCard[branch]" id="branch" class="span12" style="margin-bottom: 15px;">
+                <option></option>
+                {% for branch in branches %}
+                    {% if branch.address is not empty and branch.outerId != 4962 %}
+                        <option value="{{ branch.id }}">{{ branch.name }}</option>
+                    {% endif %}
+                {% endfor %}
+            </select>
+        </div>
 
-        <div style="height: 140px; overflow: scroll;" id="messages-history">
-            <label class="control-label required" for="message" style="display: none;">Предыдущие сообщения:</label>
-            <table class="table"></table>
+        <div class="control-group">
+            <label class="control-label required" for="advertising-source">Источник рекламы:</label>
+            <select name="CallCard[advertising-source]" id="advertising-source" required="required" class="span12" style="margin-bottom: 15px;">
+                <option></option>
+                {% for item in advertising_source %}
+                    <option value="{{ item.id }}">{{ item.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="control-group">
+            <label class="control-label required" for="reason">Причина обращения:</label>
+            <select name="CallCard[reason]" id="reason" required="required" class="span12" style="margin-bottom: 15px;">
+                <option></option>
+                {% for item in reason %}
+                    <option value="{{ item.id }}">{{ item.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="control-group">
+            <label class="control-label required" for="message">Сообщение:</label>
+            <textarea class="input-xlarge span14" id="message" name="CallCard[message]" rows="4" required="required"></textarea>
+
+            <div style="height: 140px; overflow: scroll;" id="messages-history">
+                <label class="control-label required" for="message" style="display: none;">Предыдущие сообщения:</label>
+                <table class="table"></table>
+            </div>
         </div>
     </div>
 </div>

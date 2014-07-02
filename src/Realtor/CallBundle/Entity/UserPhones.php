@@ -49,6 +49,13 @@ class UserPhones
     /**
      * @var string
      *
+     * @ORM\Column(name="phone_before_replace", type="string", length=128, nullable=true)
+     */
+    private $phoneBeforeReplace;
+
+    /**
+     * @var string
+     *
      * @ORM\Column(name="phone_action", type="string", length=128)
      */
     private $phoneAction;
@@ -286,5 +293,28 @@ class UserPhones
     public function getDialId()
     {
         return $this->dialId;
+    }
+
+    /**
+     * Set phoneBeforeReplace
+     *
+     * @param string $phoneBeforeReplace
+     * @return UserPhones
+     */
+    public function setPhoneBeforeReplace($phoneBeforeReplace)
+    {
+        $this->phoneBeforeReplace = $phoneBeforeReplace;
+
+        return $this;
+    }
+
+    /**
+     * Get phoneBeforeReplace
+     *
+     * @return string 
+     */
+    public function getPhoneBeforeReplace()
+    {
+        return $this->phoneBeforeReplace;
     }
 }

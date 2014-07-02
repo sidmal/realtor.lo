@@ -173,6 +173,14 @@ class CallController extends Controller
                         $params['caller-name'] = 'unknown';
                     }
                     break;
+                case 'agent-loud-call-forward':
+                case 'office-loud-call-forward':
+                    $action = 'dial';
+
+                    if(!$callManager->dial($params['caller-phone'], $params['call-to-phone'], $uniqueId)){
+                        $response->setStatusCode(Response::HTTP_FORBIDDEN);
+                    }
+                    break;
                 case 'forward-to-call-center':
                     if(empty($params['caller-name'])){
                         $params['caller-name'] = 'unknown';
@@ -192,6 +200,10 @@ class CallController extends Controller
 
                     if($action == 'user-replace-phone'){
                         $userPhone = $this->getDoctrine()->getManager()->getRepository('CallBundle:UserPhones')->find($params['replace-user-phone-id']);
+
+                        $userPhone
+                            ->setPhoneBeforeReplace($userPhone->getPhone())
+                            ->getIsVerify(false);
                     }
 
                     $userPhone

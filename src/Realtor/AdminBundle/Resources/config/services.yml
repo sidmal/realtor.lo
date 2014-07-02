@@ -95,6 +95,19 @@ services:
         tags:
             - { name: sonata.admin, manager_type: orm, group: "График дежурств", label: "График дежурств" }
 
+    admin.admin.duty_old:
+        class: Realtor\AdminBundle\Admin\DutyAdmin
+        arguments:
+            - ~
+            - Application\Sonata\UserBundle\Entity\Duty
+            - ApplicationSonataUserBundle:DutyCRUD
+        calls:
+            - [ setSecurityContext, [@security.context]]
+            - [ setTemplate, [list, SonataAdminBundle:Core:list.html.twig]]
+            - [ setTemplate, [edit, SonataAdminBundle:Core:edit.html.twig]]
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: "График дежурств", label: "График дежурств (старый вариант)" }
+
     admin.admin.callers:
         class: Realtor\AdminBundle\Admin\CallersAdmin
         arguments:
