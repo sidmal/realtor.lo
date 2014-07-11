@@ -35,7 +35,7 @@ class PropertyController extends Controller
 
         try{
             $response = $httpClient->get(
-                'http://disp.emls.ru/api/property/begins_with/?q='.$request->query->get('term'),
+                'http://disp.emls.ru/api/property/contains/?q='.$request->query->get('term'),
                 ['Accept' => 'application/json']
             )->send();
 
