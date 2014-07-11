@@ -15,10 +15,18 @@
                 success: function(response){
                     var content = "<tr><th>Номер</th><th>Действие</th></tr>";
                     $.each(response, function(i, item){
-                        content += "<tr>" +
-                                "<td>" + item.phone + "</td>" +
-                                "<td><button class=\"btn btn-mini btn-danger\" type=\"button\" onclick=\"$('#replace-user-phone-id').val(" + item.id + "); $('#action').val('user-replace-phone'); $('#call-card-form').submit();\">Земенить номер</button></td>" +
-                                "</tr>"
+                        if($("#user-call-phone").val() == item.phone){
+                            content += "<tr>" +
+                                    "<td>" + item.phone + "</td>" +
+                                    "<td><button disabled=\"disabled\" class=\"btn btn-mini btn-danger\" type=\"button\" onclick=\"$('#replace-user-phone-id').val(" + item.id + "); $('#action').val('user-replace-phone'); $('#call-card-form').submit();\">Запись уже содержит данный номер</button></td>" +
+                                    "</tr>"
+                        }
+                        else{
+                            content += "<tr>" +
+                                    "<td>" + item.phone + "</td>" +
+                                    "<td><button class=\"btn btn-mini btn-danger\" type=\"button\" onclick=\"$('#replace-user-phone-id').val(" + item.id + "); $('#action').val('user-replace-phone'); $('#call-card-form').submit();\">Заменить номер</button></td>" +
+                                    "</tr>"
+                        }
                     });
 
                     $("#user-phones-replace").find("table").html(content);
@@ -126,7 +134,11 @@
         });
 
         $(document).ready(function(){
-            $("#advertising-source, #who-call, #reason").select2();
+            $("#client-undefined").on("click", function(){
+                if($(this).is(':checked')){
+                    $("#caller-name").removeAttr("required").attr("readonly", true);
+                }
+            });
 
             $("#call-card-form").submit(function(event){
                 event.preventDefault();
@@ -135,7 +147,11 @@
                     type: "post",
                     url: "{{ path('call_outcome_ajax') }}",
                     data: $("#call-card-form").serialize(),
-                    complete: function(response){
+                    complete: function(xhr, textStatus){
+                        if(xhr.status == 208){
+                            return self.alert(xhr.responseText); $("#add-to-black-list").modal("hide");
+                        }
+
                         var action = $("#call-card-form input[id=action]").val();
 
                         if(action == "user-add-phone"){
@@ -161,6 +177,8 @@
                 $("#call-card-content").find("#container").html("");
                 $("#call-card-content").find(".required-buttons").html("");
                 $("#call-card-buttons").html("");
+
+                $("#call-card-form").find("input[type=text], textarea").val("");
 
                 $("#phone-type").find(".btn-group").find("button").each(function(){
                     $(this).attr("disabled", false);
@@ -191,13 +209,13 @@
                                 $("#caller-default, #caller-default-info").html("<strong>Инициатор звонка: " + data.caller_default + "</strong>");
                             }
 
-                            $("#caller-phone").html(data.fromPhone);
-                            $("#black-list-caller-phone").val(data.fromPhone);
-                            $("#linked-id, #black-list-linked-id").val(data.linkedId);
-                            $("#call-id, #black-list-call-id").val(data.id);
-                            $("#ats-call-id, #black-list-ats-call-id").val(data.atsCallId);
-
                             if(data.callAction == "{{ call_dial_up_event }}"){
+                                $("#caller-phone").html(data.fromPhone);
+                                $("#black-list-caller-phone").val(data.fromPhone);
+                                $("#linked-id, #black-list-linked-id").val(data.linkedId);
+                                $("#call-id, #black-list-call-id").val(data.id);
+                                $("#ats-call-id, #black-list-ats-call-id").val(data.atsCallId);
+
                                 $("#call-card").modal("hide");
 
                                 var caller_phone = data.fromPhone;
@@ -210,9 +228,19 @@
                                 $("#income-call-info").modal({"keyboard": false, "backdrop": "static"});
                             }
                             else if(data.callAction == "{{ call_dial_down_event }}"){
-                                $("#call-card, #income-call-info").modal("hide");
+                                var hide_linked_id = $("#linked-id").val();
+
+                                if(hide_linked_id == data.linkedId){
+                                    $("#call-card, #income-call-info").modal("hide");
+                                }
                             }
                             else{
+                                $("#caller-phone").html(data.fromPhone);
+                                $("#black-list-caller-phone").val(data.fromPhone);
+                                $("#linked-id, #black-list-linked-id").val(data.linkedId);
+                                $("#call-id, #black-list-call-id").val(data.id);
+                                $("#ats-call-id, #black-list-ats-call-id").val(data.atsCallId);
+
                                 $("#income-call-info").modal('hide');
 
                                 if(data.caller_default_name){
@@ -229,11 +257,15 @@
                                     $("#caller-name").val(data.callerName);
 
                                     if(data.advertisingSource){
-                                        $("#advertising-source").val(data.advertisingSource);
+                                        $("#advertising-source, #advertising-source-v2").select2("val", data.advertisingSource);
                                     }
 
                                     if(data.reason){
-                                        $("#reason").val(data.reason);
+                                        $("#reason").select2("val", data.reason);
+                                    }
+
+                                    if(data.branch){
+                                        $("#branch").select2("val", data.branch);
                                     }
 
                                     if(data.propertyAddress){
@@ -257,7 +289,7 @@
                                     }
 
                                     if(data.who_call){
-                                        $("#who-call").val(data.who_call);
+                                        $("#who-call").select2("val", data.who_call);
                                     }
 
                                     if(data.message){

@@ -212,9 +212,11 @@
     $("#forward-to-receiver-input-number").keyup(function(){
         event.preventDefault();
 
+        $('#call-to-phone').val($(this).val());
+
         var button_block = "<input type=\"submit\" class=\"btn btn-small btn-success\" id=\"user-add-phone\" name=\"CallCard[user-add-phone]\" value=\"Добавить телефон\" onclick=\"$('#action').val($(this).attr('id'));\" />"
                 + "<input type=\"submit\" class=\"btn btn-small btn-success\" id=\"user-replace-phone\" name=\"CallCard[user-replace-phone]\" value=\"Заменить телефон\" onclick=\"$('#action').val($(this).attr('id'));\" />"
-                + "<input type=\"submit\" class=\"btn btn-small btn-success\" id=\"agent-office-forward\" name=\"CallCard[agent-cell-forward]\" value=\"Перевести звонок\" onclick=\"$('#action').val('forward-to-receiver-input-number'); $('#call-to-phone').val(" + $(this).val() + ");\" />"
+                + "<input type=\"submit\" class=\"btn btn-small btn-success\" id=\"agent-office-forward\" name=\"CallCard[agent-cell-forward]\" value=\"Перевести звонок\" onclick=\"$('#action').val('forward-to-receiver-input-number');\" />"
                 + "<input type=\"submit\" class=\"btn btn-small btn-success\" id=\"forward-call-to-ats\" name=\"CallCard[forward-call-to-ats]\" value=\"Перевести на АТС\" onclick=\"$('#action').val($(this).attr('id')); $('#call-to-phone').val('Employee');\" />";
 
         $("#call-card-buttons").html("").append("<div class=\"btn-group\">" + button_block + "</div>");

@@ -1,4 +1,8 @@
 <script type="text/javascript">
+    $(document).ready(function(){
+        $("#advertising-source, #reason, #who-call").select2();
+    });
+
     $(function() {
         $("#property").autocomplete({
             delay: 0,
@@ -132,6 +136,11 @@
 
         <div class="control-group">
             <label class="control-label required" for="caller-name">Имя звонящего:</label>
+
+            <label class="checkbox">
+                <input type="checkbox" id="client-undefined"> Клиент отказался представиться
+            </label>
+
             <div class="input-append">
                 <input type="text" id="caller-name" name="CallCard[caller-name]" required="required" class="span11" placeholder="Имя звонящего" autocomplete="off" />
                 <span class="add-on"><i class="icon-user"></i></span>

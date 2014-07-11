@@ -55,13 +55,15 @@
                         var interoffice_phone = "{{ branch.branchNumber is not empty ? branch.branchNumber : "" }}";
                         var duty_agent = "{{ branch.onDutyAgentPhone is not empty ? branch.onDutyAgentPhone : "" }}";
 
+                        $("#branch").select2("val", {{ branch.id }});
+
                         interoffice_phone = "##" + interoffice_phone.substring(0, 2);
 
                         var button_block = "";
 
                         $("#call-card-buttons").html("");
 
-                        $("#branch-to-call").val({{ branch.Id }});
+                        $("#branch-to-call").val({{ branch.id }});
 
                         //button_block += "<input type=\"submit\" class=\"btn btn-small btn-success\" id=\"black-list-forward\" name=\"CallCard[black-list-forward]\" value=\"Занести в черный список\" onclick=\"$('#action').val($(this).attr('id'));\" />";
 
@@ -98,6 +100,8 @@
     }
 
     $(document).ready(function(){
+        $("#advertising-source-v2, #who-call, #branch, #reason").select2();
+
         $("#branch").change(function(){
             if(!branch_items[$(this).val()]){
                 return;
@@ -171,7 +175,7 @@
 
         <div class="control-group">
             <label class="control-label required" for="advertising-source">Источник рекламы:</label>
-            <select name="CallCard[advertising-source]" id="advertising-source" required="required" class="span12" style="margin-bottom: 15px;">
+            <select name="CallCard[advertising-source]" id="advertising-source-v2" required="required" class="span12" style="margin-bottom: 15px;">
                 <option></option>
                 {% for item in advertising_source %}
                     <option value="{{ item.id }}">{{ item.name }}</option>

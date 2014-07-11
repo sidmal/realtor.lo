@@ -1,4 +1,8 @@
 <script type="text/javascript">
+    $(document).ready(function(){
+        $("#who-call").select2();
+    });
+
     $("#forward-call-to-other-employer").click(function(){
         $("#call-card-buttons").html("")
     });
@@ -161,10 +165,12 @@
         input_container.show();
     });
 
-    $("#forward-to-receiver-input-number").keyup(function(){
+    $("#forward-to-receiver-input-number").keyup(function(event){
         event.preventDefault();
 
-        var button_block = "<input type=\"submit\" class=\"btn btn-small btn-success\" id=\"agent-office-forward\" name=\"CallCard[agent-cell-forward]\" value=\"Перевести звонок\" onclick=\"$('#action').val('forward-to-receiver-input-number'); $('#call-to-phone').val(" + $(this).val() + ");\" />";
+        $('#call-to-phone').val($(this).val());
+
+        var button_block = "<input type=\"submit\" class=\"btn btn-small btn-success\" id=\"agent-office-forward\" name=\"CallCard[agent-cell-forward]\" value=\"Перевести звонок\" onclick=\"$('#action').val('forward-to-receiver-input-number');\" />";
 
         $("#call-card-buttons").html("").append("<div class=\"btn-group\">" + button_block + "</div>");
     });

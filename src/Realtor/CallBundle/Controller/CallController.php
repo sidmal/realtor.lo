@@ -91,6 +91,20 @@ class CallController extends Controller
                     $call->setCallResult($this->getDoctrine()->getManager()->getRepository('DictionaryBundle:CallResult')->find($request->get('call_result')));
                 }
 
+                if($this->container->get('kernel')->getEnvironment() == 'dev'){
+                    $call = new Call();
+                    $call
+                        ->setLinkedId($dial->getLinkedId())
+                        ->setAtsCallId($dial->getAtsCallId())
+                        ->setType(1)
+                        ->setFromPhone('102')
+                        ->setToPhone('205')
+                        ->setCallAction('hang')
+                        ->setEventAt(new \DateTime());
+
+                    $em->persist($call);
+                }
+
                 $this->getDoctrine()->getManager()->persist($call);
                 $this->getDoctrine()->getManager()->flush();
             }
@@ -196,6 +210,14 @@ class CallController extends Controller
                 case 'user-replace-phone':
                     $action = $params['action'];
 
+                    if($currentPhone = $this->getDoctrine()->getManager()->getRepository('CallBundle:UserPhones')->findOneBy(['phone' => $params['user-call-phone'], 'userId' => $params['user-id']])){
+                        $responseMessage = 'Указанный номер добавлен ранее. Статус номера в текущий момент: ';
+
+                        $responseMessage .= ($currentPhone->getIsVerify()) ? 'ВЕРИФИЦИРОВАН' : 'ОЖИДАЕТ ВЕРИФИКАЦИИ';
+
+                        return $response->setStatusCode(Response::HTTP_ALREADY_REPORTED)->setContent($responseMessage);
+                    }
+
                     $userPhone = new UserPhones();
 
                     if($action == 'user-replace-phone'){
@@ -203,7 +225,7 @@ class CallController extends Controller
 
                         $userPhone
                             ->setPhoneBeforeReplace($userPhone->getPhone())
-                            ->getIsVerify(false);
+                            ->setIsVerify(false);
                     }
 
                     $userPhone
@@ -220,12 +242,30 @@ class CallController extends Controller
                 default:
                     $action = 'bxfer';
 
+                    if($this->container->get('kernel')->getEnvironment() == 'dev'){
+                        $call = new Call();
+                        $call
+                            ->setLinkedId($params['linked-id'])
+                            ->setAtsCallId($params['ats-call-id'])
+                            ->setType(1)
+                            ->setFromPhone('9219251983')
+                            ->setToPhone('102')
+                            ->setCallAction('connect-exten')
+                            ->setEventAt(new \DateTime());
+
+                        $em->persist($call);
+                    }
+
                     if(!$callManager->bxfer($dial->getAtsCallId(), 'A', $params['call-to-phone'])){
                         $response->setStatusCode(403);
                     }
 
                     break;
             }
+        }
+
+        if(empty($params['caller-name'])){
+            $params['caller-name'] = 'unknown';
         }
 
         $call = new Call();
@@ -380,6 +420,10 @@ class CallController extends Controller
 
                 if($firstCall->getParams()->getOtherWhoCall()){
                     $call[0]['who_call'] = $firstCall->getParams()->getOtherWhoCall()->getId();
+                }
+
+                if($firstCall->getParams()->getBranch()){
+                    $call[0]['branch'] = $firstCall->getParams()->getBranch()->getId();
                 }
 
                 $call[0]['callType'] = $firstCall->getParams()->getCallType();

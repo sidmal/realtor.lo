@@ -14,7 +14,9 @@ class UserPhonesAdmin extends Admin
     protected function configureRoutes(RouteCollection $collection)
     {
         $collection->remove('create');
-        $collection->add('verify_user_phone', $this->getRouterIdParameter().'/verify');
+        $collection
+            ->add('verify_user_phone', $this->getRouterIdParameter().'/verify')
+            ->add('call_to_user_phone', $this->getRouterIdParameter().'/call');
     }
 
     /**
@@ -48,8 +50,9 @@ class UserPhonesAdmin extends Admin
                 [
                     'actions' => [
                         'show' => ['template' => 'AdminBundle:Default:show.html.twig'],
-                        'delete' => ['template' => 'AdminBundle:Default:delete.html.twig'],
+                        'delete' => ['template' => 'AdminBundle:Default:delete_user_phone.html.twig'],
                         'verify' => ['template' => 'AdminBundle:Default:verify_user_phone.html.twig'],
+                        'call' => ['template' => 'AdminBundle:Default:call_ajax.html.twig'],
                     ]
                 ]
             )
