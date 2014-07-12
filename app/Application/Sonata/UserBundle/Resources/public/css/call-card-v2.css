@@ -16,9 +16,11 @@
 .ui-autocomplete{
     max-height: 100px;
     overflow-y: auto;
+    overflow-x: hidden;
     position: absolute;
     cursor: default;
     z-index: 1500 !important;
+    padding-right: 20px;
 }
 
 #phone-type div.btn-group{

@@ -363,6 +363,18 @@ $.fn.zabuto_calendar = function (options) {
                 type: 'GET',
                 url: ajaxSettings.url,
                 data: data,
+                beforeSend: function(){
+                    if(!ajaxSettings.beforeSend || typeof(ajaxSettings.beforeSend) == 'undefined' ||
+                        !jQuery.isFunction(ajaxSettings.beforeSend)){ return true; }
+
+                    return ajaxSettings.beforeSend;
+                },
+                success: function(){
+                    if(!ajaxSettings.success || typeof(ajaxSettings.success) == 'undefined' ||
+                        !jQuery.isFunction(ajaxSettings.success)){ return true; }
+
+                    return ajaxSettings.success;
+                },
                 dataType: 'json'
             }).done(function (response) {
                     var events = [];

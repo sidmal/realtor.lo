@@ -37,7 +37,7 @@ class DutyController extends Controller
         }
 
         $dutyStartDate = new \DateTime($request->query->get('year').'-'.sprintf('%02d', $request->query->get('month')).'-01');
-        $dutyEndDate = new \DateTime();
+        $dutyEndDate = (new \DateTime())->modify('last day of '.$request->query->get('month').' month');
 
         $interval = new \DateInterval('P1D');
         $dateRange = new \DatePeriod($dutyStartDate, $interval ,$dutyEndDate);

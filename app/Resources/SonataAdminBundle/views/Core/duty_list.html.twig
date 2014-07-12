@@ -23,6 +23,8 @@
                 },
                 ajax: {
                     url: "{{ path('duty_get_unfilled') }}",
+                    beforeSend: before_duty_load(),
+                    success: after_duty_load(),
                     popover: true
                 },
                 language: "ru",
@@ -30,6 +32,14 @@
                 show_previous: min_previous_navigation_steps
             });
         });
+
+        function before_duty_load(){
+            alert('эта функция должна быть вызвана до того как будет получен ответ.');
+        }
+
+        function after_duty_load(){
+            alert('эта функция должна быть вызвана после того как будет получен ответ.');
+        }
     </script>
 {% endblock %}
 

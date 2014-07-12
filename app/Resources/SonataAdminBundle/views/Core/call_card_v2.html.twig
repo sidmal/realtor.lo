@@ -165,6 +165,9 @@
                         else{
                             $("#call-card, #add-to-black-list").modal("hide");
                         }
+
+                        $("#caller-default, #caller-default-info").html("");
+                        $("#caller-name").val("");
                     },
                     dataType: 'json'
                 });
@@ -333,6 +336,10 @@
     {% include '@SonataAdmin/Core/call_result_modal.html.twig' %}
 
     <div id="user-phones-replace" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="user_phones_replace" aria-hidden="true" style="z-index: 10000;">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h3><strong>Номера телефонов для замены:</strong></h3>
+        </div>
         <div class="modal-body">
             <label class="control-label required">Номера телефонов сотрудника:</label>
             <table class="table"></table>
