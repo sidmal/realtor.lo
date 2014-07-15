@@ -37,60 +37,79 @@ class DutyController extends Controller
         }
 
         $dutyStartDate = new \DateTime($request->query->get('year').'-'.sprintf('%02d', $request->query->get('month')).'-01');
-        $dutyEndDate = (new \DateTime())->modify('last day of '.$request->query->get('month').' month');
+        $dutyEndDate = (new \DateTime($request->query->get('year').'-'.sprintf('%02d', $request->query->get('month')).'-01'))
+            ->modify('last day of 0 month')->modify('+1 day');
 
         $interval = new \DateInterval('P1D');
         $dateRange = new \DatePeriod($dutyStartDate, $interval ,$dutyEndDate);
 
-        $dutyTime = (integer)$this->container->getParameter('duty.max.hour') -
-            (integer)$this->container->getParameter('duty.min.hour');
+        $dutyStartTime = (integer)$this->container->getParameter('duty.min.hour');
+        $dutyEndTime = (integer)$this->container->getParameter('duty.max.hour');
+        $dutyTime = $dutyStartTime - $dutyEndTime;
 
-        $branches = $this->getDoctrine()->getManager()->getRepository('DictionaryBundle:Branches')->findBy(['isActive' => true]);
-
-        if(!$branches){
-            return $response->setStatusCode(Response::HTTP_NOT_FOUND);
+        $totalDutyAgents = null;
+        if($request->query->has('branch')){
+            $totalDutyAgents = $this->getDoctrine()->getManager()->getRepository('DictionaryBundle:Branches')
+                ->getTotalDutyAgents($request->query->get('branch'));
+        }
+        else{
+            $totalDutyAgents = $this->getDoctrine()->getManager()->getRepository('DictionaryBundle:Branches')
+                ->getTotalDutyAgents();
         }
 
-        $dutyAgentsCountTotal = 0;
-        foreach($branches as $branch){
-            $dutyAgentsCountTotal += $branch->getDutyAgentsCount();
+        if(!$totalDutyAgents){
+            $response->setStatusCode(Response::HTTP_NOT_FOUND);
         }
 
         $calendarDate = [];
 
         foreach($dateRange as $dateItem){
-            $item = ['body' => '', 'date' => $dateItem->format('Y-m-d')];
+            $item = [
+                'body' => '',
+                'title' => '<strong>График дежурств на '.$dateItem->format('d.m.Y').'</strong>',
+                'date' => $dateItem->format('Y-m-d')
+            ];
 
-            $dutyCountByDate = $this->getDoctrine()->getManager()->getRepository('ApplicationSonataUserBundle:DutyInBranches')->getDutyCountByDateAndBranch($dateItem);
-            $dutyRecordCount = $dutyTime * $dutyAgentsCountTotal;
+            $dutyData = $this->getDoctrine()->getManager()->getRepository('ApplicationSonataUserBundle:DutyInBranches')
+                ->getDutyInBranchByDate($dateItem, $request->query->has('branch') ? $request->query->get('branch') : null);
 
-            if($dutyCountByDate == 0){
-                $item['classname'] = 'grade-1';
-                $item['title'] = 'Филиалы (Нет заполненных дежурств)';
+            if(!$dutyData){
+                $branches = $this->getDoctrine()->getManager()->getRepository('DictionaryBundle:Branches')
+                    ->findBy(['isActive' => true]);
+
+                foreach($branches as $branch){
+                    $item['body'] .= '<div class="span6" style="margin-bottom: 10px;">'.$branch->getName();
+
+                    $item['body'] .= '<table class="table table-bordered" style="width: 100%;">';
+                    $item['body'] .= '<tr>';
+                    $item['body'] .= '<th style="width: 10%; text-align: center; vertical-align: middle;">Время начала дежурства</th>';
+                    $item['body'] .= '<th style="width: 10%; text-align: center; vertical-align: middle;">Время окончания дежурства</th>';
+                    $item['body'] .= '<th style="text-align: center; vertical-align: middle;">Дежурный</th>';
+                    $item['body'] .= '</tr>';
+                    for($i = $dutyStartTime; $i < $dutyEndTime; $i++){
+                        $item['body'] .= '<tr>';
+                        $item['body'] .= '<td style="width: 10%; text-align: center; vertical-align: middle;">'.sprintf('%02d', $i).'</td>';
+                        $item['body'] .= '<td style="width: 10%; text-align: center; vertical-align: middle;">'.sprintf('%02d', ($i + 1)).'</td>';
+                        $item['body'] .= '<td style="text-align: center; vertical-align: middle;">&nbsp;</td>';
+                        $item['body'] .= '</tr>';
+                    }
+                    $item['body'] .= '</table>';
+
+                    $item['body'] .= '</div>';
+                }
             }
-            elseif($dutyCountByDate > 0 && $dutyCountByDate < $dutyRecordCount){
-                $item['classname'] = 'grade-2';
-                $item['title'] = 'Филиалы (Частично заполнен график дежурств)';
+
+            $dutyRecordCount = $dutyTime * $totalDutyAgents;
+            $dutyFilledOn = count(array_values($dutyData)) * count($dutyData) / $dutyRecordCount;
+
+            if($dutyFilledOn <= 0.59){
+                $item['classname'] = 'grade-1';
+            }
+            elseif($dutyFilledOn >= 0.60 && $dutyFilledOn < 1){
+                $item['classname'] = 'grade-3';
             }
             else{
                 $item['classname'] = 'grade-4';
-                $item['title'] = 'Филиалы';
-            }
-
-            foreach($branches as $branch){
-                $dutyAsDate = $this->getDoctrine()->getManager()->getRepository('ApplicationSonataUserBundle:DutyInBranches')->getDutyCountByDateAndBranch($dateItem, $branch);
-                $dutyRecordCount = $dutyTime * $branch->getDutyAgentsCount();
-
-                if($dutyAsDate == 0){
-                    $item['body'] .= '<li style="color: #FA2601;">'.$branch->getName().' (количество не заполенных часов дежурства: '.($dutyRecordCount - $dutyAsDate).')</li>';
-                }
-                elseif($dutyAsDate > 0 && $dutyAsDate < $dutyRecordCount){
-                    $item['body'] .= '<li style="color: #FA8A00">'.$branch->getName().' (количество не заполенных часов дежурства: '.($dutyRecordCount - $dutyAsDate).')</li>';
-                }
-                else{
-                    $item['body'] .= '<li style="color: #27AB00">'.$branch->getName().'</li>';
-                }
-
             }
 
             $calendarDate[] = $item;

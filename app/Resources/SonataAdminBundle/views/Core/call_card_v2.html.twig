@@ -116,12 +116,6 @@
         });
 
         $(document).ready(function(){
-            $("#client-undefined").on("click", function(){
-                if($(this).is(':checked')){
-                    $("#caller-name").removeAttr("required").attr("readonly", true);
-                }
-            });
-
             $("#call-card-form").submit(function(event){
                 event.preventDefault();
 
@@ -206,7 +200,13 @@
                                 $("#caller-default, #caller-default-info, #income-call-info-caller-name").html("");
 
                                 if(data.caller_default_name){
-                                    $("#income-call-info-caller-name").html(" (" + data.caller_default_name + ")");
+                                    var caller_default_name = data.caller_default_name;
+
+                                    if(caller_default_name == "unknown"){
+                                        caller_default_name = "Клиент отказался представиться ранее";
+                                    }
+
+                                    $("#income-call-info-caller-name").html(" (" + caller_default_name + ")");
                                 }
 
                                 $("#income-call-info-caller-phone").html(caller_phone);
@@ -285,6 +285,14 @@
                                         $.each(data.message, function(i, item){
                                             $("#messages-history table").append("<tr><td>" + item + "</td></tr>");
                                         });
+                                    }
+                                }
+
+                                if($("#caller-name").val() == "unknown" && parseInt($("#call-type").val()) == 0){
+                                    $("#caller-name").val("").attr("readonly", true);
+
+                                    if(!$("#client-undefined").is(':checked')){
+                                        $("#client-undefined").attr("checked", true);
                                     }
                                 }
 

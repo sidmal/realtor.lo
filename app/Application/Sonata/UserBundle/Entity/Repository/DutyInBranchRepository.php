@@ -6,6 +6,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\NoResultException;
+use Doctrine\ORM\Query\Expr\OrderBy;
 use Doctrine\ORM\Query\Parameter;
 use Realtor\DictionaryBundle\Entity\Branches;
 
@@ -35,6 +36,43 @@ class DutyInBranchRepository extends EntityRepository
 
         try{
             $result = $builder->getQuery()->getSingleScalarResult();
+        }
+        catch(NoResultException $e){
+            $result = null;
+        }
+
+        return $result;
+    }
+
+    public function getDutyInBranchByDate($dutyDate, $branch = null)
+    {
+        $builder = $this->getEntityManager()->createQueryBuilder()
+            ->select(['duty.dutyDate', 'duty.dutyTime', 'duty.dutyPhone', 'duty_agent.fio', 'duty_branch.name'])
+            ->from('ApplicationSonataUserBundle:DutyInBranches', 'duty')
+            ->leftJoin('duty.dutyAgent', 'duty_agent')
+            ->leftJoin('duty.branchId', 'duty_branch')
+            ->where('duty.dutyDate = :duty_date')->setParameter('duty_date', $dutyDate, Type::DATE)
+            ->orderBy(new OrderBy('duty.branchId'))
+            ->addOrderBy(new OrderBy('duty.dutyDate'))
+            ->addOrderBy(new OrderBy('duty.dutyTime'));
+
+        if($branch){
+            $builder->andWhere('duty.branchId = :branch_id')->setParameter('branch_id', $branch);
+        }
+
+        try{
+            $queryResult = $builder->getQuery()->getArrayResult();
+
+            $result = [];
+            foreach($queryResult as $item){
+                $result[$item['branch_name']] = [
+                    'time_start' => sprintf('%02d', $item['dutyTime']),
+                    'agent_name' => $item['fio'],
+                    'phone' => $item['dutyPhone']
+                ];
+
+                $result[$item['branch_name']]['time_end'] = sprintf('%02d', ($item['dutyTime'] + 1));
+            }
         }
         catch(NoResultException $e){
             $result = null;

@@ -2,7 +2,9 @@
 
 namespace Realtor\DictionaryBundle\Entity\Repository;
 
+use Doctrine\DBAL\Types\Type;
 use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\NoResultException;
 
 /**
  * BranchesRepository
@@ -22,6 +24,33 @@ class BranchesRepository extends EntityRepository
 
         try{
             $result = $builder->getQuery()->getResult();
+        }
+        catch(NoResultException $e){
+            $result = null;
+        }
+
+        return $result;
+    }
+
+    public function getTotalDutyAgents($branch = null)
+    {
+        $builder = $this->getEntityManager()->createQueryBuilder()
+            ->select(['branches.dutyAgentsCount'])
+            ->from('DictionaryBundle:Branches', 'branches')
+            ->where('branches.isActive = :is_active')
+            ->setParameter('is_active', true, Type::BOOLEAN);
+
+        if($branch){
+            $builder->andWhere('branches.id = :branch_id')->setParameter('branch_id', $branch);
+        }
+
+        try{
+            $queryResult = $builder->getQuery()->getArrayResult();
+
+            $result = 0;
+            foreach($queryResult as $item){
+                $result += $item['dutyAgentsCount'];
+            }
         }
         catch(NoResultException $e){
             $result = null;
