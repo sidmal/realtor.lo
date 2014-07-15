@@ -86,7 +86,7 @@ services:
         class: Realtor\AdminBundle\Admin\DutyAdmin
         arguments:
             - ~
-            - Application\Sonata\UserBundle\Entity\Duty
+            - Application\Sonata\UserBundle\Entity\DutyInBranches
             - ApplicationSonataUserBundle:DutyCRUD
         calls:
             - [ setSecurityContext, [@security.context]]

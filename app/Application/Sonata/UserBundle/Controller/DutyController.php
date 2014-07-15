@@ -78,7 +78,10 @@ class DutyController extends Controller
                     ->findBy(['isActive' => true]);
 
                 foreach($branches as $branch){
-                    $item['body'] .= '<div class="span6" style="margin-bottom: 10px;">'.$branch->getName();
+                    $item['body'] .= '<div class="span6" style="margin-bottom: 10px; text-align: center;">';
+                    $item['body'] .= '<div class="span3" style="margin-bottom: 15px; text-align: right;">';
+                    $item['body'] .= '<span class="label label-info" style="font-size: 18px;">'.$branch->getName().'</span>';
+                    $item['body'] .= '</div>';
 
                     $item['body'] .= '<table class="table table-bordered" style="width: 100%;">';
                     $item['body'] .= '<tr>';

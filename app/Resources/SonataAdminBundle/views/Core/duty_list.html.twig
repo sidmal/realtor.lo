@@ -49,8 +49,9 @@
 {% endblock %}
 
 {% block actions %}
-    <div class="sonata-actions btn-group" style="margin-right: 150px;">
-        {% include '@ApplicationSonataUser/CRUD/print_button.html.twig' %}
+    <div class="sonata-actions btn-group">
+        {% include 'SonataAdminBundle:Core:create_button.html.twig' %}
+        {% include '@ApplicationSonataUser/CRUD/duty_print_button.html.twig' %}
     </div>
 {% endblock %}
 

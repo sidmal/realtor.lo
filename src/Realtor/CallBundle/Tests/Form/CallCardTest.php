@@ -21,8 +21,8 @@ class CallCardTest extends WebTestCase
         $uniqueId = md5(uniqid(rand(), 1));
 
         $call = new Call();
-        $call->setLinkedId('6fc3d93c751d9eb0f1fb402f151dd805')->setInternalId($uniqueId)->setAtsCallId($uniqueId)
-            ->setType(1)->setFromPhone('9213839208')->setToPhone('205')->setCallAction('connect-exten')
+        $call->setLinkedId('85cb72079253d7a78fcd9ebdb8290571')->setInternalId($uniqueId)->setAtsCallId($uniqueId)
+            ->setType(1)->setFromPhone('9213839209')->setToPhone('205')->setCallAction('connect-exten')
             ->setEventAt(new \DateTime());
 
         $em->persist($call);
@@ -38,7 +38,7 @@ class CallCardTest extends WebTestCase
 
         $call = new Call();
         $call->setLinkedId($uniqueId)->setInternalId($uniqueId)->setAtsCallId($uniqueId)
-            ->setType(1)->setFromPhone('9213839208')->setToPhone('205')->setCallAction('dial-exten')
+            ->setType(1)->setFromPhone('9213839209')->setToPhone('205')->setCallAction('dial-exten')
             ->setEventAt(new \DateTime());
 
         $em->persist($call);

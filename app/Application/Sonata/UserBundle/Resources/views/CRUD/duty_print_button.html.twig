@@ -1,0 +1,6 @@
+{% if admin.hasRoute('print') %}
+    <a class="btn sonata-action-element" href="{{ admin.generateUrl('print') }}">
+        <i class="icon-print"></i>
+        Печать
+    </a>
+{% endif %}

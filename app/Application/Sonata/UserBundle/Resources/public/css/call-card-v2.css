@@ -30,3 +30,9 @@
 .required-buttons{
 
 }
+
+.select2-offscreen,
+.select2-offscreen:focus {
+    left: auto !important;
+    top: auto !important;
+}

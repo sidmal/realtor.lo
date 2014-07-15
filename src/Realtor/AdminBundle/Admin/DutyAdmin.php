@@ -24,7 +24,7 @@ class DutyAdmin extends Admin
     /**
      * @param DatagridMapper $datagridMapper
      */
-    protected function configureDatagridFilters(DatagridMapper $datagridMapper)
+    /*protected function configureDatagridFilters(DatagridMapper $datagridMapper)
     {
         $datagridMapper
             ->add(
@@ -36,17 +36,6 @@ class DutyAdmin extends Admin
                 null,
                 [
                     'empty_value' => 'Выберите филиал дежурства',
-                ]
-            )
-            ->add(
-                'manager',
-                null,
-                [
-                    'label' => 'Дежурный менеджер',
-                ],
-                null,
-                [
-                    'empty_value' => 'Выберите дежурного менеджера',
                 ]
             )
             ->add(
@@ -80,7 +69,7 @@ class DutyAdmin extends Admin
                 ]
             )
         ;
-    }
+    }*/
 
     /**
      * @param ListMapper $listMapper
@@ -90,11 +79,10 @@ class DutyAdmin extends Admin
         $listMapper
             ->addIdentifier('id', null, ['label' => 'Идентификатор'])
             ->add('branchId', null, ['label' => 'Дежурит в филиале'])
-            ->add('manager', null, ['label' => 'Дежурный менеджер'])
-            ->add('userId', null, ['label' => 'Дежурный агент'])
-            ->add('phone', null, ['label' => 'Номер телефона дежурного'])
-            ->add('dutyStartAt', null, ['label' => 'Дата начала дежурства'])
-            ->add('dutyEndAt', null, ['label' => 'Дата окончания дежурства'])
+            ->add('dutyAgent', null, ['label' => 'Дежурный агент'])
+            ->add('dutyPhone', null, ['label' => 'Номер телефона дежурного'])
+            ->add('dutyDate', null, ['label' => 'Дата начала дежурства'])
+            ->add('dutyTime', null, ['label' => 'Дата окончания дежурства'])
             ->add(
                 '_action',
                 'actions',
