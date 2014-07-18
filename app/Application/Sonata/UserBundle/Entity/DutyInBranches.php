@@ -3,12 +3,25 @@
 namespace Application\Sonata\UserBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 /**
  * DutyInBranches
  *
- * @ORM\Table(name="duty_in_branch")
+ * @ORM\Table(
+ *      name="duty_in_branch",
+ *      uniqueConstraints={
+ *          @ORM\UniqueConstraint(columns={"duty_date", "duty_time", "branch_id", "duty_agent_id"})
+ *      }
+ * )
  * @ORM\Entity(repositoryClass="Application\Sonata\UserBundle\Entity\Repository\DutyInBranchRepository")
+ * @UniqueEntity(
+ *      fields={"dutyDate", "dutyTime", "branchId", "dutyAgent"},
+ *      errorPath="branchId",
+ *      message="Указанный агент уже назначен дежурным в данном филиале на указанный период времени."
+ * )
+ *
+ * @ORM\HasLifecycleCallbacks()
  */
 class DutyInBranches
 {
@@ -242,5 +255,21 @@ class DutyInBranches
     public function getDutyAgent()
     {
         return $this->dutyAgent;
+    }
+
+    /**
+     * @ORM\PrePersist
+     */
+    public function beforeInsert()
+    {
+        $this->createdAt = $this->updatedAt = new \DateTime();
+    }
+
+    /**
+     * @ORM\PreUpdate
+     */
+    public function beforeUpdate()
+    {
+        $this->updatedAt = new \DateTime();
     }
 }

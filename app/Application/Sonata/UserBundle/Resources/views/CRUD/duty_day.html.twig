@@ -12,7 +12,7 @@
             {% if index in item_day|keys %}
                 <tr>
                     <td class="duty-time">{{ index }} - {{ index + 1 }}</td>
-                    <td class="duty-employer">{{ item_day[index] }}</td>
+                    <td class="duty-employer">{{ item_day[index]['agents']|join(", ") }}</td>
                 </tr>
             {% else %}
                 <tr>

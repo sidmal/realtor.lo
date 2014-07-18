@@ -1,5 +1,5 @@
 {% if admin.hasRoute('print') %}
-    <a class="btn sonata-action-element" href="{{ admin.generateUrl('print') }}">
+    <a id="duty-print-button" class="btn sonata-action-element" href="{{ admin.generateUrl('print', {'duty_period': "now"|date("Y-m")} ) }}">
         <i class="icon-print"></i>
         Печать
     </a>

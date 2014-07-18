@@ -46,6 +46,78 @@ class UserRepository extends EntityRepository
         return $result;
     }
 
+    public function getManagers()
+    {
+        $builder = $this->getEntityManager()->createQueryBuilder()
+            ->select('user')
+            ->from('ApplicationSonataUserBundle:User', 'user')
+            ->where('user.isFired = :is_fired');
+        $builder->andWhere($builder->expr()->like('user.roles', ':role'));
+
+        $builder->setParameters(
+            new ArrayCollection(
+                [
+                    new Parameter('role', '%ROLE_APP_MANAGER%'),
+                    new Parameter('is_fired', false)
+                ]
+            )
+        );
+
+        try{
+            $queryResult = $builder->getQuery()->getResult();
+
+            $result = [];
+            foreach($queryResult as $item){
+                $result[$item->getBranch()->getId()][] = [
+                    'manager_id' => $item->getId(),
+                    'manager_name' => $item->getFio()
+                ];
+            }
+        }
+        catch(NoResultException $e){
+            $result = null;
+        }
+
+        return $result;
+    }
+
+    public function getAgents()
+    {
+        $builder = $this->getEntityManager()->createQueryBuilder()
+            ->select('user')
+            ->from('ApplicationSonataUserBundle:User', 'user')
+            ->where('user.isFired = :is_fired');
+        $builder->andWhere($builder->expr()->like('user.roles', ':role'));
+
+        $builder->setParameters(
+            new ArrayCollection(
+                [
+                    new Parameter('role', '%ROLE_APP_AGENT%'),
+                    new Parameter('is_fired', false)
+                ]
+            )
+        );
+
+        try{
+            $queryResult = $builder->getQuery()->getResult();
+
+            $result = [];
+            foreach($queryResult as $item){
+                if($item->getHead()){
+                    $result[$item->getHead()->getId()][] = [
+                        'agent_id' => $item->getId(),
+                        'agent_name' => $item->getFio()
+                    ];
+                }
+            }
+        }
+        catch(NoResultException $e){
+            $result = null;
+        }
+
+        return $result;
+    }
+
     public function getAgentByManager($managerId)
     {
         $qb = $this->getEntityManager()->createQueryBuilder()

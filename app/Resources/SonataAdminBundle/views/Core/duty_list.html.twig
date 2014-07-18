@@ -12,10 +12,52 @@
         var current_date = new Date().getMonth(),
                 min_previous_navigation_steps = current_date - min_navigation_date;
 
+        var branches = {
+            {% for branch in branches %}
+                {% if branch.onDutyAgentPhone is not empty %}
+                    {{ branch.id }}: {{ branch.onDutyAgentPhone }},
+                {% endif %}
+            {% endfor %}
+        };
+
+        var managers = [];
+
+        {% for key, items in managers %}
+            managers[{{ key }}] = [
+                {% for manager in items %}
+                    { "manager_id": {{ manager['manager_id'] }},  "manager_name": "{{ manager['manager_name'] }}" },
+                {% endfor %}
+            ];
+        {% endfor %}
+
+        var agents = [];
+
+        {% for key, items in agents %}
+            agents[{{ key }}] = [
+                {% for agent in items %}
+                    { "agent_id": {{ agent['agent_id'] }}, "agent_name": "{{ agent['agent_name'] }}" },
+                {% endfor %}
+            ];
+        {% endfor %}
+
         $(document).ready(function(){
+            $("#create-edit-container").on("show", function(){
+                $("div.alert-error").html("").hide();
+            });
+
+            $("#create-edit-container").on("hide", function(){
+                $("div.alert-error").html("").hide();
+
+                $("form.form-horizontal").find("#branch-id").val("0").change();
+                $("form.form-horizontal").find("#duty-id").remove();
+            });
+
             $("#duty-calendar").zabuto_calendar({
                 action_nav: function(){
                     var navigation_date = new Date($(this).data("to").year, $(this).data("to").month - 1, 1);
+                    var duty_print_button_href = $("#duty-print-button").attr("href").replace(/\d{4}\-\d{1,2}$/, $(this).data("to").year + "-" + $(this).data("to").month);
+
+                    $("#duty-print-button").attr("href", duty_print_button_href)
 
                     if(navigation_date.valueOf() < min_navigation_date.valueOf()){
 
@@ -29,7 +71,157 @@
                 cell_border: false,
                 show_previous: min_previous_navigation_steps
             });
+
+            /* при выборе другого элемента списка скрываем последующие поля */
+            $("#branch-id, #manager-id, #agent-id").change(function(){
+                var current_element = $(this).attr("id");
+
+                if(current_element == "branch-id"){
+                    $("#manager-id, #agent-id").html("").parent().parent(".control-group").hide();
+                }
+                else if(current_element == "manager-id"){
+                    $("#agent-id").html("").parent().parent(".control-group").hide();
+                }
+
+                $("#phone, #day-start, #day-end").parent().parent(".control-group").hide();
+            });
+
+            $("#branch-id").change(function(){
+                var managers_by_branch = "<option value=\"0\">Выберите дежурного менеджера</option>";
+                var branch_identifier = parseInt($(this).val());
+
+                if(!managers[branch_identifier]){
+                    if(branch_identifier == 0){
+                        return true;
+                    }
+                    else{
+                        return alert("Для выбранного филиала не заведено ни одного менеджера.");
+                    }
+                }
+
+                for(var manager_key in managers[branch_identifier]){
+                    managers_by_branch += "<option value=\"" + managers[branch_identifier][manager_key]["manager_id"] + "\">" + managers[branch_identifier][manager_key]["manager_name"] + "</option>";
+                }
+
+                if(branches[branch_identifier]){
+                    $("#phone").val(branches[branch_identifier]).attr("readonly", "readonly");
+                }
+                else{
+                    $("#phone").val("").removeAttr("readonly");
+                }
+
+                $("#manager-id").html("").append(managers_by_branch).select2().parent().parent(".control-group").show();
+            });
+
+            $("#manager-id").change(function(){
+                var agents_by_manager = "<option value=\"0\">Выберите дежурного агента</option>";
+                var manager_identifier = parseInt($(this).val());
+
+                if(!agents[manager_identifier]){
+                    return alert("Для выбранного менеджера не заведено ни одного агента.");
+                }
+
+                for(var agent_key in agents[manager_identifier]){
+                    agents_by_manager += "<option value=\"" + agents[manager_identifier][agent_key]["agent_id"] + "\">" + agents[manager_identifier][agent_key]["agent_name"] + "</option>"
+                }
+
+                $("#agent-id").html("").append(agents_by_manager).select2().parent().parent(".control-group").show();
+            });
+
+            $("#agent-id").change(function(){
+                $("#phone, #day-start, #day-end").parent().parent(".control-group").show();
+            });
+
+            $("#day-start, #month-start, #year-start, #hour-start").change(function(){
+                var current_element = $(this).attr("id").split("-");
+
+                if(current_element[0] == "hour"){
+                    var duty_hour_end = parseInt($(this).val()) + {{ duty_hour_delta }};
+
+                    $("#" + current_element[0] + "-end").val(duty_hour_end).change();
+                }
+                else{
+                    $("#" + current_element[0] + "-end").val($(this).val()).change();
+                }
+            });
+
+            $("#create-edit-button").click(function(){
+                $("#create-edit-container-label").html("Новое дежурство");
+
+                $("form.form-horizontal").find("#branch-id").val("0").change();
+                $("form.form-horizontal").find("#duty-id").remove();
+            });
+
+            $("form.form-horizontal").submit(function(event){
+                event.preventDefault();
+
+                var form_element_error = [];
+
+                $(this).find("input[name^='Duty'], select[name^='Duty']").each(function(){
+                    if(!$(this).val() || parseInt($(this).val()) == 0){
+                        form_element_error.push(
+                            "Поле &laquo;" +
+                                $(this).parent().parent("div").find("label.control-label").text()
+                                + "&raquo; не может быть пусто."
+                        );
+                    }
+                });
+
+                if(form_element_error.length > 0){
+                    var error_list = "<ul>";
+
+                    $.each(form_element_error, function(key, value){
+                        error_list += "<li>" + value + "</li>";
+                    });
+
+                    error_list += "</ul>";
+
+                    return $("div.alert-error").html(error_list).show();
+                }
+
+                $.ajax({
+                    type: "post",
+                    url: "{{ admin.generateUrl('create') }}",
+                    async: false,
+                    data: $(this).serialize(),
+                    success: function(response){
+                        $("#alert-message").removeClass("alert-error").addClass("alert-success").html("Дежурство успешно сохранено.").show();
+
+                        return setTimeout(location.reload(), 5000);
+                    },
+                    error: function(xhr){
+                        var json = $.parseJSON(xhr.responseText), error_list = "<ul>";
+
+                        $.each(json.message_description, function(key, value){
+                            error_list += "<li>" + value + "</li>";
+                        });
+
+                        error_list += "</ul>";
+
+                        return $("#alert-message").removeClass("alert-success").addClass("alert-error").html(error_list).show();
+                    },
+                    dataType: 'json'
+                });
+            });
         });
+
+        function edit_duty_record(duty_id, branch_id, manager_id, agent_id, phone, duty_day, duty_month, duty_year, duty_hour_start, duty_hour_end){
+            $("#create-edit-container-label").html("Изменение дежурства №" + duty_id);
+
+            $("#branch-id").val(branch_id).change();
+            $("#manager-id").val(manager_id).change();
+            $("#agent-id").val(agent_id).change();
+            $("#phone").val(phone).attr("readonly", "readonly");
+            $("#day-start, #day-end").val(duty_day).change();
+            $("#month-start, #month-end").val(duty_month).change();
+            $("#year-start, #year-end").val(duty_year).change();
+            $("#hour-start").val(duty_hour_start).change();
+            $("#hour-end").val(duty_hour_end).change();
+
+            $("form.form-horizontal").prepend("<input type=\"hidden\" id=\"duty-id\" name=\"Duty[duty_id]\" value=\"" + duty_id + "\" />");
+
+            $("#create-edit-container").modal({"keyboard": false, "backdrop": "static"});
+        }
 
         function before_duty_load(){
             alert('эта функция должна быть вызвана до того как будет получен ответ.');
@@ -50,7 +242,7 @@
 
 {% block actions %}
     <div class="sonata-actions btn-group">
-        {% include 'SonataAdminBundle:Core:create_button.html.twig' %}
+        {% include '@Admin/Default/duty_create_button.html.twig' %}
         {% include '@ApplicationSonataUser/CRUD/duty_print_button.html.twig' %}
     </div>
 {% endblock %}
@@ -63,6 +255,187 @@
             <div id="duty-calendar"></div>
         </div>
     </div>
+
+    <form class="form-horizontal" method="post" action="">
+        <div id="create-edit-container" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="create-edit-container-label" aria-hidden="true">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h3 id="create-edit-container-label"></h3>
+            </div>
+            <div class="modal-body">
+                <div id="alert-message" class="alert alert-error" style="display: none;"></div>
+
+                <div class="control-group">
+                    <label class="control-label" for="branch-id">Дежурит в филиале</label>
+                    <div class="controls">
+                        <select id="branch-id" name="Duty[branch_id]" class="span9">
+                            <option value="0">Выберите филиал дежурства</option>
+                            {% for branch in branches %}
+                                <option value="{{ branch.id }}">{{ branch.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="control-group" style="display: none;">
+                    <label class="control-label" for="manager-id">Дежурный менеджер</label>
+                    <div class="controls">
+                        <select id="manager-id" name="Duty[manager_id]" class="span9"></select>
+                    </div>
+                </div>
+                <div class="control-group" style="display: none;">
+                    <label class="control-label" for="agent-id">Дежурный агент</label>
+                    <div class="controls">
+                        <select id="agent-id" name="Duty[agent_id]" class="span9"></select>
+                    </div>
+                </div>
+                <div class="control-group" style="display: none;">
+                    <label class="control-label" for="phone">Номер дежурного</label>
+                    <div class="controls">
+                        <input type="text" name="Duty[phone]" id="phone" class="span9" autocomplete="off" value="" />
+                    </div>
+                </div>
+                <div class="control-group" style="display: none;">
+                    <label class="control-label" for="">Дата начала дежурства</label>
+                    <div class="controls">
+                        <select class="span2" name="Duty[day_start]" id="day-start">
+                            {% for item in 1..31 %}
+                                {% if "now"|date("H") + duty_hour_delta > duty_hour_end %}
+                                    {% set date_pointer = "tomorrow" %}
+                                {% else %}
+                                    {% set date_pointer = "now" %}
+                                {% endif %}
+
+                                {% if item == date_pointer|date("d") %}
+                                    <option value="{{ "%02d"|format(item) }}" selected="selected">{{ "%02d"|format(item) }}</option>
+                                {% else %}
+                                    <option value="{{ "%02d"|format(item) }}">{{ "%02d"|format(item) }}</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+
+                        <select class="span3" name="Duty[month_start]" id="month-start">
+                            {%
+                                set month = {
+                                    "01": "янв.",
+                                    "02": "февр.",
+                                    "03": "март",
+                                    "04": "апр.",
+                                    "05": "май",
+                                    "06": "июнь",
+                                    "07": "июль",
+                                    "08": "авг.",
+                                    "09": "сент.",
+                                    "10": "окт.",
+                                    "11": "нояб.",
+                                    "12": "дек."
+                                }
+                            %}
+                            {% set current_month = "now"|date("m") %}
+                            {% for key, item in month %}
+                                {% if key == "%02d"|format(current_month) %}
+                                    <option value="{{ key }}" selected="selected">{{ item }}</option>
+                                {% else %}
+                                    <option value="{{ key }}">{{ item }}</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+
+                        <select class="span3" name="Duty[year_start]" id="year-start">
+                            {% for item in 2012..2030 %}
+                                {% if item == "now"|date("Y") %}
+                                    <option value="{{ item }}" selected="selected">{{ item }}</option>
+                                {% else %}
+                                    <option value="{{ item }}">{{ item }}</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+
+                        <select class="span2" name="Duty[hour_start]" id="hour-start">
+                            {% for item in duty_hour_start..duty_hour_end %}
+                                {% if "now"|date("H") + duty_hour_delta > duty_hour_end or "now"|date("H") + duty_hour_delta < duty_hour_start %}
+                                    {% if item == duty_hour_start %}
+                                        <option value="{{ "%02d"|format(item) }}" selected="selected">{{ "%02d"|format(item) }}</option>
+                                    {% else %}
+                                        <option value="{{ "%02d"|format(item) }}">{{ "%02d"|format(item) }}</option>
+                                    {% endif %}
+                                {% else %}
+                                    {% if item == "now"|date("H") %}
+                                        <option value="{{ "%02d"|format(item) }}" selected="selected">{{ "%02d"|format(item) }}</option>
+                                    {% else %}
+                                        <option value="{{ "%02d"|format(item) }}">{{ "%02d"|format(item) }}</option>
+                                    {% endif %}
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+
+                    </div>
+                </div>
+                <div class="control-group" style="display: none;">
+                    <label class="control-label" for="">Дата окончания дежурства</label>
+                    <div class="controls">
+                        <select class="span2" name="Duty[day_end]" id="day-end">
+                            {% for item in 1..31 %}
+                                {% if "now"|date("H") + duty_hour_delta > duty_hour_end %}
+                                    {% set date_pointer = "tomorrow" %}
+                                {% else %}
+                                    {% set date_pointer = "now" %}
+                                {% endif %}
+
+                                {% if item == date_pointer|date("d") %}
+                                    <option value="{{ "%02d"|format(item) }}" selected="selected">{{ "%02d"|format(item) }}</option>
+                                {% else %}
+                                    <option value="{{ "%02d"|format(item) }}">{{ "%02d"|format(item) }}</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+
+                        <select class="span3" name="Duty[month_end]" id="month-end">
+                            {% for key, item in month %}
+                                {% if key == "%02d"|format(current_month) %}
+                                    <option value="{{ key }}" selected="selected">{{ item }}</option>
+                                {% else %}
+                                    <option value="{{ key }}">{{ item }}</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+
+                        <select class="span3" name="Duty[year_end]" id="year-end">
+                            {% for item in 2012..2030 %}
+                                {% if item == "now"|date("Y") %}
+                                    <option value="{{ item }}" selected="selected">{{ item }}</option>
+                                {% else %}
+                                    <option value="{{ item }}">{{ item }}</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+
+                        <select class="span2" name="Duty[hour_end]" id="hour-end">
+                            {% for item in duty_hour_start..duty_hour_end %}
+                                {% if "now"|date("H") + duty_hour_delta > duty_hour_end or "now"|date("H") + duty_hour_delta < duty_hour_start %}
+                                    {% if item == duty_hour_start + duty_hour_delta %}
+                                        <option value="{{ "%02d"|format(item) }}" selected="selected">{{ "%02d"|format(item) }}</option>
+                                    {% else %}
+                                        <option value="{{ "%02d"|format(item) }}">{{ "%02d"|format(item) }}</option>
+                                    {% endif %}
+                                {% else %}
+                                    {% if item == "now"|date("H") %}
+                                        <option value="{{ "%02d"|format(item) }}" selected="selected">{{ "%02d"|format(item) }}</option>
+                                    {% else %}
+                                        <option value="{{ "%02d"|format(item) }}">{{ "%02d"|format(item) }}</option>
+                                    {% endif %}
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" data-dismiss="modal" aria-hidden="true">Закрыть</button>
+                <input type="submit" class="btn btn-primary" value="Сохранить" />
+            </div>
+        </div>
+    </form>
 {% endblock %}
 
 {% block list_filters %}

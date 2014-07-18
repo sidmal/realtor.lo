@@ -8,7 +8,6 @@ use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\Query\Expr\OrderBy;
 use Doctrine\ORM\Query\Parameter;
-use Realtor\DictionaryBundle\Entity\Branches;
 
 /**
  * DutyInBranchRepository
@@ -18,6 +17,26 @@ use Realtor\DictionaryBundle\Entity\Branches;
  */
 class DutyInBranchRepository extends EntityRepository
 {
+    protected static $monthRus = [
+        1 => 'январь',
+        2 => 'февраль',
+        3 => 'март',
+        4 => 'апрель',
+        5 => 'май',
+        6 => 'июнь',
+        7 => 'июль',
+        8 => 'август',
+        9 => 'сентябрь',
+        10 => 'октябрь',
+        11 => 'ноябрь',
+        12 => 'декабрь'
+    ];
+
+    public function getMonthRus($monthNumber)
+    {
+        return self::$monthRus[$monthNumber];
+    }
+
     public function getDutyCountByDateAndBranch(\DateTime $date, $branch = null)
     {
         $builder = $this->getEntityManager()->createQueryBuilder()
@@ -47,10 +66,23 @@ class DutyInBranchRepository extends EntityRepository
     public function getDutyInBranchByDate($dutyDate, $branch = null)
     {
         $builder = $this->getEntityManager()->createQueryBuilder()
-            ->select(['duty.dutyDate', 'duty.dutyTime', 'duty.dutyPhone', 'duty_agent.fio', 'duty_branch.name'])
+            ->select(
+                [
+                    'duty.id AS duty_id',
+                    'duty.dutyDate',
+                    'duty.dutyTime',
+                    'duty.dutyPhone',
+                    'duty_agent.id AS duty_agent_id',
+                    'duty_agent.fio',
+                    'duty_branch.id AS branch_id',
+                    'duty_branch.name',
+                    'duty_head.id AS manager_id'
+                ]
+            )
             ->from('ApplicationSonataUserBundle:DutyInBranches', 'duty')
             ->leftJoin('duty.dutyAgent', 'duty_agent')
             ->leftJoin('duty.branchId', 'duty_branch')
+            ->leftJoin('duty_agent.head', 'duty_head')
             ->where('duty.dutyDate = :duty_date')->setParameter('duty_date', $dutyDate, Type::DATE)
             ->orderBy(new OrderBy('duty.branchId'))
             ->addOrderBy(new OrderBy('duty.dutyDate'))
@@ -65,13 +97,80 @@ class DutyInBranchRepository extends EntityRepository
 
             $result = [];
             foreach($queryResult as $item){
-                $result[$item['branch_name']] = [
-                    'time_start' => sprintf('%02d', $item['dutyTime']),
-                    'agent_name' => $item['fio'],
-                    'phone' => $item['dutyPhone']
-                ];
+                $dutyTimeStart = sprintf('%02d', $item['dutyTime']->format('H'));
+                $dutyTimeEnd = sprintf('%02d', ($item['dutyTime']->format('H') + 1));
 
-                $result[$item['branch_name']]['time_end'] = sprintf('%02d', ($item['dutyTime'] + 1));
+                $result[$item['name']][$dutyTimeStart][$dutyTimeEnd]['duty_id'][] = $item['duty_id'];
+                $result[$item['name']][$dutyTimeStart][$dutyTimeEnd]['manager_id'][] = $item['manager_id'];
+                $result[$item['name']][$dutyTimeStart][$dutyTimeEnd]['branch_id'][] = $item['branch_id'];
+                $result[$item['name']][$dutyTimeStart][$dutyTimeEnd]['duty_day'][] = $item['dutyDate']->format('d');
+                $result[$item['name']][$dutyTimeStart][$dutyTimeEnd]['duty_month'][] = $item['dutyDate']->format('m');
+                $result[$item['name']][$dutyTimeStart][$dutyTimeEnd]['duty_year'][] = $item['dutyDate']->format('Y');
+                $result[$item['name']][$dutyTimeStart][$dutyTimeEnd]['duty_hour'][] = $item['dutyTime']->format('H');
+                $result[$item['name']][$dutyTimeStart][$dutyTimeEnd]['duty_agent_id'][] = $item['duty_agent_id'];
+                $result[$item['name']][$dutyTimeStart][$dutyTimeEnd]['agent_name'][] = $item['fio'];
+                $result[$item['name']][$dutyTimeStart][$dutyTimeEnd]['phone'][] = $item['dutyPhone'];
+
+                $result[$item['name']][$dutyTimeStart][$dutyTimeEnd]['duty_time_start'][] = $dutyTimeStart;
+                $result[$item['name']][$dutyTimeStart][$dutyTimeEnd]['duty_time_end'][] = $dutyTimeEnd;
+            }
+        }
+        catch(NoResultException $e){
+            $result = null;
+        }
+
+        return $result;
+    }
+
+    public function getDuty($duty_period, $manager = null)
+    {
+        $builder = $this->getEntityManager()->createQueryBuilder()
+            ->select(
+                [
+                    'duty.id AS duty_id',
+                    'duty.dutyDate',
+                    'duty.dutyTime',
+                    'duty.dutyPhone',
+                    'duty_agent.id AS duty_agent_id',
+                    'duty_agent.fio',
+                    'duty_branch.id AS branch_id',
+                    'duty_branch.name',
+                    'duty_head.id AS manager_id',
+                    'duty_head.fio AS manager_fio'
+                ]
+            )
+            ->from('ApplicationSonataUserBundle:DutyInBranches', 'duty')
+            ->leftJoin('duty.dutyAgent', 'duty_agent')
+            ->leftJoin('duty.branchId', 'duty_branch')
+            ->leftJoin('duty_agent.head', 'duty_head')
+            ->addOrderBy(new OrderBy('duty.dutyDate', 'asc'))
+            ->addOrderBy(new OrderBy('duty.dutyTime', 'asc'))
+            ->addOrderBy(new OrderBy('duty_branch.id', 'asc'));
+
+        $duty_period_start = new \DateTime($duty_period->format('Y-m-d'));
+        $duty_period_end = $duty_period->modify('last day of 0 month');
+
+            $builder->where($builder->expr()->between('duty.dutyDate', ':duty_date_start', ':duty_date_end'));
+        $builder->setParameters(
+            new ArrayCollection(
+                [
+                    new Parameter('duty_date_start', $duty_period_start, Type::DATETIME),
+                    new Parameter('duty_date_end', $duty_period_end, Type::DATETIME)
+                ]
+            )
+        );
+
+        if($manager){
+            $builder->andWhere('duty_head.id = :manager')->setParameter('manager', $manager);
+        }
+
+        try{
+            $duty_result = $builder->getQuery()->getArrayResult();
+
+            $result = [];
+            foreach($duty_result as $item){
+                $result[$item['name']][$item['manager_fio']][$item['dutyDate']->format('d.m.Y')]
+                    [$item['dutyTime']->format('H')]['agents'][] = $item['fio'];
             }
         }
         catch(NoResultException $e){

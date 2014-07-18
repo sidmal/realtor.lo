@@ -1,18 +1,25 @@
 {% block stylesheets %}
-    <link href="{{ asset('bundles/sonataadmin/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet" />
+    <style type="text/css" media="print">
+        .no-print{
+            display: none;
+        }
+    </style>
 {% endblock %}
 
 <body>
+    <div class="no-print" style="margin-bottom: 20px; margin-right: 30px; text-align: right; font-size: 18px;">
+        <a href="{{ admin.generateUrl('list') }}">Вернуться</a>
+    </div>
+
     {% set page_break = 0 %}
 
-    {% for key_branch, item_branch in duty %}
-        {% for key_manager, item_manager in item_branch %}
-
+    {% for branch_name, managers in duty %}
+        {% for manager_name, duty_days in managers %}
             {%
                 set params = {
                     'duty_month': duty_month,
-                    'branch_name': key_branch,
-                    'manager_name': key_manager,
+                    'branch_name': branch_name,
+                    'manager_name': manager_name,
                     'page_break': page_break
                 }
             %}
@@ -21,12 +28,11 @@
 
             {% set counter = 0 %}
 
-            {% for key_day, item_day in item_manager %}
-
+            {% for day, duty_times in duty_days %}
                 {%
                     set duty_day_params = {
-                        'duty_day': key_day,
-                        'item_day': item_day,
+                        'duty_day': day,
+                        'item_day': duty_times,
                         'duty_min_hour': duty_min_hour,
                         'duty_max_hour': duty_max_hour
                     }
@@ -36,6 +42,7 @@
 
                 {% if counter == 4 %}
                     {% include '@ApplicationSonataUser/CRUD/duty_page_footer.html.twig' %}
+
                     <div style="clear: both; padding-top: 30px;"></div>
 
                     {% include '@ApplicationSonataUser/CRUD/duty_page_header.html.twig' with params %}
@@ -49,6 +56,7 @@
             {% endfor %}
 
             {% include '@ApplicationSonataUser/CRUD/duty_page_footer.html.twig' %}
+
             <div style="clear: both; padding-top: 30px;"></div>
 
             {% set page_break = 1 %}

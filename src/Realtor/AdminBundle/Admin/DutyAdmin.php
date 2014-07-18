@@ -79,6 +79,7 @@ class DutyAdmin extends Admin
         $listMapper
             ->addIdentifier('id', null, ['label' => 'Идентификатор'])
             ->add('branchId', null, ['label' => 'Дежурит в филиале'])
+            ->add('manager', null, ['label' => 'Дежурный менеджер', 'mapped' => false])
             ->add('dutyAgent', null, ['label' => 'Дежурный агент'])
             ->add('dutyPhone', null, ['label' => 'Номер телефона дежурного'])
             ->add('dutyDate', null, ['label' => 'Дата начала дежурства'])
@@ -102,133 +103,13 @@ class DutyAdmin extends Admin
      */
     protected function configureFormFields(FormMapper $formMapper)
     {
-        $managers = $agent = [];
-        try{
-            if($this->getRequest()->request->all()){
-                $request = new ParameterBag(current($this->getRequest()->request->all()));
-            }
-
-            if(isset($request)){
-                if($request->has('branchId')){
-                    $managers = $this->getConfigurationPool()->getContainer()->get('doctrine')
-                        ->getManager()->getRepository('ApplicationSonataUserBundle:User')
-                        ->getManagerByBranch($request->get('branchId'));
-                }
-
-                if($request->has('manager')){
-                    $agent = $this->getConfigurationPool()->getContainer()->get('doctrine')
-                        ->getManager()->getRepository('ApplicationSonataUserBundle:User')
-                        ->getAgentByManager($request->get('manager'));
-                }
-            }
-
-            if($this->getSubject()->getId()){
-                $managers = $this->getConfigurationPool()->getContainer()->get('doctrine')
-                    ->getManager()->getRepository('ApplicationSonataUserBundle:User')
-                    ->getManagerByBranch($this->getSubject()->getBranchId());
-
-                $agent = $this->getConfigurationPool()->getContainer()->get('doctrine')
-                    ->getManager()->getRepository('ApplicationSonataUserBundle:User')
-                    ->getAgentByManager($this->getSubject()->getManager());
-            }
-        }
-        catch(\Exception $e){
-
-        }
-
-        $hours = [];
-        for($index = $this->getConfigurationPool()->getContainer()->getParameter('duty.min.hour'); $index <= $this->getConfigurationPool()->getContainer()->getParameter('duty.max.hour'); $index++){
-            $hours[] = $index;
-        }
-
-        if(!$this->getSubject()->getId()){
-            $dutyStartDate = new \DateTime();
-            $dutyStartDate->modify('+1 month');
-
-            if($dutyStartDate->format('H') < $this->getConfigurationPool()->getContainer()->getParameter('duty.min.hour')
-                || $dutyStartDate->format('H') > $this->getConfigurationPool()->getContainer()->getParameter('duty.max.hour')
-                || ($dutyStartDate->format('H') + $this->getConfigurationPool()->getContainer()->getParameter('duty.delta.hour')) >= $this->getConfigurationPool()->getContainer()->getParameter('duty.max.hour')){
-                $dutyStartDate->setTime($this->getConfigurationPool()->getContainer()->getParameter('duty.min.hour'), 0);
-            }
-
-            $dutyEndDate = \DateTime::createFromFormat('Y-m-d H:i:s', $dutyStartDate->format('Y-m-d').' '.($dutyStartDate->format('H') + $this->getConfigurationPool()->getContainer()->getParameter('duty.delta.hour')).':00:00');
-        }
-        else{
-            $dutyStartDate = $this->getSubject()->getDutyStartAt();
-            $dutyEndDate = $this->getSubject()->getDutyEndAt();
-        }
-
         $formMapper
-            ->add(
-                'branchId',
-                null,
-                [
-                    'label' => 'Дежурит в филиале',
-                    'required' => true,
-                    'empty_value' => 'Выберите филиал дежурства'
-                ]
-            )
-            ->add(
-                'manager',
-                null,
-                [
-                    'label' => 'Дежурный менеджер',
-                    'required' => true,
-                    'empty_value' => 'Выберите дежурного менеджера',
-                    'class' => 'ApplicationSonataUserBundle:User',
-                    'choices' => $managers
-                ]
-            )
-            ->add(
-                'userId',
-                'entity',
-                [
-                    'label' => 'Дежурный агент',
-                    'required' => true,
-                    'empty_value' => 'Выберите дежурного агента',
-                    'class' => 'ApplicationSonataUserBundle:User',
-                    'choices' => $agent,
-                ]
-            )
-            ->add(
-                'phone',
-                null,
-                [
-                    'label' => 'Номер дежурного',
-                    'attr' => ['readonly' => true]
-                ]
-            )
-            ->add(
-                'dutyStartAt',
-                'datetime',
-                [
-                    'label' => 'Дата начала дежурства',
-                    'data' => $dutyStartDate,
-                    'with_minutes' => false,
-                    'hours' => $hours
-                ]
-            )
-            ->add(
-                'dutyEndAt',
-                'datetime',
-                [
-                    'label' => 'Дата окончания дежурства',
-                    'data' => $dutyEndDate,
-                    'with_minutes' => false,
-                    'hours' => $hours
-                ]
-            )
-            ->add(
-                'duty_delta_hour',
-                'hidden',
-                [
-                    'mapped' => false,
-                    'data' => $this->getConfigurationPool()->getContainer()->getParameter('duty.delta.hour'),
-                    'attr' => [
-                        'hidden' => true
-                    ]
-                ]
-            )
+            ->add('branchId', null, ['label' => 'Дежурит в филиале'])
+            ->add('manager', null, ['label' => 'Дежурный менеджер', 'mapped' => false])
+            ->add('dutyAgent', null, ['label' => 'Дежурный агент'])
+            ->add('dutyPhone', null, ['label' => 'Номер телефона дежурного'])
+            ->add('dutyDate', null, ['label' => 'Дата начала дежурства'])
+            ->add('dutyTime', null, ['label' => 'Дата окончания дежурства'])
         ;
     }
 

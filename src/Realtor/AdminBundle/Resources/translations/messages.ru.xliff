@@ -38,6 +38,10 @@
                 <source>Callers List</source>
                 <target>Вызывающие</target>
             </trans-unit>
+            <trans-unit id="Duty In Branches List">
+                <source>Duty In Branches List</source>
+                <target>График дежурств</target>
+            </trans-unit>
         </body>
     </file>
 </xliff>
