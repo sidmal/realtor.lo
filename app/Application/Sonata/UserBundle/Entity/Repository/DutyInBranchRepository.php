@@ -63,7 +63,7 @@ class DutyInBranchRepository extends EntityRepository
         return $result;
     }
 
-    public function getDutyInBranchByDate($dutyDate, $branch = null)
+    public function getDutyInBranchByDate($dutyDate, $branch = null, $manager = null)
     {
         $builder = $this->getEntityManager()->createQueryBuilder()
             ->select(
@@ -90,6 +90,10 @@ class DutyInBranchRepository extends EntityRepository
 
         if($branch){
             $builder->andWhere('duty.branchId = :branch_id')->setParameter('branch_id', $branch);
+        }
+
+        if($manager){
+            $builder->andWhere('duty_head.id = :manager')->setParameter('manager', $manager);
         }
 
         try{

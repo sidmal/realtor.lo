@@ -8,6 +8,8 @@
     <script style="text/javascript" src="{{ asset('bundles/admin/js/zabuto_calendar.js') }}"></script>
 
     <script style="text/javascript">
+
+
         var min_navigation_date = new Date(2014, 4, 1).getMonth();
         var current_date = new Date().getMonth(),
                 min_previous_navigation_steps = current_date - min_navigation_date;
@@ -41,6 +43,18 @@
         {% endfor %}
 
         $(document).ready(function(){
+            {% if ajax_calendar_data is defined and ajax_calendar_data is not empty %}
+                var filter_data = {% autoescape false %}{{ ajax_calendar_data }}{% endautoescape %};
+
+                if(filter_data["branch_id"]){
+                    $("#branch-filter-id").val(filter_data["branch_id"]).change();
+                }
+
+                if(filter_data["manager_id"]){
+                    $("#manager-filter-id").val(filter_data["manager_id"]).change();
+                }
+            {% endif %}
+
             $("#create-edit-container").on("show", function(){
                 $("div.alert-error").html("").hide();
             });
@@ -57,15 +71,22 @@
                     var navigation_date = new Date($(this).data("to").year, $(this).data("to").month - 1, 1);
                     var duty_print_button_href = $("#duty-print-button").attr("href").replace(/\d{4}\-\d{1,2}$/, $(this).data("to").year + "-" + $(this).data("to").month);
 
-                    $("#duty-print-button").attr("href", duty_print_button_href)
+                    $("#duty-print-button").attr("href", duty_print_button_href);
 
                     if(navigation_date.valueOf() < min_navigation_date.valueOf()){
 
                     }
+
+                    $(".event-clickable").each(function(){
+                        $(this).popover("hide");
+                    });
                 },
                 ajax: {
                     url: "{{ path('duty_get_unfilled') }}",
                     popover: true
+                    {% if ajax_calendar_data is defined and ajax_calendar_data is not empty %}
+                         , data: {% autoescape false %}{{ ajax_calendar_data }}{% endautoescape %}
+                    {% endif %}
                 },
                 language: "ru",
                 cell_border: false,
@@ -73,7 +94,7 @@
             });
 
             /* при выборе другого элемента списка скрываем последующие поля */
-            $("#branch-id, #manager-id, #agent-id").change(function(){
+            $("#branch-id, #manager-id, #agent-id, #branch-filter-id").change(function(){
                 var current_element = $(this).attr("id");
 
                 if(current_element == "branch-id"){
@@ -82,13 +103,17 @@
                 else if(current_element == "manager-id"){
                     $("#agent-id").html("").parent().parent(".control-group").hide();
                 }
+                else if(current_element == "branch-filter-id"){
+                    $("#manager-filter-id").html("").parent().parent(".control-group").hide();
+                }
 
                 $("#phone, #day-start, #day-end").parent().parent(".control-group").hide();
             });
 
-            $("#branch-id").change(function(){
+            $("#branch-id, #branch-filter-id").change(function(){
                 var managers_by_branch = "<option value=\"0\">Выберите дежурного менеджера</option>";
                 var branch_identifier = parseInt($(this).val());
+                var current_element = $(this).attr("id");
 
                 if(!managers[branch_identifier]){
                     if(branch_identifier == 0){
@@ -110,7 +135,12 @@
                     $("#phone").val("").removeAttr("readonly");
                 }
 
-                $("#manager-id").html("").append(managers_by_branch).select2().parent().parent(".control-group").show();
+                if(current_element == "branch-id"){
+                    $("#manager-id").html("").append(managers_by_branch).select2().parent().parent(".control-group").show();
+                }
+                else{
+                    $("#manager-filter-id").html("").append(managers_by_branch).select2().parent().parent(".control-group").show();
+                }
             });
 
             $("#manager-id").change(function(){
@@ -152,7 +182,7 @@
                 $("form.form-horizontal").find("#duty-id").remove();
             });
 
-            $("form.form-horizontal").submit(function(event){
+            $("#main-form").submit(function(event){
                 event.preventDefault();
 
                 var form_element_error = [];
@@ -203,6 +233,11 @@
                     dataType: 'json'
                 });
             });
+
+            $("#reset-filters").click(function(){
+                $("#filters-form").find("select[name*=\"branch_id\"]").val("").change();
+                window.location = $("#filters-form").attr("action");
+            });
         });
 
         function edit_duty_record(duty_id, branch_id, manager_id, agent_id, phone, duty_day, duty_month, duty_year, duty_hour_start, duty_hour_end){
@@ -244,6 +279,7 @@
     <div class="sonata-actions btn-group">
         {% include '@Admin/Default/duty_create_button.html.twig' %}
         {% include '@ApplicationSonataUser/CRUD/duty_print_button.html.twig' %}
+        {% include '@Admin/Default/duty_filter_btn.html.twig' %}
     </div>
 {% endblock %}
 
@@ -254,9 +290,42 @@
         <div class="span5">
             <div id="duty-calendar"></div>
         </div>
+
+        <form class="form-horizontal" id="filters-form" method="get" action="{{ admin.generateUrl('list') }}">
+            <div id="duty-filter-container" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="filters-container-label" aria-hidden="true">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    <h3 id="filter-container-label">Выбирите фильтры</h3>
+                </div>
+                <div class="modal-body">
+                    <div class="control-group">
+                        <label class="control-label" for="branch-filter-id">Дежурит в филиале</label>
+                        <div class="controls">
+                            <select id="branch-filter-id" name="DutyFilter[branch_id]" class="span9">
+                                <option value="0">Выберите филиал дежурства</option>
+                                {% for branch in branches %}
+                                    <option value="{{ branch.id }}">{{ branch.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="control-group" style="display: none;">
+                        <label class="control-label" for="manager-filter-id">Дежурный менеджер</label>
+                        <div class="controls">
+                            <select id="manager-filter-id" name="DutyFilter[manager_id]" class="span9"></select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn" data-dismiss="modal" aria-hidden="true">Закрыть</button>
+                    <input type="submit" class="btn btn-success" value="Фильтровать" />
+                    <input type="button" class="btn btn-danger" id="reset-filters" value="Сбросить фильры" />
+                </div>
+            </div>
+        </form>
     </div>
 
-    <form class="form-horizontal" method="post" action="">
+    <form class="form-horizontal" id="main-form" method="post" action="">
         <div id="create-edit-container" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="create-edit-container-label" aria-hidden="true">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>

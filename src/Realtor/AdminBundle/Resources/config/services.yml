@@ -92,6 +92,7 @@ services:
             - [ setSecurityContext, [@security.context]]
             - [ setTemplate, [list, SonataAdminBundle:Core:duty_list.html.twig]]
             - [ setTemplate, [edit, SonataAdminBundle:Core:edit.html.twig]]
+            - [ setTemplate, [delete, SonataAdminBundle:Core:duty_delete.html.twig]]
         tags:
             - { name: sonata.admin, manager_type: orm, group: "График дежурств", label: "График дежурств" }
 

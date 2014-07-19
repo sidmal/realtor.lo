@@ -48,9 +48,9 @@ class DutyController extends Controller
         $dutyTime = $dutyStartTime - $dutyEndTime;
 
         $totalDutyAgents = null;
-        if($request->query->has('branch')){
+        if($request->query->has('branch_id')){
             $totalDutyAgents = $this->getDoctrine()->getManager()->getRepository('DictionaryBundle:Branches')
-                ->getTotalDutyAgents($request->query->get('branch'));
+                ->getTotalDutyAgents($request->query->get('branch_id'));
         }
         else{
             $totalDutyAgents = $this->getDoctrine()->getManager()->getRepository('DictionaryBundle:Branches')
@@ -62,8 +62,14 @@ class DutyController extends Controller
         }
 
         $calendarDate = [];
-        $branches = $this->getDoctrine()->getManager()->getRepository('DictionaryBundle:Branches')
-            ->findBy(['isActive' => true]);
+        if($request->query->has('branch_id')){
+            $branches = $this->getDoctrine()->getManager()->getRepository('DictionaryBundle:Branches')
+                ->findBy(['isActive' => true, 'id' => $request->query->get('branch_id')]);
+        }
+        else{
+            $branches = $this->getDoctrine()->getManager()->getRepository('DictionaryBundle:Branches')
+                ->findBy(['isActive' => true]);
+        }
 
         foreach($dateRange as $dateItem){
             $item = [
@@ -73,7 +79,11 @@ class DutyController extends Controller
             ];
 
             $dutyData = $this->getDoctrine()->getManager()->getRepository('ApplicationSonataUserBundle:DutyInBranches')
-                ->getDutyInBranchByDate($dateItem, $request->query->has('branch') ? $request->query->get('branch') : null);
+                ->getDutyInBranchByDate(
+                    $dateItem,
+                    $request->query->has('branch_id') ? $request->query->get('branch_id') : null,
+                    $request->query->has('manager_id') ? $request->query->get('manager_id') : null
+                );
 
             foreach($branches as $branch){
                 $item['body'] .= '<div class="span6">';
@@ -125,13 +135,40 @@ class DutyController extends Controller
 
                                 $item['body'] .= '</ul>';
                                 $item['body'] .= '</div>';
+
+                                $item['body'] .= '<div class="btn-group">';
+                                $item['body'] .= '<button class="btn btn-mini">Удалить запись</button>';
+                                $item['body'] .= '<button class="btn btn-mini dropdown-toggle" data-toggle="dropdown">';
+                                $item['body'] .= '<span class="caret"></span>';
+                                $item['body'] .= '</button>';
+                                $item['body'] .= '<ul class="dropdown-menu">';
+
+                                foreach($agents as $agent){
+                                    $item['body'] .= '<li>';
+                                    $item['body'] .= '<a href="'.$this->generateUrl('admin_sonata_user_dutyinbranches_delete', ['id' => $dutyItem['duty_id'][0]]).'">';
+                                    $item['body'] .= '<i class="icon-remove"></i> '.$agent;
+                                    $item['body'] .= '</a>';
+                                    $item['body'] .= '</li>';
+                                }
+
+                                $item['body'] .= '</ul>';
+                                $item['body'] .= '</div>';
+
                                 $item['body'] .= '</td>';
                             }
                             else{
                                 $item['body'] .= '<td style="width: 10%; text-align: center; vertical-align: middle;">';
+
+                                $item['body'] .= '<div class="btn-group">';
                                 $item['body'] .= '<a class="btn btn-small sonata-action-element" onclick="edit_duty_record(\''.$dutyItem['duty_id'][0].'\', \''.$dutyItem['branch_id'][0].'\', \''.$dutyItem['manager_id'][0].'\', \''.$dutyItem['duty_agent_id'][0].'\', \''.$dutyItem['phone'][0].'\', \''.$dutyItem['duty_day'][0].'\', \''.$dutyItem['duty_month'][0].'\', \''.$dutyItem['duty_year'][0].'\', \''.$dutyItem['duty_time_start'][0].'\', \''.$dutyItem['duty_time_end'][0].'\')">';
-                                $item['body'] .= '<nobr><i class="icon-edit"></i> Редактировать</nobr>';
+                                $item['body'] .= '<i class="icon-edit"></i>';
                                 $item['body'] .= '</a>';
+
+                                $item['body'] .= '<a class="btn btn-small sonata-action-element" href="'.$this->generateUrl('admin_sonata_user_dutyinbranches_delete', ['id' => $dutyItem['duty_id'][0]]).'">';
+                                $item['body'] .= '<i class="icon-remove"></i>';
+                                $item['body'] .= '</a>';
+                                $item['body'] .= '</div>';
+
                                 $item['body'] .= '</td>';
                             }
                         }

@@ -75,22 +75,52 @@ class DutyCRUDController extends CRUDController
 
         $datagrid = $this->admin->getDatagrid();
 
+        $user = $this->getUser();
+        if($user->isManager()){
+            $branches = $this->getDoctrine()->getManager()->getRepository('DictionaryBundle:Branches')
+                ->findBy(['isActive' => true, 'id' => $user->getBranch()]);
+            $managers = $user;
+
+        }
+        else{
+            $branches = $this->getDoctrine()->getManager()->getRepository('DictionaryBundle:Branches')
+                ->findBy(['isActive' => true]);
+            $managers = $this->getDoctrine()->getManager()->getRepository('ApplicationSonataUserBundle:User')
+                ->getManagers();
+        }
+
+        $render_params = [
+            'branches'   => $branches,
+            'managers'   => $managers,
+            'agents'     => $this->getDoctrine()->getManager()->getRepository('ApplicationSonataUserBundle:User')
+                    ->getAgents(),
+            'duty_hour_start' => $this->container->getParameter('duty.min.hour'),
+            'duty_hour_end' => $this->container->getParameter('duty.max.hour'),
+            'duty_hour_delta' => $this->container->getParameter('duty.delta.hour'),
+            'action'     => 'list',
+            'datagrid'   => $datagrid,
+            'csrf_token' => $this->getCsrfToken('sonata.batch')
+        ];
+
+        $request = $this->container->get('request');
+
+        if($request->query->has('DutyFilter')){
+            $request_params = $request->query->get('DutyFilter');
+
+            $ajax_calendar_data = [];
+            if(isset($request_params['branch_id']) && (integer)$request_params['branch_id'] > 0){
+                $ajax_calendar_data['branch_id'] = (integer)$request_params['branch_id'];
+            }
+
+            if(isset($request_params['manager_id']) && (integer)$request_params['manager_id'] > 0){
+                $ajax_calendar_data['manager_id'] = (integer)$request_params['manager_id'];
+            }
+
+            $render_params['ajax_calendar_data'] = json_encode($ajax_calendar_data);
+        }
+
         return $this->render(
-            $this->admin->getTemplate('list'),
-            [
-                'branches'   => $this->getDoctrine()->getManager()->getRepository('DictionaryBundle:Branches')
-                        ->findBy(['isActive' => true]),
-                'managers'   => $this->getDoctrine()->getManager()->getRepository('ApplicationSonataUserBundle:User')
-                        ->getManagers(),
-                'agents'     => $this->getDoctrine()->getManager()->getRepository('ApplicationSonataUserBundle:User')
-                        ->getAgents(),
-                'duty_hour_start' => $this->container->getParameter('duty.min.hour'),
-                'duty_hour_end' => $this->container->getParameter('duty.max.hour'),
-                'duty_hour_delta' => $this->container->getParameter('duty.delta.hour'),
-                'action'     => 'list',
-                'datagrid'   => $datagrid,
-                'csrf_token' => $this->getCsrfToken('sonata.batch')
-            ]
+            $this->admin->getTemplate('list'), $render_params
         );
     }
 

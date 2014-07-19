@@ -42,6 +42,10 @@
                 <source>Duty In Branches List</source>
                 <target>График дежурств</target>
             </trans-unit>
+            <trans-unit id="Duty In Branches Delete">
+                <source>Duty In Branches Delete</source>
+                <target>Удаление дежурства</target>
+            </trans-unit>
         </body>
     </file>
 </xliff>

@@ -359,6 +359,10 @@ $.fn.zabuto_calendar = function (options) {
 
             var data = { year: year, month: (month + 1)};
 
+            if(ajaxSettings.data){
+                data = $.extend(data, ajaxSettings.data);
+            }
+
             $.ajax({
                 type: 'GET',
                 url: ajaxSettings.url,
