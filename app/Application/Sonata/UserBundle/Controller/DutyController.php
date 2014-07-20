@@ -45,7 +45,7 @@ class DutyController extends Controller
 
         $dutyStartTime = (integer)$this->container->getParameter('duty.min.hour');
         $dutyEndTime = (integer)$this->container->getParameter('duty.max.hour');
-        $dutyTime = $dutyStartTime - $dutyEndTime;
+        $dutyTime = $dutyEndTime - $dutyStartTime;
 
         $totalDutyAgents = null;
         if($request->query->has('branch_id')){
@@ -186,7 +186,9 @@ class DutyController extends Controller
             }
 
             $dutyRecordCount = $dutyTime * $totalDutyAgents;
-            $dutyFilledOn = count(array_values($dutyData)) * count($dutyData) / $dutyRecordCount;
+            $duty_count_by_date = $this->getDoctrine()->getManager()->getRepository('ApplicationSonataUserBundle:DutyInBranches')
+                ->getDutyCountByDate($dateItem, $request->query->has('branch_id') ? $request->query->get('branch_id') : null);
+            $dutyFilledOn = $duty_count_by_date / $dutyRecordCount;
 
             if($dutyFilledOn <= 0.59){
                 $item['classname'] = 'grade-1';

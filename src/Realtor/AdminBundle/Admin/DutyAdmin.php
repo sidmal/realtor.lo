@@ -10,7 +10,6 @@ use Sonata\AdminBundle\Form\FormMapper;
 use Sonata\AdminBundle\Route\RouteCollection;
 use Sonata\AdminBundle\Show\ShowMapper;
 use Sonata\AdminBundle\Validator\ErrorElement;
-use Symfony\Component\HttpFoundation\ParameterBag;
 
 class DutyAdmin extends Admin
 {
@@ -18,7 +17,7 @@ class DutyAdmin extends Admin
 
     protected function configureRoutes(RouteCollection $collection)
     {
-        $collection->add('print');
+        $collection->add('print')->add('unfilled');
     }
 
     /**

@@ -82,7 +82,7 @@
                     });
                 },
                 ajax: {
-                    url: "{{ path('duty_get_unfilled') }}",
+                    url: "{{ admin.generateUrl('unfilled') }}",
                     popover: true
                     {% if ajax_calendar_data is defined and ajax_calendar_data is not empty %}
                          , data: {% autoescape false %}{{ ajax_calendar_data }}{% endautoescape %}
@@ -90,7 +90,12 @@
                 },
                 language: "ru",
                 cell_border: false,
-                show_previous: min_previous_navigation_steps
+                show_previous: min_previous_navigation_steps,
+                legend: [
+                    {type: "block", label: "<= 59%", classname: "grade-1"},
+                    {type: "block", label: "60% > и < 100%", classname: "grade-3"},
+                    {type: "block", label: "= 100%", classname: "grade-4"}
+                ]
             });
 
             /* при выборе другого элемента списка скрываем последующие поля */

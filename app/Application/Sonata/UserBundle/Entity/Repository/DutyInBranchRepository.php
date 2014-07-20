@@ -183,4 +183,26 @@ class DutyInBranchRepository extends EntityRepository
 
         return $result;
     }
+
+    public function getDutyCountByDate($duty_date, $branch = null)
+    {
+        $builder = $this->getEntityManager()->createQueryBuilder()
+            ->from('ApplicationSonataUserBundle:DutyInBranches', 'duty')
+            ->where('duty.dutyDate = :duty_date')->setParameter('duty_date', $duty_date, Type::DATETIME);
+
+        $builder->select($builder->expr()->count('duty.id'));
+
+        if($branch){
+            $builder->andWhere('duty.branchId = :branch_id')->setParameter('branch_id', $branch);
+        }
+
+        try{
+            $result = $builder->getQuery()->getSingleScalarResult();
+        }
+        catch(NoResultException $e){
+            $result = null;
+        }
+
+        return $result;
+    }
 }

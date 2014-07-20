@@ -46,7 +46,7 @@ class UserRepository extends EntityRepository
         return $result;
     }
 
-    public function getManagers()
+    public function getManagers($manager_id = null)
     {
         $builder = $this->getEntityManager()->createQueryBuilder()
             ->select('user')
@@ -62,6 +62,10 @@ class UserRepository extends EntityRepository
                 ]
             )
         );
+
+        if($manager_id){
+            $builder->andWhere('user.id = :manager_id')->setParameter('manager_id', $manager_id);
+        }
 
         try{
             $queryResult = $builder->getQuery()->getResult();
@@ -121,7 +125,7 @@ class UserRepository extends EntityRepository
     public function getAgentByManager($managerId)
     {
         $qb = $this->getEntityManager()->createQueryBuilder()
-            ->select('user')
+            ->select(['user.id'])
             ->from('ApplicationSonataUserBundle:User', 'user')
             ->where('user.isFired = :is_fired')
             ->andWhere('user.head = :manager')
@@ -140,7 +144,7 @@ class UserRepository extends EntityRepository
         );
 
         try{
-            $result = $qb->getQuery()->getResult();
+            $result = $qb->getQuery()->getArrayResult()[0];
         }
         catch(NoResultException $e){
             $result = null;

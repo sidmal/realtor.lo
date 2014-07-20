@@ -56,8 +56,8 @@ class CallCardTest extends WebTestCase
 
         $call = new Call();
         $call->setLinkedId($uniqueId)->setInternalId($uniqueId)->setAtsCallId($uniqueId)
-            ->setType(1)->setFromPhone('102')->setToPhone('000')->setCallAction('pincode')
-            ->setEventAt(new \DateTime())->setAccessCode('5234');
+            ->setType(1)->setFromPhone('105')->setToPhone('000')->setCallAction('pincode')
+            ->setEventAt(new \DateTime())->setAccessCode('0705');
 
         $em->persist($call);
         $em->flush();
