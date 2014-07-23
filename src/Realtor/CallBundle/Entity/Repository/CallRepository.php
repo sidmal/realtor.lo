@@ -7,6 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\ORM\AbstractQuery;
 use Doctrine\ORM\NoResultException;
+use Doctrine\ORM\Query\Expr\OrderBy;
 use Doctrine\ORM\Query\Parameter;
 
 /**
@@ -119,6 +120,144 @@ class CallRepository extends EntityRepository
 
         try{
             $result = $qb->getQuery()->getResult();
+        }
+        catch(NoResultException $e){
+            $result = null;
+        }
+
+        return $result;
+    }
+
+    public function getReport($fields, $conditions = [], $group_by = [])
+    {
+        if(empty($fields)){
+            return null;
+        }
+
+        $builder = $this->getEntityManager()->createQueryBuilder()
+            ->from('CallBundle:Call', 'call')
+            ->leftJoin('call.params', 'call_params')
+            ->leftJoin('call_params.advertisingSource', 'call_params_advertising_source')
+            ->leftJoin('call_params.reason', 'call_params_reason')
+            ->leftJoin('call.callResult', 'call_result')
+            ->leftJoin('call_params.other_who_call', 'call_params_callers');
+
+        if(!empty($conditions)){
+            foreach($conditions as $condition){
+                eval($condition);
+            }
+        }
+
+        foreach($fields as $key => $field){
+            if($field != 'call.eventAt'){
+                $builder->andWhere($builder->expr()->isNotNull($field));
+            }
+
+            if(!in_array($field, $group_by)){
+                if($field == 'call.eventAt'){
+                    $group_by[] = 'event_at';
+                }
+                else{
+                    $group_by[] = $field;
+                }
+            }
+
+            if($field == 'call.eventAt'){
+                $fields[$key] = 'DATE(call.eventAt) AS event_at';
+
+                $builder->addOrderBy(new OrderBy('event_at', 'asc'));
+            }
+            elseif($field == 'call_params_advertising_source.name'){
+                $fields[$key] = 'call_params_advertising_source.name AS advertising_source_name';
+            }
+            elseif($field == 'call_params_reason.name'){
+                $fields[$key] = 'call_params_reason.name AS reason_name';
+            }
+            elseif($field == 'call_result.name'){
+                $fields[$key] = 'call_result.name AS call_result_name';
+            }
+            elseif($field == 'call_params_callers.name'){
+                $fields[$key] = 'call_params_callers.name AS callers_name';
+            }
+        }
+
+        if(!empty($group_by)){
+            $fields[] = $builder->expr()->count('call.id').' AS cnt';
+        }
+
+        foreach($group_by as $group_by_item){
+            if($group_by_item == 'call.eventAt'){
+                $group_by_item = 'event_at';
+            }
+
+            $builder->addGroupBy($group_by_item);
+        }
+
+        $builder->select($fields);
+
+        try{
+            $query_result = $builder->getQuery()->getResult();
+
+            if(empty($query_result)){
+                $result = null;
+            }
+            else{
+                if(empty($group_by)){
+                    $result = $query_result;
+                }
+                else{
+                    $result = [];
+                    foreach($query_result as $item){
+
+                        $result_item = [];
+                        foreach($fields as $field){
+                            if($field == 'DATE(call.eventAt) AS event_at'){
+                                $field = 'event_at';
+                            }
+                            elseif($field == 'call_params_advertising_source.name AS advertising_source_name'){
+                                $field = 'advertising_source_name';
+                            }
+                            elseif($field == 'call_params_reason.name AS reason_name'){
+                                $field = 'reason_name';
+                            }
+                            elseif($field == 'call_result.name AS call_result_name'){
+                                $field = 'call_result_name';
+                            }
+                            elseif($field == 'call_params_callers.name AS callers_name'){
+                                $field = 'callers_name';
+                            }
+                            elseif($field == 'COUNT(call.id) AS cnt'){
+                                $field = 'cnt';
+                            }
+                            else{
+                                $field = explode('.', $field)[1];
+                            }
+
+                            $result_item[$field] = $item[$field];
+                        }
+
+                        if($group_by[0] == 'call.eventAt'){
+                            $group = 'event_at';
+                        }
+                        elseif($group_by[0] == 'call_params_advertising_source.name'){
+                            $group = 'advertising_source_name';
+                        }
+                        elseif($group_by[0] == 'call_params_reason.name'){
+                            $group = 'reason_name';
+                        }
+                        elseif($group_by[0] == 'call_result.name'){
+                            $group = 'call_result_name';
+                        }
+                        elseif($group_by[0] == 'call_params_callers.name'){
+                            $group = 'callers_name';
+                        }
+
+                        unset($result_item[$group]);
+
+                        $result[$item[$group]][] = $result_item;
+                    }
+                }
+            }
         }
         catch(NoResultException $e){
             $result = null;

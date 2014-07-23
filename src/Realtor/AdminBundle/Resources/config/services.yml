@@ -118,11 +118,13 @@ services:
         tags:
             - { name: sonata.admin, manager_type: orm, group: "Справочники", label: "Вызывающие" }
 
-#    admin.admin.calls.report:
-#        class: Realtor\AdminBundle\Admin\CallsReportAdmin
-#        arguments:
-#            - ~
-#            - Realtor\CallBundle\Entity\Call
-#            - AdminBundle:Report
-#        tags:
-#            - { name: sonata.admin, manager_type: orm, group: "Отчеты", label: "Источники рекламы" }
+    admin.admin.calls.report:
+        class: Realtor\AdminBundle\Admin\CallsReportAdmin
+        arguments:
+            - ~
+            - Realtor\CallBundle\Entity\Call
+            - AdminBundle:Report
+        calls:
+            - [ setTemplate, [list, AdminBundle:Report:report_list.html.twig]]
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: "Отчеты", label: "Сводный отчет" }

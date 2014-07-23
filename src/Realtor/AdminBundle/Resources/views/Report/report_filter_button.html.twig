@@ -1,0 +1,40 @@
+{% block stylesheets %}
+    <link href="{{ asset('bundles/admin/css/magicsuggest.css') }}" rel="stylesheet" />
+{% endblock %}
+
+{% block javascripts %}
+    <script style="text/javascript" src="{{ asset('bundles/admin/js/bootstrap-tooltip.js') }}"></script>
+    <script style="text/javascript" src="{{ asset('bundles/admin/js/bootstrap-popover.js') }}"></script>
+    <script style="text/javascript" src="{{ asset('bundles/admin/js/magicsuggest-min.js') }}"></script>
+
+    <script type="text/javascript">
+        $("document").ready(function(){
+            $("#report-settings-button").popover(
+                {
+                    content: "This is popover to report settings.",
+                    placement: "left",
+                    animation: false,
+                    trigger: "manual",
+                    html: true
+                }
+            ).click(function(event){
+                var current_element = $(this);
+
+                current_element.popover("show");
+
+                $(".popover-title").append("<button type=\"button\" class=\"close\">&times;</button>");
+                $(".popover-title").find(".close").bind("click", function(){
+                    current_element.popover("hide");
+                });
+            });
+        });
+    </script>
+{% endblock %}
+
+<a class="btn sonata-action-element" id="report-settings-button">
+    <i class="icon-filter"></i>Настройки отчета
+</a>
+
+<div id="report-settings-container">
+
+</div>

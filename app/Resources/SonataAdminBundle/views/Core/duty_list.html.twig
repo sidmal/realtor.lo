@@ -185,6 +185,11 @@
 
                 $("form.form-horizontal").find("#branch-id").val("0").change();
                 $("form.form-horizontal").find("#duty-id").remove();
+
+                {% if app.user.isManager %}
+                    $("form.form-horizontal").find("#branch-id").val("{{ app.user.getBranch.getId }}").change();
+                    $("form.form-horizontal").find("#manager-id").val("{{ app.user.getId }}").change();
+                {% endif %}
             });
 
             $("#main-form").submit(function(event){

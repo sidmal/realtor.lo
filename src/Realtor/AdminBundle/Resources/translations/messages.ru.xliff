@@ -46,6 +46,10 @@
                 <source>Duty In Branches Delete</source>
                 <target>Удаление дежурства</target>
             </trans-unit>
+            <trans-unit id="Call List">
+                <source>Call List</source>
+                <target>Сводный отчет</target>
+            </trans-unit>
         </body>
     </file>
 </xliff>

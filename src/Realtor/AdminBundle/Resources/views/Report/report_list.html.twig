@@ -1,0 +1,385 @@
+{% extends 'SonataAdminBundle:CRUD:base_list.html.twig' %}
+
+{% block stylesheets %}
+    {{ parent() }}
+
+    <link href="{{ asset('bundles/admin/css/chosen.css') }}" rel="stylesheet" />
+
+    <style type="text/css">
+        .filter-container form div.row-fluid {
+            margin-bottom: 10px;
+        }
+
+        .filter-container form div.row-fluid label {
+            font-weight: 900;
+        }
+    </style>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+
+    <script style="text/javascript" src="{{ asset('bundles/admin/js/chosen.jquery.js') }}"></script>
+    <script style="text/javascript" src="{{ asset('bundles/admin/js/bootstrap-tooltip.js') }}"></script>
+
+    <script type="text/javascript">
+        $("document").ready(function(){
+            $(".filter-container form div.row-fluid label.control-label").tooltip();
+        });
+    </script>
+{% endblock %}
+
+{% block actions %}
+    <div class="sonata-actions">
+        {#% include '@Admin/Report/report_filter_button.html.twig' %#}
+    </div>
+{% endblock %}
+
+{% block side_menu %}{{ knp_menu_render(admin.sidemenu(action), {'currentClass' : 'active'}, 'list') }}{% endblock %}
+
+{% block list_table %}
+    {%
+        set table_headers = {
+            "event_at": "Дата звонка",
+            "call.eventAt": "Дата звонка",
+            "type": "Тип звонка (входящий/исходящий)",
+            "fromPhone": "От кого звонок",
+            "toPhone": "Кому звонок",
+            "callType": "Тип обращения",
+            "callerName": "Имя звонящего",
+            "advertising_source_name": "Источник рекламы",
+            "call_params_advertising_source.name": "Источник рекламы",
+            "reason_name": "Причина обращения",
+            "call_result_name": "Результат разговора",
+            "callers_name": "Тип вызывающего",
+            "cnt": "Колличество записей"
+        }
+    %}
+
+    <div class="span12" style="margin-bottom: 30px;">
+        <div class="span8">
+            {% if report_data is null %}
+                <div class="alert alert-danger">
+                    <strong>Нет данных для отображения отчета. Возможно вы не указали фильтры для формирования отчета.</strong>
+                </div>
+            {% else %}
+                <table class="table table-bordered">
+                    <tr>
+                        <th style="text-align: center; font-size: 18px;">{{ table_headers[previous_group_by[0]] is defined ? table_headers[previous_group_by[0]] : previous_group_by[0] }}</th>
+                        {% set group_field = report_data|slice(0, 1)|keys %}
+                        {% for key, item in report_data[group_field[0]][0] %}
+                            <th style="text-align: center; font-size: 18px;">{{ table_headers[key] is defined ? table_headers[key] : key }}</th>
+                        {% endfor %}
+                    </tr>
+                    {% for key, table_field in report_data %}
+                        <tr>
+                            <td rowspan="{{ table_field|length + 1 }}" style="text-align: center; vertical-align: middle; font-weight: 900;">{{ key }}</td>
+                        </tr>
+                        {% set count_by_group = 0 %}
+                        {% for items in table_field %}
+                            <tr>
+                                {% for key, item in items %}
+                                    <td style="text-align: right;">{{ item }}</td>
+                                    {% if key == "cnt" %}
+                                        {% set count_by_group = count_by_group + item %}
+                                    {% endif %}
+                                {% endfor %}
+                            </tr>
+                        {% endfor %}
+                        <tr class="info">
+                            <td colspan="{{ report_data[group_field[0]][0]|length + 1 }}" style="text-align: right; font-size: 14; font-weight: 900; border-top: 2px solid #000000;">
+                                Итого: {{ count_by_group }}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            {% endif %}
+        </div>
+
+        <div class="span4 filter-container">
+            <form method="post" action="{{ admin.generateUrl('list') }}" id="report-form">
+                <div class="row-fluid">
+                    <label class="control-label" for="report-filter-fields" title="Поля которые будут отображены в отчете. Введенные поля будут отображны в том же порядке." data-placement="left">Поля отчета</label>
+                    <div class="controls">
+                        <select name="ReportFilter[fields][]" id="report-filter-fields" data-placeholder="Выберите поля отображаемые в отчете..." multiple="multiple" class="chosen-select span12 pull-right">
+                            {% if previous_fields is not null and "call.eventAt" in previous_fields %}
+                                <option value="call.eventAt" selected="selected">Дата звонка</option>
+                            {% else %}
+                                <option value="call.eventAt">Дата звонка</option>
+                            {% endif %}
+                            {% if previous_fields is not null and "call.type" in previous_fields %}
+                                <option value="call.type" selected="selected">Тип звонка (входящий/исходящий)</option>
+                            {% else %}
+                                <option value="call.type">Тип звонка (входящий/исходящий)</option>
+                            {% endif %}
+                            {% if previous_fields is not null and "call.fromPhone" in previous_fields %}
+                                <option value="call.fromPhone" selected="selected">От кого звонок</option>
+                            {% else %}
+                                <option value="call.fromPhone">От кого звонок</option>
+                            {% endif %}
+                            {% if previous_fields is not null and "call.toPhone" in previous_fields %}
+                                <option value="call.toPhone" selected="selected">Кому звонок</option>
+                            {% else %}
+                                <option value="call.toPhone">Кому звонок</option>
+                            {% endif %}
+                            {% if previous_fields is not null and "call_params.callType" in previous_fields %}
+                                <option value="call_params.callType" selected="selected">Тип обращения</option>
+                            {% else %}
+                                <option value="call_params.callType">Тип обращения</option>
+                            {% endif %}
+                            {% if previous_fields is not null and "call_params.callerName" in previous_fields %}
+                                <option value="call_params.callerName" selected="selected">Имя звонящего</option>
+                            {% else %}
+                                <option value="call_params.callerName">Имя звонящего</option>
+                            {% endif %}
+                            {% if previous_fields is not null and "call_params_advertising_source.name" in previous_fields %}
+                                <option value="call_params_advertising_source.name" selected="selected">Источник рекламы</option>
+                            {% else %}
+                                <option value="call_params_advertising_source.name">Источник рекламы</option>
+                            {% endif %}
+                            {% if previous_fields is not null and "call_params_reason.name" in previous_fields %}
+                                <option value="call_params_reason.name" selected="selected">Причина обращения</option>
+                            {% else %}
+                                <option value="call_params_reason.name">Причина обращения</option>
+                            {% endif %}
+                            {% if previous_fields is not null and "call_result.name" in previous_fields %}
+                                <option value="call_result.name" selected="selected">Результат разговора</option>
+                            {% else %}
+                                <option value="call_result.name">Результат разговора</option>
+                            {% endif %}
+                            {% if previous_fields is not null and "call_params_callers.name" in previous_fields %}
+                                <option value="call_params_callers.name" selected="selected">Тип вызывающего</option>
+                            {% else %}
+                                <option value="call_params_callers.name">Тип вызывающего</option>
+                            {% endif %}
+                        </select>
+                    </div>
+                </div>
+                <div class="row-fluid">
+                    <label class="control-label" for="report-filter-group-by" title="Поле которое будет использоваться для группировки. Возможно выбрать только одно поле." data-placement="left">Поле группировки</label>
+                    <div class="controls">
+                        <select name="ReportFilter[group_by][]" id="report-filter-group-by" data-placeholder="Выберите поля для группировки в отчете..." class="chosen-select span12 pull-right">
+                            {% if previous_group_by is not null and "call.eventAt" in previous_group_by %}
+                                <option value="call.eventAt" selected="selected">Дата звонка</option>
+                            {% else %}
+                                <option value="call.eventAt">Дата звонка</option>
+                            {% endif %}
+                            {% if previous_group_by is not null and "call.type" in previous_group_by %}
+                                <option value="call.type" selected="selected">Тип звонка (входящий/исходящий)</option>
+                            {% else %}
+                                <option value="call.type">Тип звонка (входящий/исходящий)</option>
+                            {% endif %}
+                            {% if previous_group_by is not null and "call.fromPhone" in previous_group_by %}
+                                <option value="call.fromPhone" selected="selected">От кого звонок</option>
+                            {% else %}
+                                <option value="call.fromPhone">От кого звонок</option>
+                            {% endif %}
+                            {% if previous_group_by is not null and "call.toPhone" in previous_group_by %}
+                                <option value="call.toPhone" selected="selected">Кому звонок</option>
+                            {% else %}
+                                <option value="call.toPhone">Кому звонок</option>
+                            {% endif %}
+                            {% if previous_group_by is not null and "call_params.callType" in previous_group_by %}
+                                <option value="call_params.callType" selected="selected">Тип обращения</option>
+                            {% else %}
+                                <option value="call_params.callType">Тип обращения</option>
+                            {% endif %}
+                            {% if previous_group_by is not null and "call_params.callerName" in previous_group_by %}
+                                <option value="call_params.callerName" selected="selected">Имя звонящего</option>
+                            {% else %}
+                                <option value="call_params.callerName">Имя звонящего</option>
+                            {% endif %}
+                            {% if previous_group_by is not null and "call_params_advertising_source.name" in previous_group_by %}
+                                <option value="call_params_advertising_source.name" selected="selected">Источник рекламы</option>
+                            {% else %}
+                                <option value="call_params_advertising_source.name">Источник рекламы</option>
+                            {% endif %}
+                            {% if previous_group_by is not null and "call_params_reason.name" in previous_group_by %}
+                                <option value="call_params_reason.name" selected="selected">Причина обращения</option>
+                            {% else %}
+                                <option value="call_params_reason.name">Причина обращения</option>
+                            {% endif %}
+                            {% if previous_group_by is not null and "call_result.name" in previous_group_by %}
+                                <option value="call_result.name" selected="selected">Результат разговора</option>
+                            {% else %}
+                                <option value="call_result.name">Результат разговора</option>
+                            {% endif %}
+                            {% if previous_group_by is not null and "call_params_callers.name" in previous_group_by %}
+                                <option value="call_params_callers.name" selected="selected">Тип вызывающего</option>
+                            {% else %}
+                                <option value="call_params_callers.name">Тип вызывающего</option>
+                            {% endif %}
+                        </select>
+                    </div>
+                </div>
+
+                {% if previous_date_start is not null %}
+                    {% set default_date_start = previous_date_start %}
+                {% else %}
+                    {% set default_date_start = "now" %}
+                {% endif %}
+
+                {% if previous_date_end is not null %}
+                    {% set default_date_end = previous_date_end %}
+                {% else %}
+                    {% set default_date_end = "now" %}
+                {% endif %}
+
+                <div class="row-fluid">
+                    <label class="control-label" for="day-start" title="Дата от которой будет сформирована выборка данных отчета." data-placement="left">Дата начала</label>
+                    <div class="controls">
+                        <select class="span2" name="ReportFilter[day_start]" id="day-start">
+                            {% for item in 1..31 %}
+                                {% if item == default_date_start|date("d") %}
+                                    <option value="{{ "%02d"|format(item) }}" selected="selected">{{ "%02d"|format(item) }}</option>
+                                {% else %}
+                                    <option value="{{ "%02d"|format(item) }}">{{ "%02d"|format(item) }}</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+
+                        <select class="span3" name="ReportFilter[month_start]" id="month-start">
+                            {%
+                                set month = {
+                                    "01": "янв.",
+                                    "02": "февр.",
+                                    "03": "март",
+                                    "04": "апр.",
+                                    "05": "май",
+                                    "06": "июнь",
+                                    "07": "июль",
+                                    "08": "авг.",
+                                    "09": "сент.",
+                                    "10": "окт.",
+                                    "11": "нояб.",
+                                    "12": "дек."
+                                }
+                            %}
+                            {% set current_month = default_date_start|date("m") %}
+                            {% for key, item in month %}
+                                {% if key == "%02d"|format(current_month) %}
+                                    <option value="{{ key }}" selected="selected">{{ item }}</option>
+                                {% else %}
+                                    <option value="{{ key }}">{{ item }}</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+
+                        <select class="span3" name="ReportFilter[year_start]" id="year-start">
+                            {% for item in 2012..2030 %}
+                                {% if item == default_date_start|date("Y") %}
+                                    <option value="{{ item }}" selected="selected">{{ item }}</option>
+                                {% else %}
+                                    <option value="{{ item }}">{{ item }}</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+
+                        <select class="span2" name="ReportFilter[hour_start]" id="hour-start">
+                            {% for item in 1..24 %}
+                                {% if item == default_date_start|date("H") %}
+                                    <option value="{{ "%02d"|format(item) }}" selected="selected">{{ "%02d"|format(item) }}</option>
+                                {% else %}
+                                    <option value="{{ "%02d"|format(item) }}">{{ "%02d"|format(item) }}</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+
+                        <select class="span2" name="ReportFilter[minute_start]" id="hour-start">
+                            {% for item in 0..60 %}
+                                {% if item == 0 %}
+                                    <option value="{{ "%02d"|format(item) }}" selected="selected">{{ "%02d"|format(item) }}</option>
+                                {% else %}
+                                    <option value="{{ "%02d"|format(item) }}">{{ "%02d"|format(item) }}</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row-fluid">
+                    <label class="control-label" for="day-end" title="Дата до которой будет сформирована выборка данных отчета." data-placement="left">Дата окончания</label>
+                    <div class="controls">
+                        <select class="span2" name="ReportFilter[day_end]" id="day-end">
+                            {% for item in 1..31 %}
+                                {% if item == default_date_end|date("d") %}
+                                    <option value="{{ "%02d"|format(item) }}" selected="selected">{{ "%02d"|format(item) }}</option>
+                                {% else %}
+                                    <option value="{{ "%02d"|format(item) }}">{{ "%02d"|format(item) }}</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+
+                        <select class="span3" name="ReportFilter[month_end]" id="month-end">
+                            {%
+                                set month = {
+                                    "01": "янв.",
+                                    "02": "февр.",
+                                    "03": "март",
+                                    "04": "апр.",
+                                    "05": "май",
+                                    "06": "июнь",
+                                    "07": "июль",
+                                    "08": "авг.",
+                                    "09": "сент.",
+                                    "10": "окт.",
+                                    "11": "нояб.",
+                                    "12": "дек."
+                                }
+                            %}
+                            {% set current_month = default_date_end|date("m") %}
+                            {% for key, item in month %}
+                                {% if key == "%02d"|format(current_month) %}
+                                    <option value="{{ key }}" selected="selected">{{ item }}</option>
+                                {% else %}
+                                    <option value="{{ key }}">{{ item }}</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+
+                        <select class="span3" name="ReportFilter[year_end]" id="year-end">
+                            {% for item in 2012..2030 %}
+                                {% if item == default_date_end|date("Y") %}
+                                    <option value="{{ item }}" selected="selected">{{ item }}</option>
+                                {% else %}
+                                    <option value="{{ item }}">{{ item }}</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+
+                        <select class="span2" name="ReportFilter[hour_end]" id="hour-end">
+                            {% for item in 1..24 %}
+                                {% if item == default_date_end|date("H") %}
+                                    <option value="{{ "%02d"|format(item) }}" selected="selected">{{ "%02d"|format(item) }}</option>
+                                {% else %}
+                                    <option value="{{ "%02d"|format(item) }}">{{ "%02d"|format(item) }}</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+
+                        <select class="span2" name="ReportFilter[minute_end]" id="hour-end">
+                            {% for item in 0..60 %}
+                                {% if item == 0 %}
+                                    <option value="{{ "%02d"|format(item) }}" selected="selected">{{ "%02d"|format(item) }}</option>
+                                {% else %}
+                                    <option value="{{ "%02d"|format(item) }}">{{ "%02d"|format(item) }}</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row-fluid">
+                    <div class="controls">
+                        <input type="submit" class="btn btn-primary" value="Построить отчет" />
+                        <input type="reset" class="btn btn-danger" value="Сбросить" style="margin-left: 10px;" />
+                    </div>
+                </div>
+
+            </form>
+        </div>
+    </div>
+{% endblock %}
+
+
+
