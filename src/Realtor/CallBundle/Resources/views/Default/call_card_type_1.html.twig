@@ -180,10 +180,16 @@
 
         <div class="control-group">
             <label class="control-label required" for="reason">Причина обращения:</label>
-            <select name="CallCard[reason]" id="reason" required="required" class="span12" style="margin-bottom: 15px;">
+            <select name="CallCard[reason]" id="reason" class="span12" style="margin-bottom: 15px;">
                 <option></option>
+                {% set counter = 0 %}
                 {% for item in reason %}
-                    <option value="{{ item.id }}">{{ item.name }}</option>
+                    {% if counter == 0 %}
+                        <option value="{{ item.id }}" selected="selected">{{ item.name }}</option>
+                    {% else %}
+                        <option value="{{ item.id }}">{{ item.name }}</option>
+                    {% endif %}
+                    {% set counter = counter + 1 %}
                 {% endfor %}
             </select>
         </div>

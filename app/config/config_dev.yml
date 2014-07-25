@@ -12,18 +12,34 @@ web_profiler:
     intercept_redirects: false
 
 monolog:
+#    handlers:
+#        main:
+#            type:   stream
+#            path:   "%kernel.logs_dir%/%kernel.environment%.log"
+#            level:  debug
+#        console:
+#            type:   console
+#            bubble: false
+#        elastic:
+#            type: service
+#            id: monolog.handler.elastic_persistent
+#            channels: [call_ats_action]
     handlers:
         main:
-            type:   stream
-            path:   "%kernel.logs_dir%/%kernel.environment%.log"
-            level:  debug
+            type:         fingers_crossed
+            action_level: error
+            handler:      nested
+        nested:
+            type:  stream
+            path:  "%kernel.logs_dir%/%kernel.environment%.log"
+            level: debug
         console:
-            type:   console
-            bubble: false
+            type:  console
         elastic:
             type: service
             id: monolog.handler.elastic_persistent
             channels: [call_ats_action]
+
         # uncomment to get logging in your browser
         # you may have to allow bigger header sizes in your Web server configuration
         #firephp:
