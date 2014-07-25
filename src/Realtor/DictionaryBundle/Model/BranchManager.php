@@ -70,7 +70,7 @@ class BranchManager
             ->setOnDutyAgentPhone($branchItem['duty_agent'])
             ->setDutyAgentsCount($branchItem['duty_cnt'])
             ->setMayTrans($branchItem['maytrans'] == 1 ? true : false)
-            ->setIsActive(true);
+            ->setIsActive($branchItem['maytrans'] == 1 ? true : false);
 
         $this->em->persist($branch);
         $this->em->flush($branch);
