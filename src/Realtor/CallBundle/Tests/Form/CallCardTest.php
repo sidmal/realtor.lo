@@ -21,7 +21,7 @@ class CallCardTest extends WebTestCase
         $uniqueId = md5(uniqid(rand(), 1));
 
         $call = new Call();
-        $call->setLinkedId('85cb72079253d7a78fcd9ebdb8290571')->setInternalId($uniqueId)->setAtsCallId($uniqueId)
+        $call->setLinkedId('8e297102811370f3ee11f7915958222a')->setInternalId($uniqueId)->setAtsCallId($uniqueId)
             ->setType(1)->setFromPhone('9213839209')->setToPhone('205')->setCallAction('connect-exten')
             ->setEventAt(new \DateTime());
 

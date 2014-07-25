@@ -26,7 +26,9 @@
     ymaps.ready(init);
 
     function init(){
-        var map = new ymaps.Map('map', {center: [59.93772, 30.313622], zoom: 8, controls: ["zoomControl", "searchControl", "fullscreenControl"]});
+        var map = new ymaps.Map('map', {center: [59.93772, 30.313622], zoom: 8, controls: []});
+
+        map.controls.add("fullscreenControl", { float: "left" });
 
         map.events.add('click', function(event){
 
@@ -102,6 +104,12 @@
     $(document).ready(function(){
         $("#advertising-source-v2, #who-call, #branch, #reason").select2();
 
+        $("#client-undefined").on("click", function(){
+            if($(this).is(':checked')){
+                $("#caller-name").removeAttr("required").attr("readonly", true);
+            }
+        });
+
         $("#branch").change(function(){
             if(!branch_items[$(this).val()]){
                 return;
@@ -150,27 +158,15 @@
 
         <div class="control-group">
             <label class="control-label required" for="caller-name">Имя звонящего:</label>
+
+            <label class="checkbox">
+                <input type="checkbox" id="client-undefined"> Клиент отказался представиться
+            </label>
+
             <div class="input-append">
                 <input type="text" id="caller-name" name="CallCard[caller-name]" required="required" class="span11" placeholder="Имя звонящего" autocomplete="off" />
                 <span class="add-on"><i class="icon-user"></i></span>
             </div>
-        </div>
-
-        <div id="map" style="width: 430px; height: 200px"></div>
-
-    </div>
-
-    <div class="span6">
-        <div class="control-group">
-            <label class="control-label required" for="branch">Филиал:</label>
-            <select name="CallCard[branch]" id="branch" class="span12" style="margin-bottom: 15px;">
-                <option></option>
-                {% for branch in branches %}
-                    {% if branch.address is not empty and branch.outerId != 4962 %}
-                        <option value="{{ branch.id }}">{{ branch.name }}</option>
-                    {% endif %}
-                {% endfor %}
-            </select>
         </div>
 
         <div class="control-group">
@@ -184,15 +180,43 @@
         </div>
 
         <div class="control-group">
+            <label class="control-label required" for="branch">Филиал:</label>
+            <div class="span12">
+                <div class="span10">
+                    <select name="CallCard[branch]" id="branch" class="span12" style="margin-bottom: 15px;">
+                        <option></option>
+                        {% for branch in branches %}
+                            {% if branch.address is not empty and branch.outerId != 4962 %}
+                                <option value="{{ branch.id }}">{{ branch.name }}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="span2">
+                    <div id="map" class="row-fluid" style="width: 45px; height: 63px; margin-top: -25px;"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="control-group">
             <label class="control-label required" for="reason">Причина обращения:</label>
             <select name="CallCard[reason]" id="reason" required="required" class="span12" style="margin-bottom: 15px;">
                 <option></option>
+                {% set counter = 0 %}
                 {% for item in reason %}
-                    <option value="{{ item.id }}">{{ item.name }}</option>
+                    {% if counter == 0 %}
+                        <option value="{{ item.id }}" selected="selected">{{ item.name }}</option>
+                    {% else %}
+                        <option value="{{ item.id }}">{{ item.name }}</option>
+                    {% endif %}
+                    {% set counter = counter + 1 %}
                 {% endfor %}
             </select>
         </div>
 
+    </div>
+
+    <div class="span6">
         <div class="control-group">
             <label class="control-label required" for="message">Сообщение:</label>
             <textarea class="input-xlarge span14" id="message" name="CallCard[message]" rows="4" required="required"></textarea>
