@@ -166,6 +166,7 @@ class UserController extends Controller
                 'name' => $user->getFio(),
                 'phone' => $user->getPhone(),
                 'office_phone' => $user->getOfficePhone(),
+                'in_office' => $user->getInOffice(),
                 'may_trans_to_cell_phone' => $user->getMayRedirectCall(),
                 'manager_office_phone' => $user->getHead() ? $user->getHead()->getOfficePhone() : false,
                 'branch_phone' => $user->getBranch()->getBranchPhone()

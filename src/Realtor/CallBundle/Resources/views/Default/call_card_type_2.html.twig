@@ -108,6 +108,9 @@
             if($(this).is(':checked')){
                 $("#caller-name").removeAttr("required").attr("readonly", true);
             }
+            else{
+                $("#caller-name").removeAttr("readonly").attr("required", "required");
+            }
         });
 
         $("#branch").change(function(){
@@ -147,11 +150,17 @@
 <div>
     <div class="span6">
         <div class="control-group">
-            <label class="control-label required" for="who-call">Кто звонит:</label>
+            <label class="control-label required" for="who-call">Категория клиента:</label>
             <select id="who-call" name="CallCard[who-call]" required="required" class="span12">
                 <option></option>
+                {% set counter = 0 %}
                 {% for item in who_call_list %}
-                    <option value="{{ item.id }}">{{ item.name }}</option>
+                    {% if counter == 0 %}
+                        <option value="{{ item.id }}" selected="selected">{{ item.name }}</option>
+                    {% else %}
+                        <option value="{{ item.id }}">{{ item.name }}</option>
+                    {% endif %}
+                    {% set counter = counter + 1 %}
                 {% endfor %}
             </select>
         </div>
@@ -218,7 +227,7 @@
 
     <div class="span6">
         <div class="control-group">
-            <label class="control-label required" for="message">Сообщение:</label>
+            <label class="control-label required" for="message">Комментарий:</label>
             <textarea class="input-xlarge span14" id="message" name="CallCard[message]" rows="4" required="required"></textarea>
 
             <div style="height: 140px; overflow: scroll;" id="messages-history">

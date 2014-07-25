@@ -345,7 +345,7 @@
 
         <div id="call-card" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="call_card" aria-hidden="true" style="width: 900px; margin-left: -450px;">
             <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true" onclick="$('#call-result-modal').modal({'keyboard': false, 'backdrop': 'static'});">×</button>
+                <button type="button" class="btn btn-mini btn-danger pull-right" data-dismiss="modal" aria-hidden="true" onclick="$('#call-result-modal').modal({'keyboard': false, 'backdrop': 'static'});">Завершить звонок</button>
                 <h3 id="call-card-label">
                     <strong>
                         Номер телефона звонящего: <span id="caller-phone"></span>
@@ -355,8 +355,8 @@
                 <div id="phone-type">
                     Выбирите тип звонка:
                     <div class="btn-group">
-                        <button class="btn btn-small btn-success" type="button" value="0">Клиент знает объект</button>
-                        <button class="btn btn-small btn-success" type="button" value="1">Клиент не знает чего хочет</button>
+                        <button class="btn btn-small btn-success" type="button" value="0">По объекту</button>
+                        <button class="btn btn-small btn-success" type="button" value="1">Нет объекта</button>
                         <button class="btn btn-small btn-success" type="button" value="2">Звонок сотрудника</button>
                         <button class="btn btn-small btn-success" type="button" value="3">Другое</button>
                     </div>
