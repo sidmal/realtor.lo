@@ -211,25 +211,27 @@ class DutyCRUDController extends CRUDController
                     ->setStatusCode(JsonResponse::HTTP_BAD_REQUEST);
             }
 
-            $branch_agent_count = $form_duty->getBranchId()->getDutyAgentsCount();
-            $current_duty_agent_in_branch = $this->getDoctrine()->getManager()
-                ->getRepository('ApplicationSonataUserBundle:DutyInBranches')
-                ->findBy(
-                    [
-                        'branchId' => $form_duty->getBranchId(),
-                        'dutyDate' => $duty_item,
-                        'dutyTime' => $duty_item
-                    ]
-                );
-
-            if($current_duty_agent_in_branch && count($current_duty_agent_in_branch) >= $branch_agent_count){
-                return $response
-                    ->setData(
+            if(!isset($params['Duty']['duty_id']) || (integer)$params['Duty']['duty_id'] <= 0){
+                $branch_agent_count = $form_duty->getBranchId()->getDutyAgentsCount();
+                $current_duty_agent_in_branch = $this->getDoctrine()->getManager()
+                    ->getRepository('ApplicationSonataUserBundle:DutyInBranches')
+                    ->findBy(
                         [
-                            'message_description' => ["Для указанного филиала уже установлено максимальное количество дежурных на указанное время."]
+                            'branchId' => $form_duty->getBranchId(),
+                            'dutyDate' => $duty_item,
+                            'dutyTime' => $duty_item
                         ]
-                    )
-                    ->setStatusCode(JsonResponse::HTTP_BAD_REQUEST);
+                    );
+
+                if($current_duty_agent_in_branch && count($current_duty_agent_in_branch) >= $branch_agent_count){
+                    return $response
+                        ->setData(
+                            [
+                                'message_description' => ["Для указанного филиала уже установлено максимальное количество дежурных на указанное время."]
+                            ]
+                        )
+                        ->setStatusCode(JsonResponse::HTTP_BAD_REQUEST);
+                }
             }
 
             $this->getDoctrine()->getManager()->persist($duty);

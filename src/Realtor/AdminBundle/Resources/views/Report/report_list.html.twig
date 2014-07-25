@@ -372,7 +372,7 @@
                 <div class="row-fluid">
                     <div class="controls">
                         <input type="submit" class="btn btn-primary" value="Построить отчет" />
-                        <input type="reset" class="btn btn-danger" value="Сбросить" style="margin-left: 10px;" />
+                        <input type="reset" id="report-filter-reset-button" class="btn btn-danger" value="Сбросить" style="margin-left: 10px;" onclick="$('#report-form').find('select').each(function(){ $(this).val('').change();}); $('#report-form').submit();" />
                     </div>
                 </div>
 
