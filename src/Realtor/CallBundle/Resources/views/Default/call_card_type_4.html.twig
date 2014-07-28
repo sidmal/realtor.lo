@@ -56,7 +56,7 @@
                 }
 
                 if(ui.item.phone && ui.item.may_trans_to_cell_phone == true){
-                    button_block += "<input type=\"submit\" class=\"btn btn-small btn-success\" id=\"agent-cell-forward\" name=\"CallCard[agent-cell-forward]\" value=\"Перевести на сотовый агента\" onclick=\"$('#action').val($(this).attr('id')); $('#call-to-phone').val(" + ui.item.phone + ");\" />";
+                    button_block += "<input type=\"submit\" class=\"btn btn-small btn-success\" id=\"agent-cell-forward\" name=\"CallCard[agent-cell-forward]\" value=\"Перевести на сотовый телефон\" onclick=\"$('#action').val($(this).attr('id')); $('#call-to-phone').val(" + ui.item.phone + ");\" />";
                 }
 
                 if(ui.item.branch_phone){
@@ -130,7 +130,7 @@
                     }
 
                     if(ui.item.phone && ui.item.may_trans_to_cell_phone == true){
-                        button_block += "<input type=\"submit\" class=\"btn btn-small btn-success\" id=\"agent-cell-forward\" name=\"CallCard[agent-cell-forward]\" value=\"Перевести на сотовый агента\" onclick=\"$('#action').val($(this).attr('id')); $('#call-to-phone').val(" + ui.item.phone + ");\" />";
+                        button_block += "<input type=\"submit\" class=\"btn btn-small btn-success\" id=\"agent-cell-forward\" name=\"CallCard[agent-cell-forward]\" value=\"Перевести на сотовый телефон\" onclick=\"$('#action').val($(this).attr('id')); $('#call-to-phone').val(" + ui.item.phone + ");\" />";
                     }
 
                     if(ui.item.branch_phone){
@@ -191,18 +191,24 @@
             <label class="control-label required" for="who-call">Имя звонящего:</label>
 
             <label class="checkbox">
-                <input type="checkbox" id="client-undefined"> Клиент отказался представиться
+                <input type="checkbox" id="client-undefined">Клиент отказался представиться
             </label>
 
             <input type="text" id="caller-name" name="CallCard[caller-name]" class="span12" placeholder="Имя звонящего" value="" autocomplete="off" />
         </div>
 
         <div class="control-group">
-            <label class="control-label required" for="who-call">Кто звонит:</label>
+            <label class="control-label required" for="who-call">Категория клиента:</label>
             <select id="who-call" name="CallCard[who-call]" required="required" class="span12">
                 <option></option>
+                {% set counter = 0 %}
                 {% for item in who_call_list %}
-                    <option value="{{ item.id }}">{{ item.name }}</option>
+                    {% if counter == 0 %}
+                        <option value="{{ item.id }}" selected="selected">{{ item.name }}</option>
+                    {% else %}
+                        <option value="{{ item.id }}">{{ item.name }}</option>
+                    {% endif %}
+                    {% set counter = counter + 1 %}
                 {% endfor %}
             </select>
 

@@ -6,6 +6,7 @@ parameters:
     call.listener.class: Realtor\CallBundle\Listeners\CallListener
     manager.dictionary.advertising_source.class: Realtor\DictionaryBundle\Model\AdvertisingSourceManager
     authentication_handler.class: Application\Sonata\UserBundle\Handlers\AuthenticationHandler
+    manager.send_call_info.class: Realtor\CallBundle\Model\CallInfoManager
 
 services:
     manager.user:
@@ -43,6 +44,11 @@ services:
         calls:
             - [setLogDir, [%kernel.logs_dir%]]
 
+    monolog.handler.elastic_persistent.emls:
+        class: System\Log\EmlsElasticHandler
+        calls:
+            - [setLogDir, [%kernel.logs_dir%]]
+
     call.listener:
         class: %call.listener.class%
         arguments:
@@ -62,3 +68,12 @@ services:
             - [setEntityManager, [@doctrine.orm.entity_manager]]
         tags:
             - { name: "monolog.logger", channel: "security" }
+
+    manager.send_call_info:
+        class: %manager.send_call_info.class%
+        arguments:
+            - "@doctrine.orm.entity_manager"
+            - "@logger"
+            - "http://disp.emls.ru/api/save_call"
+        tags:
+            - { name: monolog.logger, channel: send_call_info }

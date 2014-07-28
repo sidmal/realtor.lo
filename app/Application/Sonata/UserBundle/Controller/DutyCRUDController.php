@@ -334,7 +334,12 @@ class DutyCRUDController extends CRUDController
 
                     if(!$dutyData){
                         $item['body'] .= '<td style="text-align: center; vertical-align: middle;">&nbsp;</td>';
-                        $item['body'] .= '<td style="text-align: center; vertical-align: middle;">&nbsp;</td>';
+                        $item['body'] .= '<td style="text-align: center; vertical-align: middle;">';
+                        $item['body'] .= '<div class="btn-group">';
+                        $item['body'] .= '<a class="btn btn-small sonata-action-element" onclick="add_duty_record_by_time('.$branch->getId().', \''.$dateItem->format('d').'\', \''.$dateItem->format('m').'\', \''.$dateItem->format('Y').'\', \''.$i.'\')">';
+                        $item['body'] .= '<i class="icon-plus"></i>';
+                        $item['body'] .= '</a>';
+                        $item['body'] .= '</td>';
                     }
                     else{
                         if(isset($dutyData[$branch->getName()][sprintf('%02d', $i)][sprintf('%02d', ($i + 1))])){
@@ -453,7 +458,12 @@ class DutyCRUDController extends CRUDController
                         }
                         else{
                             $item['body'] .= '<td style="text-align: center; vertical-align: middle;">&nbsp;</td>';
-                            $item['body'] .= '<td style="text-align: center; vertical-align: middle;">&nbsp;</td>';
+                            $item['body'] .= '<td style="text-align: center; vertical-align: middle;">';
+                            $item['body'] .= '<div class="btn-group">';
+                            $item['body'] .= '<a class="btn btn-small sonata-action-element" onclick="add_duty_record_by_time('.$branch->getId().', \''.$dateItem->format('d').'\', \''.$dateItem->format('m').'\', \''.$dateItem->format('Y').'\', \''.$i.'\')">';
+                            $item['body'] .= '<i class="icon-plus"></i>';
+                            $item['body'] .= '</a>';
+                            $item['body'] .= '</td>';
                         }
                     }
 

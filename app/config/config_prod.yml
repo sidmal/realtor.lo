@@ -27,3 +27,7 @@ monolog:
             type: service
             id: monolog.handler.elastic_persistent
             channels: [call_ats_action]
+        elastic_emls:
+            type: service
+            id: monolog.handler.elastic_persistent.emls
+            channels: [send_call_info]

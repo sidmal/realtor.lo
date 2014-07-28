@@ -8,8 +8,6 @@
     <script style="text/javascript" src="{{ asset('bundles/admin/js/zabuto_calendar.js') }}"></script>
 
     <script style="text/javascript">
-
-
         var min_navigation_date = new Date(2014, 4, 1).getMonth();
         var current_date = new Date().getMonth(),
                 min_previous_navigation_steps = current_date - min_navigation_date;
@@ -42,19 +40,11 @@
             ];
         {% endfor %}
 
+        {% if ajax_calendar_data is defined and ajax_calendar_data is not empty %}
+            var filter_data = {% autoescape false %}{{ ajax_calendar_data }}{% endautoescape %};
+        {% endif %}
+
         $(document).ready(function(){
-            {% if ajax_calendar_data is defined and ajax_calendar_data is not empty %}
-                var filter_data = {% autoescape false %}{{ ajax_calendar_data }}{% endautoescape %};
-
-                if(filter_data["branch_id"]){
-                    $("#branch-filter-id").val(filter_data["branch_id"]).change();
-                }
-
-                if(filter_data["manager_id"]){
-                    $("#manager-filter-id").val(filter_data["manager_id"]).change();
-                }
-            {% endif %}
-
             $("#create-edit-container").on("show", function(){
                 $("div.alert-error").html("").hide();
             });
@@ -62,7 +52,21 @@
             $("#create-edit-container").on("hide", function(){
                 $("div.alert-error").html("").hide();
 
-                $("form.form-horizontal").find("#branch-id").val("0").change();
+                $("form.form-horizontal#main-form").find("input[type=text], select").each(function(){
+                    $(this).val("").change();
+                });
+
+                {% if ajax_calendar_data is defined and ajax_calendar_data is not empty %}
+                    if(filter_data["branch_id"]){
+                        $("form.form-horizontal").find("#branch-id").val(filter_data["branch_id"]).change();
+                    }
+                    else{
+                        $("form.form-horizontal").find("#branch-id").val("0").change();
+                    }
+                {% else %}
+                    $("form.form-horizontal").find("#branch-id").val("0").change();
+                {% endif %}
+
                 $("form.form-horizontal").find("#duty-id").remove();
             });
 
@@ -153,7 +157,12 @@
                 var manager_identifier = parseInt($(this).val());
 
                 if(!agents[manager_identifier]){
-                    return alert("Для выбранного менеджера не заведено ни одного агента.");
+                    if(manager_identifier == 0 || isNaN(manager_identifier)){
+                        return true;
+                    }
+                    else{
+                        return alert("Для выбранного менеджера не заведено ни одного агента.");
+                    }
                 }
 
                 for(var agent_key in agents[manager_identifier]){
@@ -183,8 +192,26 @@
             $("#create-edit-button").click(function(){
                 $("#create-edit-container-label").html("Новое дежурство");
 
-                $("form.form-horizontal").find("#branch-id").val("0").change();
                 $("form.form-horizontal").find("#duty-id").remove();
+
+                {% if ajax_calendar_data is defined and ajax_calendar_data is not empty %}
+                    if(filter_data["branch_id"]){
+                        $("form.form-horizontal").find("#branch-id").val(filter_data["branch_id"]).change();
+                    }
+                    else{
+                        $("form.form-horizontal").find("#branch-id").val(branch_id).change();
+                    }
+
+                    if(filter_data["manager_id"]){
+                        $("#manager-id").val(filter_data["manager_id"]).change();
+                    }
+                    else{
+                        $("#manager-id").val("0").change();
+                    }
+                {% else %}
+                    $("form.form-horizontal").find("#branch-id").val("0").change();
+                    $("#manager-id").val("0").change();
+                {% endif %}
 
                 {% if app.user.isManager %}
                     $("form.form-horizontal").find("#branch-id").val("{{ app.user.getBranch.getId }}").change();
@@ -248,6 +275,16 @@
                 $("#filters-form").find("select[name*=\"branch_id\"]").val("").change();
                 window.location = $("#filters-form").attr("action");
             });
+
+            {% if ajax_calendar_data is defined and ajax_calendar_data is not empty %}
+                if(filter_data["branch_id"]){
+                    $("#branch-filter-id, #branch-id").val(filter_data["branch_id"]).change();
+                }
+
+                if(filter_data["manager_id"]){
+                    $("#manager-id, #manager-filter-id").val(filter_data["manager_id"]).change();
+                }
+            {% endif %}
         });
 
         function edit_duty_record(duty_id, branch_id, manager_id, agent_id, phone, duty_day, duty_month, duty_year, duty_hour_start, duty_hour_end){
@@ -264,6 +301,50 @@
             $("#hour-end").val(duty_hour_end).change();
 
             $("form.form-horizontal").prepend("<input type=\"hidden\" id=\"duty-id\" name=\"Duty[duty_id]\" value=\"" + duty_id + "\" />");
+
+            $("#create-edit-container").modal({"keyboard": false, "backdrop": "static"});
+        }
+
+        function add_duty_record_by_time(branch_id, duty_day, duty_month, duty_year, duty_hour_start){
+            $("#create-edit-container-label").html("Новое дежурство");
+
+            {% if ajax_calendar_data is defined and ajax_calendar_data is not empty %}
+                if(filter_data["branch_id"]){
+                    $("form.form-horizontal").find("#branch-id").val(filter_data["branch_id"]).change();
+                }
+                else{
+                    $("form.form-horizontal").find("#branch-id").val(branch_id).change();
+                }
+
+                if(filter_data["manager_id"]){
+                    $("#manager-id").val(filter_data["manager_id"]).change();
+                }
+                else{
+                    $("#manager-id").val("0").change();
+                }
+            {% else %}
+                $("form.form-horizontal").find("#branch-id").val(branch_id).change();
+                $("#manager-id").val("0").change();
+            {% endif %}
+
+            $("form.form-horizontal").find("#duty-id").remove();
+
+            $("#agent-id").val("0").change();
+
+            {% if app.user.isManager %}
+                $("form.form-horizontal").find("#branch-id").val("{{ app.user.getBranch.getId }}").change();
+                $("form.form-horizontal").find("#manager-id").val("{{ app.user.getId }}").change();
+            {% endif %}
+
+            var duty_hour_end = parseInt(duty_hour_start) + 1;
+
+            $("#day-start, #day-end").val(duty_day).change();
+            $("#month-start, #month-end").val(duty_month).change();
+            $("#year-start, #year-end").val(duty_year).change();
+            $("#hour-start").val(duty_hour_start).change();
+            $("#hour-end").val(duty_hour_end).change();
+
+            $("#manager-id, #agent-id, #hour-start, #hour-end").parent().parent().show();
 
             $("#create-edit-container").modal({"keyboard": false, "backdrop": "static"});
         }
