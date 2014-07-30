@@ -49,7 +49,7 @@ class CallRepository extends EntityRepository
                     new Parameter('events', $events),
                     new Parameter('dateFrom', (new \DateTime())->sub(new \DateInterval('PT8S')), Type::DATETIME),
                     new Parameter('dateTo', (new \DateTime())->add(new \DateInterval('PT8S')), Type::DATETIME),
-                    new Parameter('fromPhone', '*%*'),
+                    new Parameter('fromPhone', '*%*'), CmRrMc
                 ]
             )
         );

@@ -172,7 +172,7 @@
             {% if app.user.getOfficePhone is not empty or app.user.getUserDutyPhone is not null %}
                 call_event_listener(false);
 
-                function call_event_listener(stop){
+                function call_event_listener(){
                     var user_phone = ["{{ app.user.getOfficePhone}}"];
 
                     {% if app.user.getUserDutyPhone is not null %}
@@ -303,9 +303,7 @@
                             }
                         },
                         complete: function(){
-                            if(!stop){
-                                var event_listener = setTimeout(call_event_listener(false), {{ settings.period * 1000 }});
-                            }
+                            var event_listener = setTimeout(call_event_listener, {{ settings.period * 1000 }});
                         },
                         dataType: 'json'
                     });

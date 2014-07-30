@@ -7,7 +7,12 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Call
  *
- * @ORM\Table(name="call")
+ * @ORM\Table(
+ *      name="call",
+ *      indexes={
+ *          @ORM\index(columns={"type", "call_action", "created_at", "to_phone"})
+ *      }
+ * )
  * @ORM\Entity(repositoryClass="Realtor\CallBundle\Entity\Repository\CallRepository")
  *
  * @ORM\HasLifecycleCallbacks()

@@ -488,7 +488,7 @@ class CallController extends Controller
 
         if($request->has('event') && $request->get('event') == 'hang' && $request->has('linkedid')
             && $request->has('uuid') && $request->get('linkedid') == $request->get('uuid')){
-            print_r($this->container->get('manager.send_call_info')->send_call_info($request->get('linkedid')));
+            $this->container->get('manager.send_call_info')->send_call_info($request->get('linkedid'));
 
             return new Response();
         }
