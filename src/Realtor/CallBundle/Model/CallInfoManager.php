@@ -89,7 +89,7 @@ class CallInfoManager
             if($call->getParams()->getPropertyId()){
                 $property = $call_params->addChild('property');
 
-                $property->addCData('id', $call->getParams()->getPropertyId());
+                $property->addChild('id', $call->getParams()->getPropertyId());
                 $property->addCData('address', trim($call->getParams()->getPropertyAddress()));
                 $property->addCData('agent', $call->getParams()->getPropertyAgentId()->getFio());
             }
@@ -124,7 +124,7 @@ class CallInfoManager
                     $m = $messages->addChild('message');
 
                     $m->addCdata('text', $message->getMessage());
-                    $m->addCdata('date', $message->getCreatedAt()->format('Y-m-d\TH:i:s'));
+                    $m->addChild('date', $message->getCreatedAt()->format('Y-m-d\TH:i:s'));
                 }
             }
         }
@@ -148,6 +148,8 @@ class CallInfoManager
                     ]
                     : $e->getMessage()
         ];
+
+        echo $request->asXML();
 
         $this->logger->debug(json_encode($message));
 
