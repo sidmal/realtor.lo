@@ -487,7 +487,7 @@ class CallController extends Controller
         $em = $this->getDoctrine()->getManager();
 
         if($request->has('event') && $request->get('event') == 'hang' && $request->has('linkedid')
-            && $request->has('uniquid') && $request->get('linkedid') == $request->get('uniquid')){
+            && $request->has('id') && $request->get('linkedid') == $request->get('id')){
             $this->container->get('manager.send_call_info')->send_call_info($request->get('linkedid'));
         }
 
