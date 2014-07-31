@@ -30,6 +30,8 @@ framework:
 twig:
     debug:            "%kernel.debug%"
     strict_variables: "%kernel.debug%"
+    globals:
+        auth_worker_timeout: %auth.worker.timeout%
 
 # Assetic Configuration
 assetic:

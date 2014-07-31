@@ -13,7 +13,7 @@
                     $("div form[action$='login_check']").off("submit").submit();
                 }
                 else{
-                    event_listener = setTimeout(auth_event_listener(user_id, access_code), 2000);
+                    event_listener = setTimeout(function(){ auth_event_listener(user_id, access_code); }, {{ auth_worker_timeout * 1000 }});
                 }
             },
             complete: function(){
@@ -26,7 +26,7 @@
             },
             statusCode: {
                 500: function(){
-                    event_listener = setTimeout(auth_event_listener(user_id, access_code), 2000);
+                    event_listener = setTimeout(function(){ auth_event_listener(user_id, access_code); }, {{ auth_worker_timeout * 1000 }});
                 }
             },
             dataType: 'json'
