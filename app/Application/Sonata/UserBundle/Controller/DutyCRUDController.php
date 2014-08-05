@@ -242,6 +242,78 @@ class DutyCRUDController extends CRUDController
     }
 
     /**
+     * @inheritdoc
+     */
+    public function deleteAction($id)
+    {
+        $id = $this->get('request')->get($this->admin->getIdParameter());
+        $object = $this->admin->getObject($id);
+        $request = $this->container->get('request');
+
+        if($request->query->has('DutyFilter')){
+            $duty_filter_params = $request->query->get('DutyFilter');
+        }
+
+        if(!$object){
+            throw new NotFoundHttpException(sprintf('unable to find the object with id : %s', $id));
+        }
+
+        if(false === $this->admin->isGranted('DELETE', $object)){
+            throw new AccessDeniedException();
+        }
+
+        if($this->getRestMethod() == 'DELETE'){
+            $this->validateCsrfToken('sonata.delete');
+
+            try{
+                $this->admin->delete($object);
+
+                if($this->isXmlHttpRequest()){
+                    return $this->renderJson(array('result' => 'ok'));
+                }
+
+                $this->addFlash(
+                    'sonata_flash_success',
+                    $this->admin->trans('flash_delete_success', array('%name%' => $this->admin->toString($object)),
+                        'SonataAdminBundle')
+                );
+
+            }
+            catch(ModelManagerException $e){
+                if($this->isXmlHttpRequest()){
+                    return $this->renderJson(array('result' => 'error'));
+                }
+
+                $this->addFlash(
+                    'sonata_flash_error',
+                    $this->admin->trans('flash_delete_error', array('%name%' => $this->admin->toString($object)),
+                        'SonataAdminBundle')
+                );
+            }
+
+            if($request->request->has('DutyFilter')){
+                return new RedirectResponse(
+                    $this->admin->generateUrl('list', ['DutyFilter' => $request->request->get('DutyFilter')])
+                );
+            }
+            else{
+                return new RedirectResponse($this->admin->generateUrl('list'));
+            }
+        }
+
+        return $this->render(
+            $this->admin->getTemplate('delete'),
+            [
+                'object' => $object,
+                'action' => 'delete',
+                'branch_id' => isset($duty_filter_params) && isset($duty_filter_params['branch_id']) ? $duty_filter_params['branch_id'] : null,
+                'manager_id' => isset($duty_filter_params) && isset($duty_filter_params['manager_id']) ? $duty_filter_params['manager_id'] : null,
+                'csrf_token' => $this->getCsrfToken('sonata.delete')
+            ]
+        );
+    }
+
+    /**
      * @param Request $request
      * @return JsonResponse
      *
@@ -250,6 +322,15 @@ class DutyCRUDController extends CRUDController
     public function unfilledAction(Request $request)
     {
         $response = new JsonResponse();
+
+        $delete_url_params = [];
+        if($request->query->has('branch_id')){
+            $delete_url_params['DutyFilter[branch_id]'] = $request->query->get('branch_id');
+        }
+
+        if($request->query->has('manager_id')){
+            $delete_url_params['DutyFilter[manager_id]'] = $request->query->get('manager_id');
+        }
 
         if(!$request->isXmlHttpRequest()){
             return $response->setStatusCode(Response::HTTP_FORBIDDEN);
@@ -389,7 +470,7 @@ class DutyCRUDController extends CRUDController
                                     if(isset($manager_agents)){
                                         if(in_array($dutyItem['duty_agent_id'][0], array_values($manager_agents))){
                                             $agents_duty_remove .= '<li>';
-                                            $agents_duty_remove .= '<a href="'.$this->generateUrl('admin_sonata_user_dutyinbranches_delete', ['id' => $dutyItem['duty_id'][0]]).'">';
+                                            $agents_duty_remove .= '<a href="'.$this->generateUrl('admin_sonata_user_dutyinbranches_delete', array_merge(['id' => $dutyItem['duty_id'][0]], $delete_url_params)).'">';
                                             $agents_duty_remove .= '<i class="icon-remove"></i> '.$agent;
                                             $agents_duty_remove .= '</a>';
                                             $agents_duty_remove .= '</li>';
@@ -397,7 +478,7 @@ class DutyCRUDController extends CRUDController
                                     }
                                     else{
                                         $agents_duty_remove .= '<li>';
-                                        $agents_duty_remove .= '<a href="'.$this->generateUrl('admin_sonata_user_dutyinbranches_delete', ['id' => $dutyItem['duty_id'][0]]).'">';
+                                        $agents_duty_remove .= '<a href="'.$this->generateUrl('admin_sonata_user_dutyinbranches_delete', array_merge(['id' => $dutyItem['duty_id'][0]], $delete_url_params)).'">';
                                         $agents_duty_remove .= '<i class="icon-remove"></i> '.$agent;
                                         $agents_duty_remove .= '</a>';
                                         $agents_duty_remove .= '</li>';
@@ -432,9 +513,16 @@ class DutyCRUDController extends CRUDController
                                         $item['body'] .= '<i class="icon-edit"></i>';
                                         $item['body'] .= '</a>';
 
-                                        $item['body'] .= '<a class="btn btn-small sonata-action-element" href="'.$this->generateUrl('admin_sonata_user_dutyinbranches_delete', ['id' => $dutyItem['duty_id'][0]]).'">';
+                                        $item['body'] .= '<a class="btn btn-small sonata-action-element" href="'.$this->generateUrl('admin_sonata_user_dutyinbranches_delete', array_merge(['id' => $dutyItem['duty_id'][0]], $delete_url_params)).'">';
                                         $item['body'] .= '<i class="icon-remove"></i>';
                                         $item['body'] .= '</a>';
+
+                                        if($branch->getDutyAgentsCount() > 1){
+                                            $item['body'] .= '<a class="btn btn-small sonata-action-element" onclick="add_duty_record_by_time('.$branch->getId().', \''.$dateItem->format('d').'\', \''.$dateItem->format('m').'\', \''.$dateItem->format('Y').'\', \''.$i.'\')">';
+                                            $item['body'] .= '<i class="icon-plus"></i>';
+                                            $item['body'] .= '</a>';
+                                        }
+
                                         $item['body'] .= '</div>';
                                     }
                                     else{
@@ -447,9 +535,16 @@ class DutyCRUDController extends CRUDController
                                     $item['body'] .= '<i class="icon-edit"></i>';
                                     $item['body'] .= '</a>';
 
-                                    $item['body'] .= '<a class="btn btn-small sonata-action-element" href="'.$this->generateUrl('admin_sonata_user_dutyinbranches_delete', ['id' => $dutyItem['duty_id'][0]]).'">';
+                                    $item['body'] .= '<a class="btn btn-small sonata-action-element" href="'.$this->generateUrl('admin_sonata_user_dutyinbranches_delete', array_merge(['id' => $dutyItem['duty_id'][0]], $delete_url_params)).'">';
                                     $item['body'] .= '<i class="icon-remove"></i>';
                                     $item['body'] .= '</a>';
+
+                                    if($branch->getDutyAgentsCount() > 1){
+                                        $item['body'] .= '<a class="btn btn-small sonata-action-element" onclick="add_duty_record_by_time('.$branch->getId().', \''.$dateItem->format('d').'\', \''.$dateItem->format('m').'\', \''.$dateItem->format('Y').'\', \''.$i.'\')">';
+                                        $item['body'] .= '<i class="icon-plus"></i>';
+                                        $item['body'] .= '</a>';
+                                    }
+
                                     $item['body'] .= '</div>';
                                 }
 

@@ -20,7 +20,14 @@
                 <input type="hidden" name="_method" value="DELETE">
                 <input type="hidden" name="_sonata_csrf_token" value="{{ csrf_token }}">
 
-                <button type="submit" class="btn btn-danger"><i class="icon-trash icon-white"></i> {{ 'btn_delete'|trans({}, 'SonataAdminBundle') }}</button>
+                {% if branch_id is defined and branch_id is not null %}
+                    <input type="hidden" name="DutyFilter[branch_id]" value="{{ branch_id }}" />
+                    <input type="hidden" name="DutyFilter[manager_id]" value="{{ manager_id }}" />
+                {% endif %}
+
+                <button type="submit" class="btn btn-danger">
+                    <i class="icon-trash icon-white"></i> {{ 'btn_delete'|trans({}, 'SonataAdminBundle') }}
+                </button>
             </form>
         </div>
     </div>

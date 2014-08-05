@@ -47,6 +47,11 @@ class UserLoadCommand extends ContainerAwareCommand
         $employees = [];
 
         foreach($users as $user){
+            if(empty($user['passsha1'])){
+                $output->writeln('User with emls id='.$user['id_user'].' and name='.$user['user_fio'].' not have a password. This record skipped.');
+                continue;
+            }
+
             if($user['id_manager'] == 0){
                 $employees['head'][] = $user;
             }
