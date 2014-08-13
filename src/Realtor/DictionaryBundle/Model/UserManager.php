@@ -204,13 +204,18 @@ class UserManager
         else{
             if(!preg_match('/^\S+\_[aA-fF0-9]{32}$/', $user->getUsernameCanonical())){
                 $user->setUsername($employee['login']);
-                $user->setUsernameCanonical($employee['login']);
+
+                if(!$this->fosUserManager->findUserByUsername($employee['login'])){
+                    $user->setUsernameCanonical($employee['login']);
+                }
 
                 $this->fosUserManager->updateCanonicalFields($user);
             }
             else{
-                $user->setUsername($user->getUsernameCanonical());
-                $user->setUsernameCanonical($user->getUsernameCanonical());
+                if(!$this->fosUserManager->findUserByUsername($employee['login'])){
+                    $user->setUsername($employee['login']);
+                    $user->setUsernameCanonical($employee['login']);
+                }
 
                 $this->fosUserManager->updateCanonicalFields($user);
             }
