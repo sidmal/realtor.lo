@@ -15,7 +15,7 @@
         var branches = {
             {% for branch in branches %}
                 {% if branch.onDutyAgentPhone is not empty %}
-                    {{ branch.id }}: {{ branch.onDutyAgentPhone }},
+                    {{ branch.id }}: "{{ branch.onDutyAgentPhone }}",
                 {% endif %}
             {% endfor %}
         };

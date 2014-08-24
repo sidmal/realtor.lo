@@ -97,6 +97,7 @@
                             response_item["office_phone"] = item.office_phone;
                             response_item["manager_office_phone"] = item.manager_office_phone;
                             response_item["branch_phone"] = item.branch_phone;
+                            response_item["in_office"] = item.in_office;
                         }
                         else{
                             value += " " + item.phone;
@@ -126,6 +127,7 @@
                 $("#object-href").attr("href", ui.item.href);
 
                 if(ui.item.is_branch == false){
+
                     if(ui.item.office_phone && ui.item.in_office){
                         button_block += "<input type=\"submit\" class=\"btn btn-small btn-success\" id=\"agent-office-forward\" name=\"CallCard[agent-office-forward]\" value=\"Перевести на рабочий телефон\" onclick=\"$('#action').val($(this).attr('id')); $('#call-to-phone').val(" + ui.item.office_phone + ");\" />";
                     }

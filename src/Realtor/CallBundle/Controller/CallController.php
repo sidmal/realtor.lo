@@ -563,7 +563,8 @@ class CallController extends Controller
                     'may_trans_to_cell_phone' => $user->getMayRedirectCall(),
                     'manager_office_phone' => $user->getHead() ? $user->getHead()->getOfficePhone() : false,
                     'branch_phone' => $user->getBranch()->getBranchPhone(),
-                    'match_phone' => ($user->getOfficePhone() == $request->query->get('term')) ? $user->getOfficePhone() : $user->getPhone()
+                    'match_phone' => ($user->getOfficePhone() == $request->query->get('term')) ? $user->getOfficePhone() : $user->getPhone(),
+                    'in_office' => $user->getInOffice(),
                 ];
             }
         }
