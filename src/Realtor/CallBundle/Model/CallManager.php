@@ -155,4 +155,13 @@ class CallManager
 
         return $result;
     }
+
+    public function logout($user_id, $user_login_phone)
+    {
+        $this->httpClient->setPostField('action', 'logout');
+        $this->httpClient->setPostField('user_login_phone', $user_login_phone);
+        $this->httpClient->setPostField('user_id', $user_id);
+
+        return $this->sendCall();
+    }
 } 

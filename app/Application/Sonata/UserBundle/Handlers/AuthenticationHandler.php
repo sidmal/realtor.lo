@@ -10,6 +10,7 @@ namespace Application\Sonata\UserBundle\Handlers;
 
 use Application\Sonata\UserBundle\Entity\AccessCodes;
 use Doctrine\ORM\EntityManager;
+use Realtor\CallBundle\Model\CallManager;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -60,6 +61,11 @@ class AuthenticationHandler
      * @var \Doctrine\ORM\EntityManager
      */
     protected $em;
+
+    /**
+     * @var \Realtor\CallBundle\Model\CallManager
+     */
+    protected $callManager;
 
     /**
      * @param HttpUtils $httpUtils
@@ -148,6 +154,16 @@ class AuthenticationHandler
         return $this->em;
     }
 
+    public function setCallManager(CallManager $callManager)
+    {
+        $this->callManager = $callManager;
+    }
+
+    public function getCallManager()
+    {
+        return $this->callManager;
+    }
+
     /**
      * @param $user
      * @return AccessCodes
@@ -200,6 +216,11 @@ class AuthenticationHandler
     public function logout(Request $request, Response $response, TokenInterface $token)
     {
         $user = $token->getUser();
+
+        $this->getCallManager()->logout(
+            $user->getOuterId(), $user->getUserDutyPhone()
+        );
+
         $user->setUserDutyPhone(null);
 
         $this->getEntityManager()->persist($user); $this->getEntityManager()->flush($user);

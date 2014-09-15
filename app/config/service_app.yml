@@ -66,6 +66,7 @@ services:
             - [setOptions, [{}]]
             - [setValidator, [@validator]]
             - [setEntityManager, [@doctrine.orm.entity_manager]]
+            - [setCallManager, ["@manager.call.action"]]
         tags:
             - { name: "monolog.logger", channel: "security" }
 

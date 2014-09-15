@@ -1,6 +1,12 @@
 <script type="text/javascript">
     $(document).ready(function(){
         $("#who-call").select2();
+
+        $("#forward-to-receiver-input-number").keypress(function(e){
+            if(e.keyCode == 13){
+                $("#agent-office-forward").focus().click(); return false;
+            }
+        });
     });
 
     $("#forward-call-to-other-employer").click(function(){
