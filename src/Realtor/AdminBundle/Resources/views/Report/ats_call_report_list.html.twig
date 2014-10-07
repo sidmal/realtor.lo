@@ -1,0 +1,125 @@
+{% extends 'SonataAdminBundle:CRUD:base_list.html.twig' %}
+
+{% block stylesheets %}
+    {{ parent() }}
+
+    <link href="{{ asset('bundles/admin/css/jquery.dataTables.css') }}" rel="stylesheet" />
+    <link href="{{ asset('bundles/admin/css/ColVis/dataTables.colVis.css') }}" rel="stylesheet" />
+
+    <style type="text/css">
+        #ats_calls_report_table td, th {
+            text-align: center
+        }
+    </style>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+
+    <script style="text/javascript" src="{{ asset('bundles/admin/js/jquery.dataTables.js') }}"></script>
+    <script style="text/javascript" src="{{ asset('bundles/admin/js/ColVis/dataTables.colVis.js') }}"></script>
+    <script style="text/javascript" src="{{ asset('bundles/admin/js/jquery.dataTables.columnFilter.js') }}"></script>
+
+    <script type="text/javascript">
+        var report_table, asInitValues = new Array();
+
+        $(document).ready(function(){
+            report_table = $('#ats_calls_report_table').dataTable({
+                "bFilter": true,
+                "dom": 'C<"clear">lfrtip',
+                "colVis": {
+                    "buttonText": "Отображение столбцов"
+                },
+                "bServerSide": true,
+                "sAjaxSource": "{{ path('admin_realtor_call_atscalldata_get_ats_calls_report_data') }}",
+                "scrollX": true,
+                "language": {
+                    "url": "{{ asset('bundles/admin/js/Russian.json') }}"
+                }
+            });
+
+            report_table.columnFilter(
+                {
+
+                }
+            );
+        });
+    </script>
+{% endblock %}
+
+{% block actions %}
+    <div class="sonata-actions">
+    </div>
+{% endblock %}
+
+{% block side_menu %}{{ knp_menu_render(admin.sidemenu(action), {'currentClass' : 'active'}, 'list') }}{% endblock %}
+
+{% block list_table %}
+    <table id="ats_calls_report_table" class="display" cellspacing="0" width="100%">
+        <thead>
+            <tr>
+                <th>nrec</th>
+                <th>callDate</th>
+                <th>callTime</th>
+                <th>clid</th>
+                <th>src</th>
+                <th>dst</th>
+                <th>dcontext</th>
+                <th>channel</th>
+                <th>dstchannel</th>
+                <th>lastapp</th>
+                <th>lastdata</th>
+                <th>duration</th>
+                <th>billsec</th>
+                <th>disposition</th>
+                <th>amaflags</th>
+                <th>accountcode</th>
+                <th>uniqueid</th>
+                <th>userfield</th>
+                <th>xTag</th>
+                <th>xCid</th>
+                <th>xDid</th>
+                <th>xDialed</th>
+                <th>xSpec</th>
+                <th>xInsecure</th>
+                <th>xResult</th>
+                <th>xRecord</th>
+                <th>xDomain</th>
+                <th>linkedid</th>
+            </tr>
+        </thead>
+
+        <tfoot>
+            <tr>
+                <th>nrec</th>
+                <th>callDate</th>
+                <th>callTime</th>
+                <th>clid</th>
+                <th>src</th>
+                <th>dst</th>
+                <th>dcontext</th>
+                <th>channel</th>
+                <th>dstchannel</th>
+                <th>lastapp</th>
+                <th>lastdata</th>
+                <th>duration</th>
+                <th>billsec</th>
+                <th>disposition</th>
+                <th>amaflags</th>
+                <th>accountcode</th>
+                <th>uniqueid</th>
+                <th>userfield</th>
+                <th>xTag</th>
+                <th>xCid</th>
+                <th>xDid</th>
+                <th>xDialed</th>
+                <th>xSpec</th>
+                <th>xInsecure</th>
+                <th>xResult</th>
+                <th>xRecord</th>
+                <th>xDomain</th>
+                <th>linkedid</th>
+            </tr>
+        </tfoot>
+    </table> <br /><br /><br />
+{% endblock %}

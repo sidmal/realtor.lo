@@ -128,3 +128,14 @@ services:
             - [ setTemplate, [list, AdminBundle:Report:report_list.html.twig]]
         tags:
             - { name: sonata.admin, manager_type: orm, group: "Отчеты", label: "Сводный отчет" }
+
+    admin.admin.calls.ats.report:
+        class: Realtor\AdminBundle\Admin\AtsCallDataAdmin
+        arguments:
+            - ~
+            - Realtor\CallBundle\Entity\AtsCallData
+            - AdminBundle:AtsCallsReport
+        calls:
+            - [ setTemplate, [list, AdminBundle:Report:ats_call_report_list.html.twig]]
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: "Отчеты", label: "Отчет по звонкам" }

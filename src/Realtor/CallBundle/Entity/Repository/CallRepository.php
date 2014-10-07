@@ -265,4 +265,36 @@ class CallRepository extends EntityRepository
 
         return $result;
     }
+
+    public function getUniqueLinkedId()
+    {
+        $qb = $this->getEntityManager()->createQueryBuilder()
+            ->select(['ats_call_data.linkedid'])
+            ->from('CallBundle:AtsCallData', 'ats_call_data')
+            ->groupBy('ats_call_data.linkedid');
+
+        $builder = $this->getEntityManager()->createQueryBuilder()
+            ->select('call')
+            ->from('CallBundle:Call', 'call')
+            ->where('call.callAction = :call_action');
+
+        $builder->andWhere($builder->expr()->notIn('call.linkedId', $qb->getDQL()));
+
+        $builder->setParameters(
+            new ArrayCollection(
+                [
+                    new Parameter('call_action', 'connect-exten')
+                ]
+            )
+        );
+
+        try{
+            $result = $builder->getQuery()->getResult();
+        }
+        catch(NoResultException $e){
+            $result = null;
+        }
+
+        return $result;
+    }
 }

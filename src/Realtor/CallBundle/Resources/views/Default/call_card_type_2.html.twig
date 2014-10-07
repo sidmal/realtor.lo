@@ -195,7 +195,7 @@
                     <select name="CallCard[branch]" id="branch" class="span12" style="margin-bottom: 15px;">
                         <option></option>
                         {% for branch in branches %}
-                            {% if branch.address is not empty and branch.outerId != 4962 %}
+                            {% if branch.address is not empty %}
                                 <option value="{{ branch.id }}">{{ branch.name }}</option>
                             {% endif %}
                         {% endfor %}
