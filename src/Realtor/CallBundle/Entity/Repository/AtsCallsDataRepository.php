@@ -117,6 +117,24 @@ class AtsCallsDataRepository extends EntityRepository
                 if(!isset($value["message"])){
                     $result[$key]["message"] = null;
                 }
+
+                switch($value["callType"]){
+                    case 0:
+                        $result[$key]["callType"] = "По объекту";
+                        break;
+                    case 1:
+                        $result[$key]["callType"] = "Нет объекта";
+                        break;
+                    case 2:
+                        $result[$key]["callType"] = "Звонок сотрудника";
+                        break;
+                    case 3:
+                        $result[$key]["callType"] = "Другое";
+                        break;
+                    default:
+                        $result[$key]["callType"] = "Другое";
+                        break;
+                }
             }
         }
         catch(NoResultException $e){
