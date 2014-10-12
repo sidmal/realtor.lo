@@ -22,6 +22,7 @@
     <script style="text/javascript" src="{{ asset('bundles/admin/js/chosen.jquery.js') }}"></script>
     <script style="text/javascript" src="{{ asset('bundles/admin/js/bootstrap-tooltip.js') }}"></script>
 
+
     <script type="text/javascript">
         $("document").ready(function(){
             $(".filter-container form div.row-fluid label.control-label").tooltip();
@@ -52,7 +53,11 @@
             "reason_name": "Причина обращения",
             "call_result_name": "Результат разговора",
             "callers_name": "Тип вызывающего",
-            "cnt": "Колличество записей"
+            "cnt": "Колличество записей",
+            "week": "Неделя (дата звонка)",
+            "month": "Месяц (дата звонка)",
+            "quarter": "Квартал (дата звонка)",
+            "year": "Год (дата звонка)"
         }
     %}
 
@@ -63,7 +68,63 @@
                     <strong>Нет данных для отображения отчета. Возможно вы не указали фильтры для формирования отчета.</strong>
                 </div>
             {% else %}
-                <table class="table table-bordered">
+                {% if previous_fields|length > 1  %}
+                    <div class="alert alert-info">
+                        <strong>Формирование графиков возможно только по одному полю.</strong>
+                    </div>
+                {% else %}
+                    <script type="text/javascript">
+                        $(function () {
+                            $('#bar-chart-container').highcharts({
+                                chart: {
+                                    type: 'column'
+                                },
+                                title: {
+                                    text: ''
+                                },
+                                xAxis: {
+                                    categories: [
+                                        {% for key, item in report_data %}
+                                            "{{ key }}",
+                                        {% endfor %}
+                                    ]
+                                },
+                                yAxis: {
+                                    min: 0,
+                                    title: {
+                                        text: "Колличество"
+                                    }
+                                },
+                                tooltip: {
+                                    headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+                                    pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+                                    '<td style="padding:0"><b>{point.y:.1f} шт</b></td></tr>',
+                                    footerFormat: '</table>',
+                                    shared: true,
+                                    useHTML: true
+                                },
+                                plotOptions: {
+                                    column: {
+                                        pointPadding: 0.2,
+                                        borderWidth: 0
+                                    }
+                                },
+                                series: [
+                                    {% for key, item in bar_chart_categories %}
+                                        { name: "{{ key }}", data: [{{ item|join(", ") }}] },
+                                    {% endfor %}
+                                ]
+                            });
+                        });
+                    </script>
+
+                    <script style="text/javascript" src="{{ asset('bundles/admin/js/highcharts.js') }}"></script>
+                    <script style="text/javascript" src="{{ asset('bundles/admin/js/exporting.js') }}"></script>
+
+                    <div class="tab-pane active" id="bar-chart-container" style="min-width: 310px; height: 400px; margin: 0 auto;"></div>
+                {% endif %}
+
+                <table class="table table-bordered" style="margin-top: 20px;">
                     <tr>
                         <th style="text-align: center; font-size: 18px;">{{ table_headers[previous_group_by[0]] is defined ? table_headers[previous_group_by[0]] : previous_group_by[0] }}</th>
                         {% set group_field = report_data|slice(0, 1)|keys %}
@@ -208,6 +269,26 @@
                                 <option value="call_params_callers.name" selected="selected">Тип вызывающего</option>
                             {% else %}
                                 <option value="call_params_callers.name">Тип вызывающего</option>
+                            {% endif %}
+                            {% if previous_group_by is not null and "week" in previous_group_by %}
+                                <option value="week" selected="selected">По неделям (дата звонка)</option>
+                            {% else %}
+                                <option value="week">По неделям (дата звонка)</option>
+                            {% endif %}
+                            {% if previous_group_by is not null and "month" in previous_group_by %}
+                                <option value="month" selected="selected">По месяцам (дата звонка)</option>
+                            {% else %}
+                                <option value="month">По месяцам (дата звонка)</option>
+                            {% endif %}
+                            {% if previous_group_by is not null and "quarter" in previous_group_by %}
+                                <option value="quarter" selected="selected">По кварталам (дата звонка)</option>
+                            {% else %}
+                                <option value="quarter">По кварталам (дата звонка)</option>
+                            {% endif %}
+                            {% if previous_group_by is not null and "year" in previous_group_by %}
+                                <option value="year" selected="selected">По годам (дата звонка)</option>
+                            {% else %}
+                                <option value="year">По годам (дата звонка)</option>
                             {% endif %}
                         </select>
                     </div>

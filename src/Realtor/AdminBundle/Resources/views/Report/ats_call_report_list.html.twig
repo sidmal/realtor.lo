@@ -40,7 +40,15 @@
 
             report_table.columnFilter(
                 {
-
+                    aoColumns: [
+                        {% for field in fields_list %}
+                            {% if field["filter_type"] == "number-range" %}
+                                { type: "{{ field["filter_type"] }}", sRangeFormat: "От {from} До {to}" },
+                            {% else %}
+                                { type: "{{ field["filter_type"] }}" },
+                            {% endif %}
+                        {% endfor %}
+                    ]
                 }
             );
         });
@@ -58,67 +66,17 @@
     <table id="ats_calls_report_table" class="display" cellspacing="0" width="100%">
         <thead>
             <tr>
-                <th>nrec</th>
-                <th>callDate</th>
-                <th>callTime</th>
-                <th>clid</th>
-                <th>src</th>
-                <th>dst</th>
-                <th>dcontext</th>
-                <th>channel</th>
-                <th>dstchannel</th>
-                <th>lastapp</th>
-                <th>lastdata</th>
-                <th>duration</th>
-                <th>billsec</th>
-                <th>disposition</th>
-                <th>amaflags</th>
-                <th>accountcode</th>
-                <th>uniqueid</th>
-                <th>userfield</th>
-                <th>xTag</th>
-                <th>xCid</th>
-                <th>xDid</th>
-                <th>xDialed</th>
-                <th>xSpec</th>
-                <th>xInsecure</th>
-                <th>xResult</th>
-                <th>xRecord</th>
-                <th>xDomain</th>
-                <th>linkedid</th>
+                {% for field in fields_list %}
+                    <th>{{ field["name"] }}</th>
+                {% endfor %}
             </tr>
         </thead>
 
         <tfoot>
             <tr>
-                <th>nrec</th>
-                <th>callDate</th>
-                <th>callTime</th>
-                <th>clid</th>
-                <th>src</th>
-                <th>dst</th>
-                <th>dcontext</th>
-                <th>channel</th>
-                <th>dstchannel</th>
-                <th>lastapp</th>
-                <th>lastdata</th>
-                <th>duration</th>
-                <th>billsec</th>
-                <th>disposition</th>
-                <th>amaflags</th>
-                <th>accountcode</th>
-                <th>uniqueid</th>
-                <th>userfield</th>
-                <th>xTag</th>
-                <th>xCid</th>
-                <th>xDid</th>
-                <th>xDialed</th>
-                <th>xSpec</th>
-                <th>xInsecure</th>
-                <th>xResult</th>
-                <th>xRecord</th>
-                <th>xDomain</th>
-                <th>linkedid</th>
+                {% for field in fields_list %}
+                    <th>{{ field["name"] }}</th>
+                {% endfor %}
             </tr>
         </tfoot>
     </table> <br /><br /><br />

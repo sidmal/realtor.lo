@@ -64,11 +64,40 @@ class ReportController extends CRUDController
 
         $this->get('twig')->getExtension('form')->renderer->setTheme($formView, $this->admin->getFilterTheme());
 
+        if(isset($report_data)){
+            $bar_chart_categories = [];
+
+            $total_categories = []; $categories_by_date = []; $all_categories = [];
+            foreach($report_data as $key => $item){
+                foreach($item as $key_a => $item_a){
+                    list($categorie, $count) = array_values($item_a);
+
+                    $total_categories[$categorie] = (!isset($total_categories[$categorie])) ? 0 : $total_categories[$categorie] + $count;
+                    $categories_by_date[$key][$categorie] = $count;
+                    $all_categories[] = $categorie;
+                }
+            }
+
+            foreach($all_categories as $item){
+                $bar_chart_categories[$item] = [];
+
+                foreach($report_data as $key => $item_a){
+                    if(isset($categories_by_date[$key][$item])){
+                        $bar_chart_categories[$item][] = $categories_by_date[$key][$item];
+                    }
+                    else{
+                        $bar_chart_categories[$item][] = 0;
+                    }
+                }
+            }
+        }
+
         $render_params = [
             'action'     => 'list',
             'form'       => $formView,
             'report_data' => isset($report_data) ? $report_data : null,
             'previous_fields' => !empty($params['fields']) ? $params['fields'] : null,
+            'bar_chart_categories' => isset($bar_chart_categories) ? $bar_chart_categories : null,
             'previous_group_by' => !empty($params['group_by']) ? $params['group_by'] : null,
             'previous_date_start' => isset($date_start) ? $date_start : null,
             'previous_date_end' => isset($date_end) ? $date_end : null,

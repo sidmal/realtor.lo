@@ -75,6 +75,10 @@ doctrine:
         dql:
             datetime_functions:
                 date: Realtor\AdminBundle\Dql\Date
+                week: Realtor\AdminBundle\Dql\Week
+                month: Realtor\AdminBundle\Dql\Month
+                quarter: Realtor\AdminBundle\Dql\Quarter
+                year: Realtor\AdminBundle\Dql\Year
 
 # Swiftmailer Configuration
 swiftmailer:

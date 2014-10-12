@@ -50,6 +50,10 @@
                 <source>Call List</source>
                 <target>Сводный отчет</target>
             </trans-unit>
+            <trans-unit id="Ats Call Data List">
+                <source>Ats Call Data List</source>
+                <target>Отчет по звонкам</target>
+            </trans-unit>
         </body>
     </file>
 </xliff>

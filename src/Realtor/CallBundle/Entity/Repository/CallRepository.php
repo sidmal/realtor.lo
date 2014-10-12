@@ -157,6 +157,18 @@ class CallRepository extends EntityRepository
                 if($field == 'call.eventAt'){
                     $group_by[] = 'event_at';
                 }
+                elseif($field == 'week'){
+                    $group_by[] = 'week';
+                }
+                elseif($field == 'month'){
+                    $group_by[] = 'month';
+                }
+                elseif($field == 'quarter'){
+                    $group_by[] = 'quarter';
+                }
+                elseif($field == 'year'){
+                    $group_by[] = 'year';
+                }
                 else{
                     $group_by[] = $field;
                 }
@@ -166,6 +178,26 @@ class CallRepository extends EntityRepository
                 $fields[$key] = 'DATE(call.eventAt) AS event_at';
 
                 $builder->addOrderBy(new OrderBy('event_at', 'asc'));
+            }
+            elseif($field == 'week'){
+                $fields[$key] = 'WEEK(call.eventAt) AS week';
+
+                $builder->addOrderBy(new OrderBy('week', 'asc'));
+            }
+            elseif($field == 'month'){
+                $fields[$key] = 'MONTH(call.eventAt) AS month';
+
+                $builder->addOrderBy(new OrderBy('month', 'asc'));
+            }
+            elseif($field == 'quarter'){
+                $fields[$key] = 'QUARTER(call.eventAt) AS quarter';
+
+                $builder->addOrderBy(new OrderBy('quarter', 'asc'));
+            }
+            elseif($field == 'year'){
+                $fields[$key] = 'YEAR(call.eventAt) AS year';
+
+                $builder->addOrderBy(new OrderBy('year', 'asc'));
             }
             elseif($field == 'call_params_advertising_source.name'){
                 $fields[$key] = 'call_params_advertising_source.name AS advertising_source_name';
@@ -188,6 +220,32 @@ class CallRepository extends EntityRepository
         foreach($group_by as $group_by_item){
             if($group_by_item == 'call.eventAt'){
                 $group_by_item = 'event_at';
+            }
+
+            if($group_by_item == 'week'){
+                $fields[] = 'WEEK(call.eventAt) AS week';
+
+                $builder->addOrderBy(new OrderBy('week', 'asc'));
+            }
+            elseif($group_by_item == 'month'){
+                $fields[] = 'MONTH(call.eventAt) AS month';
+
+                $builder->addOrderBy(new OrderBy('month', 'asc'));
+            }
+            elseif($group_by_item == 'quarter'){
+                $fields[] = 'QUARTER(call.eventAt) AS quarter';
+
+                $builder->addOrderBy(new OrderBy('quarter', 'asc'));
+            }
+            elseif($group_by_item == 'year'){
+                $fields[] = 'YEAR(call.eventAt) AS year';
+
+                $builder->addOrderBy(new OrderBy('year', 'asc'));
+            }
+            elseif($group_by_item == 'event_at'){
+                $fields[] = 'DATE(call.eventAt) AS event_at';
+
+                $builder->addOrderBy(new OrderBy('event_at', 'asc'));
             }
 
             $builder->addGroupBy($group_by_item);
@@ -229,6 +287,18 @@ class CallRepository extends EntityRepository
                             elseif($field == 'COUNT(call.id) AS cnt'){
                                 $field = 'cnt';
                             }
+                            elseif($field == 'WEEK(call.eventAt) AS week'){
+                                $field = 'week';
+                            }
+                            elseif($field == 'MONTH(call.eventAt) AS month'){
+                                $field = 'month';
+                            }
+                            elseif($field == 'QUARTER(call.eventAt) AS quarter'){
+                                $field = 'quarter';
+                            }
+                            elseif($field == 'YEAR(call.eventAt) AS year'){
+                                $field = 'year';
+                            }
                             else{
                                 $field = explode('.', $field)[1];
                             }
@@ -251,8 +321,22 @@ class CallRepository extends EntityRepository
                         elseif($group_by[0] == 'call_params_callers.name'){
                             $group = 'callers_name';
                         }
+                        elseif($group_by[0] == 'week'){
+                            $group = 'week';
+                        }
+                        elseif($group_by[0] == 'month'){
+                            $group = 'month';
+                        }
+                        elseif($group_by[0] == 'quarter'){
+                            $group = 'quarter';
+                        }
+                        elseif($group_by[0] == 'year'){
+                            $group = 'year';
+                        }
 
-                        unset($result_item[$group]);
+                        if(isset($group)) {
+                            unset($result_item[$group]);
+                        }
 
                         $result[$item[$group]][] = $result_item;
                     }
