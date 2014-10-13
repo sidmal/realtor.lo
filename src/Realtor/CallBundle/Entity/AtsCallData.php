@@ -34,7 +34,7 @@ class AtsCallData
     /**
      * @var integer
      *
-     * @ORM\Column(name="nrec", type="bigint", unique=true)
+     * @ORM\Column(name="nrec", type="bigint")
      */
     private $nrec;
 
